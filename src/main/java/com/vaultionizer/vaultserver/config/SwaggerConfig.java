@@ -17,8 +17,6 @@ import springfox.documentation.swagger2.annotations.EnableSwagger2;
 import java.util.ArrayList;
 import java.util.List;
 
-import static java.util.Collections.emptyList;
-
 @Configuration
 @EnableSwagger2
 public class SwaggerConfig {
@@ -26,8 +24,7 @@ public class SwaggerConfig {
     @Bean
     public Docket api() {
         return new Docket(DocumentationType.SWAGGER_2).select()
-                .apis(RequestHandlerSelectors
-                        .basePackage("Basepackage"))
+                .apis(RequestHandlerSelectors.any())
                 .paths(PathSelectors.any())
                 .build()
                 .apiInfo(apiInfo);
@@ -45,7 +42,7 @@ public class SwaggerConfig {
                 "A safe space for everybody that seeks after privacy.",
                 "1.0.0",
                 "None",
-                new Contact("Julien Meier", "https://www.vaultionizer.com", "contact@vaultionizer.com"),
+                new Contact("Julien Meier", "https://vaultionizer.com/", "contact@vaultionizer.com"),
                 "ODC DbCL v1.0 License",
                 "https://opendatacommons.org/licenses/dbcl/1.0/",
                 new ArrayList<>()

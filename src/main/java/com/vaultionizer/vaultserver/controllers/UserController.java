@@ -9,6 +9,8 @@ import com.vaultionizer.vaultserver.model.dto.RegisterUserResponseDto;
 import com.vaultionizer.vaultserver.resource.UserRepository;
 import com.vaultionizer.vaultserver.service.SessionService;
 import com.vaultionizer.vaultserver.service.SpaceService;
+import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.ApiResponses;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -29,21 +31,18 @@ public class UserController {
         this.spaceService = spaceService;
     }
 
+    @RequestMapping(value = "createUser", method = RequestMethod.POST)
     @PostMapping("/api/users/create")
-//    @ApiResponses(
-//            ApiResponse(code = 404, message = "Infected not found")
-//    )
-//    @ApiOperation("Pushes a new history item to the database")
+    @ApiOperation("Creates a new user, a new private space and adds a session.")
     @ResponseBody RegisterUserResponseDto
     createUser(@RequestBody RegisterUserDto req){
-        System.out.println(req.getRefFile());
-        System.out.println(req.getKey());
         UserModel userModel = userRepository.save(new UserModel(req.getKey()));
         spaceService.addPrivateSpace(userModel.getId(), req.getRefFile());
         SessionModel sessionModel = sessionService.addSession(userModel.getId());
         return new RegisterUserResponseDto(userModel.getId(), sessionModel.getSessionKey());
     }
 
+    @RequestMapping(value = "loginUser", method = RequestMethod.POST)
     @PostMapping("/api/users/login")
     @ResponseBody
     ResponseEntity<?>

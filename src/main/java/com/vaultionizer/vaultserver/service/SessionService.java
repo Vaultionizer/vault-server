@@ -25,9 +25,7 @@ public class SessionService {
         do
         {
             session = new SessionModel(userID);
-
         } while(sessionRepository.getSessionModelByKey(session.getSessionKey()).size() > 0);
-        System.out.println(session.getSessionKey());
         return sessionRepository.save(session);
     }
 
