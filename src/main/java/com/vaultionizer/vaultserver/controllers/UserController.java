@@ -1,6 +1,8 @@
 package com.vaultionizer.vaultserver.controllers;
 
-import com.vaultionizer.vaultserver.model.UserModel;
+import com.vaultionizer.vaultserver.model.db.UserModel;
+import com.vaultionizer.vaultserver.model.dto.RegisterUserDto;
+import com.vaultionizer.vaultserver.model.dto.RegisterUserResponseDto;
 import com.vaultionizer.vaultserver.resource.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -29,8 +31,13 @@ public class UserController {
         ));
     }
 
-    @PostMapping("/user/save")
-    UserModel save(@RequestBody UserModel user){
-        return this.userRepository.save(user);
+    @PostMapping("/api/users/create")
+//    @ApiResponses(
+//            ApiResponse(code = 404, message = "Infected not found")
+//    )
+//    @ApiOperation("Pushes a new history item to the database")
+    RegisterUserResponseDto createUser(@RequestBody RegisterUserDto req){
+
+        return null;
     }
 }

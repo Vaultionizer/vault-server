@@ -1,4 +1,4 @@
-package com.vaultionizer.vaultserver.model;
+package com.vaultionizer.vaultserver.model.db;
 
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
