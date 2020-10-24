@@ -7,6 +7,6 @@ import org.springframework.data.jpa.repository.Query;
 import java.util.Set;
 
 public interface SessionRepository extends JpaRepository<SessionModel, Long> {
-    @Query("SELECT it.userID FROM SessionModel it WHERE it.sessionKey = ?1")
-    Set<Long> getSessionModelByKey(String sessionKey);
+    @Query("SELECT it FROM SessionModel it WHERE it.sessionKey = ?1")
+    Set<SessionModel> getSessionModelByKey(String sessionKey);
 }

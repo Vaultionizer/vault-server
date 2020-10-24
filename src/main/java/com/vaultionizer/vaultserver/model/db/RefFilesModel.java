@@ -13,6 +13,13 @@ public class RefFilesModel {
 
     private String content;
 
+    public RefFilesModel() {
+    }
+
+    public RefFilesModel(String content) {
+        this.content = content;
+    }
+
     public Long getRefFileId() {
         return refFileId;
     }

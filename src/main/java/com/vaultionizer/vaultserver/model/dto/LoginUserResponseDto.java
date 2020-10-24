@@ -1,10 +1,10 @@
 package com.vaultionizer.vaultserver.model.dto;
 
-public class RegisterUserResponseDto {
+public class LoginUserResponseDto {
     private Long userID;
     private String sessionKey;
 
-    public RegisterUserResponseDto(Long userID, String sessionKey) {
+    public LoginUserResponseDto(Long userID, String sessionKey) {
         this.userID = userID;
         this.sessionKey = sessionKey;
     }

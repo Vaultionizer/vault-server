@@ -1,5 +1,7 @@
 package com.vaultionizer.vaultserver.model.db;
 
+import com.vaultionizer.vaultserver.helpers.SessionTokenGen;
+
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
@@ -20,9 +22,9 @@ public class SessionModel {
     public SessionModel() {
     }
 
-    public SessionModel(Long userID, String sessionKey) {
+    public SessionModel(Long userID) {
         this.userID = userID;
-        this.sessionKey = sessionKey;
+        this.sessionKey = SessionTokenGen.generateToken();
     }
 
     public Long getUserID() {
