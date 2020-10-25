@@ -31,8 +31,7 @@ public class UserController {
         this.spaceService = spaceService;
     }
 
-    @RequestMapping(value = "createUser", method = RequestMethod.POST)
-    @PostMapping("/api/users/create")
+    @RequestMapping(value = "/api/users/create", method = RequestMethod.POST)
     @ApiOperation("Creates a new user, a new private space and adds a session.")
     @ResponseBody RegisterUserResponseDto
     createUser(@RequestBody RegisterUserDto req){
@@ -42,10 +41,8 @@ public class UserController {
         return new RegisterUserResponseDto(userModel.getId(), sessionModel.getSessionKey());
     }
 
-    @RequestMapping(value = "loginUser", method = RequestMethod.POST)
-    @PostMapping("/api/users/login")
-    @ResponseBody
-    ResponseEntity<?>
+    @RequestMapping(value = "/api/users/login", method = RequestMethod.POST)
+    @ResponseBody ResponseEntity<?>
     loginUser(@RequestBody LoginUserDto req){
         if (userRepository.checkCredentials(req.getUserID(), req.getKey()) != 1){
             // no user has that id in combination with the key

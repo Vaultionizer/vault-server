@@ -5,6 +5,8 @@ import com.vaultionizer.vaultserver.resource.UserAccessRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.Set;
+
 @Service
 public class UserAccessService {
     private final UserAccessRepository userAccessRepository;
@@ -25,5 +27,10 @@ public class UserAccessService {
 
     public void deleteAllWithUser(Long spaceID){
 
+    }
+
+    // returns all spaceIDs a userID is associated with
+    public Set<Long> getAllWithUser(Long userID){
+        return userAccessRepository.getSpacesAccessible(userID);
     }
 }

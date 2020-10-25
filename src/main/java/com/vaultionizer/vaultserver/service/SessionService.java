@@ -25,17 +25,17 @@ public class SessionService {
         do
         {
             session = new SessionModel(userID);
-        } while(sessionRepository.getSessionModelByKey(session.getSessionKey()).size() > 0);
+        } while(sessionRepository.getSessionModelByKey(userID, session.getSessionKey()).size() > 0);
         return sessionRepository.save(session);
     }
 
-    public Long getSession(String sessionKey){
-        Set<SessionModel> sessions = sessionRepository.getSessionModelByKey(sessionKey);
+    public boolean getSession(Long userID, String sessionKey){
+        Set<SessionModel> sessions = sessionRepository.getSessionModelByKey(userID, sessionKey);
         if(sessions.size() == 1) {
             SessionModel sessionModel = sessions.stream().findFirst().get();
             updateSessionTimeStamp(sessionModel);
-            return sessionModel.getUserID();
+            return true;
         }
-        return null;
+        return false;
     }
 }
