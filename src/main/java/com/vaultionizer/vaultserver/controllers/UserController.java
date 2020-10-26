@@ -20,8 +20,8 @@ import org.springframework.web.bind.annotation.*;
 public class UserController {
 
     private final UserRepository userRepository;
-    private SessionService sessionService;
-    private SpaceService spaceService;
+    private final SessionService sessionService;
+    private final SpaceService spaceService;
 
 
     @Autowired
@@ -33,12 +33,16 @@ public class UserController {
 
     @RequestMapping(value = "/api/users/create", method = RequestMethod.POST)
     @ApiOperation("Creates a new user, a new private space and adds a session.")
-    @ResponseBody RegisterUserResponseDto
+    @ResponseBody ResponseEntity<?>
     createUser(@RequestBody RegisterUserDto req){
+        if (req.getKey().length() < 64 || req.getRefFile().length() == 0){
+            return new ResponseEntity<>(null, HttpStatus.BAD_REQUEST);
+        }
         UserModel userModel = userRepository.save(new UserModel(req.getKey()));
         spaceService.addPrivateSpace(userModel.getId(), req.getRefFile());
         SessionModel sessionModel = sessionService.addSession(userModel.getId());
-        return new RegisterUserResponseDto(userModel.getId(), sessionModel.getSessionKey());
+        return new ResponseEntity<>(new RegisterUserResponseDto(userModel.getId(), sessionModel.getSessionKey()),
+                HttpStatus.CREATED);
     }
 
     @RequestMapping(value = "/api/users/login", method = RequestMethod.POST)

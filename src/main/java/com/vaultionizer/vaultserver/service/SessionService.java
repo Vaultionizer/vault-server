@@ -17,7 +17,8 @@ public class SessionService {
     }
 
     private void updateSessionTimeStamp(SessionModel model){
-        // TODO: update timestamp in model and write to db
+        model.update();
+        sessionRepository.save(model);
     }
 
     public SessionModel addSession(Long userID){
