@@ -37,12 +37,12 @@ public class SwaggerConfig {
         return new LinkDiscoverers(SimplePluginRegistry.create(plugins));
     }
 
-    ApiInfo apiInfo = new ApiInfo( // TODO: work on that
+    private static final ApiInfo apiInfo = new ApiInfo( // TODO: work on that
                 "Vaultionizer API",
                 "A safe space for everybody that seeks after privacy.",
                 "1.0.0",
                 "None",
-                new Contact("Julien Meier", "https://vaultionizer.com/", "contact@vaultionizer.com"),
+                new Contact("Team Vaultionizer", "https://vaultionizer.com/", "contact@vaultionizer.com"),
                 "ODC DbCL v1.0 License",
                 "https://opendatacommons.org/licenses/dbcl/1.0/",
                 new ArrayList<>()
