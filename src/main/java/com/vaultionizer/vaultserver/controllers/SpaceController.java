@@ -17,7 +17,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.ArrayList;
 
-@Api(value = "/api/spaces", description = "Controller that manages spaces.")
+@Api(value = "/api/spaces/", description = "Controller that manages spaces.")
 @RestController
 public class SpaceController {
     private final SpaceRepository spaceRepository;

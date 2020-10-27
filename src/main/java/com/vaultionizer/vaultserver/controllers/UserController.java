@@ -9,6 +9,7 @@ import com.vaultionizer.vaultserver.model.dto.RegisterUserResponseDto;
 import com.vaultionizer.vaultserver.resource.UserRepository;
 import com.vaultionizer.vaultserver.service.SessionService;
 import com.vaultionizer.vaultserver.service.SpaceService;
+import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
@@ -18,6 +19,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
+@Api(value = "/api/users/", description = "Controller that manages user interaction.")
 public class UserController {
 
     private final UserRepository userRepository;
