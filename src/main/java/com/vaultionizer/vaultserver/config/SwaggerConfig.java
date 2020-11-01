@@ -6,6 +6,7 @@ import org.springframework.hateoas.client.LinkDiscoverer;
 import org.springframework.hateoas.client.LinkDiscoverers;
 import org.springframework.hateoas.mediatype.collectionjson.CollectionJsonLinkDiscoverer;
 import org.springframework.plugin.core.SimplePluginRegistry;
+import org.springframework.web.bind.annotation.RestController;
 import springfox.documentation.builders.PathSelectors;
 import springfox.documentation.builders.RequestHandlerSelectors;
 import springfox.documentation.service.ApiInfo;
@@ -24,7 +25,7 @@ public class SwaggerConfig {
     @Bean
     public Docket api() {
         return new Docket(DocumentationType.SWAGGER_2).select()
-                .apis(RequestHandlerSelectors.any())
+                .apis(RequestHandlerSelectors.withClassAnnotation(RestController.class))
                 .paths(PathSelectors.any())
                 .build()
                 .apiInfo(apiInfo);
@@ -37,12 +38,12 @@ public class SwaggerConfig {
         return new LinkDiscoverers(SimplePluginRegistry.create(plugins));
     }
 
-    ApiInfo apiInfo = new ApiInfo( // TODO: work on that
+    private static final ApiInfo apiInfo = new ApiInfo( // TODO: work on that
                 "Vaultionizer API",
                 "A safe space for everybody that seeks after privacy.",
                 "1.0.0",
                 "None",
-                new Contact("Julien Meier", "https://vaultionizer.com/", "contact@vaultionizer.com"),
+                new Contact("Team Vaultionizer", "https://vaultionizer.com/", "contact@vaultionizer.com"),
                 "ODC DbCL v1.0 License",
                 "https://opendatacommons.org/licenses/dbcl/1.0/",
                 new ArrayList<>()

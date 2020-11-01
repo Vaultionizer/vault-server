@@ -9,7 +9,9 @@ import com.vaultionizer.vaultserver.model.dto.RegisterUserResponseDto;
 import com.vaultionizer.vaultserver.resource.UserRepository;
 import com.vaultionizer.vaultserver.service.SessionService;
 import com.vaultionizer.vaultserver.service.SpaceService;
+import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -17,6 +19,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
+@Api(value = "/api/users/", description = "Controller that manages user interaction.")
 public class UserController {
 
     private final UserRepository userRepository;
@@ -32,7 +35,12 @@ public class UserController {
     }
 
     @RequestMapping(value = "/api/users/create", method = RequestMethod.POST)
-    @ApiOperation("Creates a new user, a new private space and adds a session.")
+    @ApiOperation(value = "Creates a new user, a new private space and adds a session.",
+            response = RegisterUserResponseDto.class)
+    @ApiResponses(value = {
+            @ApiResponse(code = 201, message = "The user was created successfully. The response is a session key and the newly created user's ID."),
+            @ApiResponse(code = 400, message = "The values for key or the reference file does not match the constraints."),
+    })
     @ResponseBody ResponseEntity<?>
     createUser(@RequestBody RegisterUserDto req){
         if (req.getKey().length() < 64 || req.getRefFile().length() == 0){
@@ -46,6 +54,12 @@ public class UserController {
     }
 
     @RequestMapping(value = "/api/users/login", method = RequestMethod.POST)
+    @ApiOperation(value = "Logs the user in and returns a session.",
+            response = LoginUserResponseDto.class)
+    @ApiResponses(value = {
+            @ApiResponse(code = 200, message = "The user was signed in successfully. The response is a session key."),
+            @ApiResponse(code = 401, message = "The user authorization failed."),
+    })
     @ResponseBody ResponseEntity<?>
     loginUser(@RequestBody LoginUserDto req){
         if (userRepository.checkCredentials(req.getUserID(), req.getKey()) != 1){
@@ -54,7 +68,7 @@ public class UserController {
         }
         SessionModel model = sessionService.addSession(req.getUserID());
 
-        return new ResponseEntity<LoginUserResponseDto>(
+        return new ResponseEntity<>(
                 new LoginUserResponseDto(req.getUserID(), model.getSessionKey()),
                 HttpStatus.OK);
     }
