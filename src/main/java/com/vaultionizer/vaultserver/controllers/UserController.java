@@ -1,5 +1,6 @@
 package com.vaultionizer.vaultserver.controllers;
 
+import com.vaultionizer.vaultserver.helpers.Config;
 import com.vaultionizer.vaultserver.model.db.SessionModel;
 import com.vaultionizer.vaultserver.model.db.UserModel;
 import com.vaultionizer.vaultserver.model.dto.LoginUserDto;
@@ -26,7 +27,6 @@ public class UserController {
     private final SessionService sessionService;
     private final SpaceService spaceService;
 
-
     @Autowired
     public UserController(UserRepository userRepository, SessionService sessionService, SpaceService spaceService) {
         this.userRepository = userRepository;
@@ -43,7 +43,8 @@ public class UserController {
     })
     @ResponseBody ResponseEntity<?>
     createUser(@RequestBody RegisterUserDto req){
-        if (req.getKey().length() < 64 || req.getRefFile().length() == 0){
+        if (req.getKey() == null || req.getRefFile() == null ||
+                req.getKey().length() < Config.minUserKeyLength || req.getRefFile().length() == 0){
             return new ResponseEntity<>(null, HttpStatus.BAD_REQUEST);
         }
         UserModel userModel = userRepository.save(new UserModel(req.getKey()));

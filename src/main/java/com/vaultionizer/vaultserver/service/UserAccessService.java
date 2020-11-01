@@ -33,4 +33,8 @@ public class UserAccessService {
     public Set<Long> getAllWithUser(Long userID){
         return userAccessRepository.getSpacesAccessible(userID);
     }
+
+    public boolean userHasAccess(Long userID, Long spaceID){
+        return userAccessRepository.hasAccess(userID, spaceID) == 1;
+    }
 }

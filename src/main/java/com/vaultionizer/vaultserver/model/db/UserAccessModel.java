@@ -4,9 +4,6 @@ import javax.persistence.*;
 import javax.validation.constraints.NotNull;
 
 @Entity
-@Table(name = "USERACCESSMODEL", uniqueConstraints={
-        @UniqueConstraint( name = "unique_id_pair",  columnNames ={"userID","spaceID"})
-})
 public class UserAccessModel {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
