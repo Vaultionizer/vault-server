@@ -24,7 +24,6 @@ public class SessionModel {
     @NotBlank(message = "Session key cannot be blank!")
     private String sessionKey;
 
-
     @PastOrPresent(message = "Last query cannot possibly be in the future!")
     private Long lastQuery;
 
