@@ -19,6 +19,11 @@ public class RefFilesModel {
     public RefFilesModel() {
     }
 
+    public RefFilesModel(Long refFileId, @NotNull(message = "Reference file's content cannot be null!") String content) {
+        this.refFileId = refFileId;
+        this.content = content;
+    }
+
     public RefFilesModel(String content) {
         this.content = content;
     }

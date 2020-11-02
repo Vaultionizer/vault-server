@@ -34,6 +34,12 @@ public class SessionModel {
         this.lastQuery = new Timestamp(System.currentTimeMillis());
     }
 
+    public SessionModel(Long userID, String sessionKey) { // for testing purposes
+        this.userID = userID;
+        this.sessionKey = sessionKey;
+        this.lastQuery = new Timestamp(System.currentTimeMillis());
+    }
+
     public Long getUserID() {
         return userID;
     }

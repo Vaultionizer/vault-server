@@ -4,6 +4,11 @@ public class SpaceAuthKeyDto {
     private GenericAuthDto auth;
     private Long spaceID;
 
+    public SpaceAuthKeyDto(GenericAuthDto auth, Long spaceID) {
+        this.auth = auth;
+        this.spaceID = spaceID;
+    }
+
     public GenericAuthDto getAuth() {
         return auth;
     }

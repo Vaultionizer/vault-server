@@ -27,6 +27,14 @@ public class SpaceModel {
     public SpaceModel() {
     }
 
+    public SpaceModel(Long spaceID, Long creatorID, Long refFileID, boolean isPrivateSpace, String authKey) {
+        this.spaceID = spaceID;
+        this.creatorID = creatorID;
+        this.refFileID = refFileID;
+        this.isPrivateSpace = isPrivateSpace;
+        this.authKey = authKey;
+    }
+
     public SpaceModel(Long creatorID, Long refFileID, boolean isPrivateSpace, String authKey) {
         this.creatorID = creatorID;
         this.refFileID = refFileID;

@@ -5,6 +5,11 @@ public class GenericAuthDto {
     private long userID;
     private String sessionKey;
 
+    public GenericAuthDto(long userID, String sessionKey) {
+        this.userID = userID;
+        this.sessionKey = sessionKey;
+    }
+
     public long getUserID() {
         return userID;
     }
@@ -12,4 +17,5 @@ public class GenericAuthDto {
     public String getSessionKey() {
         return sessionKey;
     }
+
 }

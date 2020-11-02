@@ -2,6 +2,7 @@ package com.vaultionizer.vaultserver.controllers;
 
 import com.vaultionizer.vaultserver.model.db.SessionModel;
 import com.vaultionizer.vaultserver.model.db.UserModel;
+import com.vaultionizer.vaultserver.model.dto.LoginUserResponseDto;
 import com.vaultionizer.vaultserver.model.dto.RegisterUserResponseDto;
 import com.vaultionizer.vaultserver.resource.SessionRepository;
 import com.vaultionizer.vaultserver.resource.UserRepository;
@@ -41,14 +42,25 @@ public class UserControllerTest {
         userRepository = Mockito.mock(UserRepository.class);
         spaceService = Mockito.mock(SpaceService.class);
         sessionService = Mockito.mock(SessionService.class);
+
         Mockito.when(userRepository.save(any(UserModel.class)))
                 .thenReturn(new UserModel(1L, UserTestData.registerResponses[0].getSessionKey()));
+        Mockito.when(userRepository.checkCredentials(UserTestData.loginUser[0].getUserID(), UserTestData.loginUser[0].getKey()))
+                .thenReturn(0L);
+        Mockito.when(userRepository.checkCredentials(UserTestData.loginUser[1].getUserID(), UserTestData.loginUser[1].getKey()))
+                .thenReturn(1L);
+
         Mockito.when(sessionService.addSession(1L))
                 .thenReturn(new SessionModel(1L, 1L, UserTestData.registerResponses[0].getSessionKey(), null));
+
+        Mockito.when(sessionService.addSession(2L))
+                .thenReturn(new SessionModel(2L, "testSession"));
+
         userController = new UserController(userRepository, sessionService, spaceService);
     }
 
 
+    // testing register controller
     @Test
     @DisplayName("Tests create user with key and ref file being null.")
     public void createUserKeyRefFileNull(){
@@ -78,6 +90,23 @@ public class UserControllerTest {
         Assertions.assertTrue(res.hasBody());
         Assertions.assertEquals(((RegisterUserResponseDto)(Objects.requireNonNull(res.getBody()))).getUserID(), 1);
         Assertions.assertEquals(((RegisterUserResponseDto)(Objects.requireNonNull(res.getBody()))).getSessionKey(), "testSessionKey");
+    }
+
+    // testing login method
+    @Test
+    @DisplayName("Tests login with wrong key")
+    public void loginUserWrongKey(){
+        ResponseEntity<?> res = userController.loginUser(UserTestData.loginUser[0]);
+        Assertions.assertEquals(res.getStatusCodeValue(), 401);
+    }
+
+    @Test
+    @DisplayName("Tests login with correct key")
+    public void loginUser(){
+        ResponseEntity<?> res = userController.loginUser(UserTestData.loginUser[1]);
+        Assertions.assertEquals(res.getStatusCodeValue(), 200);
+        Assertions.assertTrue(res.hasBody());
+        Assertions.assertEquals(((LoginUserResponseDto)(Objects.requireNonNull(res.getBody()))).getSessionKey(), "testSession");
     }
 
 }

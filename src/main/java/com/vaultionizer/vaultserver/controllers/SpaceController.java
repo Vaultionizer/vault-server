@@ -102,7 +102,7 @@ public class SpaceController {
             @ApiResponse(code = 403, message = "Either the space with given ID does not exist, it is private or the authorization key is wrong.")
     })
     @ResponseBody ResponseEntity<?>
-    joinSpace(@RequestBody SpaceAuthKeyDto req){
+    getAuthKey(@RequestBody SpaceAuthKeyDto req){
         if (!sessionService.getSession(req.getAuth().getUserID(), req.getAuth().getSessionKey())){
             return new ResponseEntity<>(null, HttpStatus.UNAUTHORIZED);
         }
