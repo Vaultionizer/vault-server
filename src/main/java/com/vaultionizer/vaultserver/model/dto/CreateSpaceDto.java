@@ -21,4 +21,11 @@ public class CreateSpaceDto {
     public String getReferenceFile() {
         return referenceFile;
     }
+
+    public CreateSpaceDto(GenericAuthDto auth, boolean isPrivate, String authKey, String referenceFile) {
+        this.auth = auth;
+        this.isPrivate = isPrivate;
+        this.authKey = authKey;
+        this.referenceFile = referenceFile;
+    }
 }

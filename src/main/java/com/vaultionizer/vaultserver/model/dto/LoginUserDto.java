@@ -11,4 +11,9 @@ public class LoginUserDto {
     public String getKey() {
         return key;
     }
+
+    public LoginUserDto(Long userID, String key) {
+        this.userID = userID;
+        this.key = key;
+    }
 }

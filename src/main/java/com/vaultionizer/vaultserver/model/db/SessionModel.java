@@ -1,9 +1,6 @@
 package com.vaultionizer.vaultserver.model.db;
 
 import com.vaultionizer.vaultserver.helpers.SessionTokenGen;
-import org.hibernate.annotations.UpdateTimestamp;
-
-
 import javax.persistence.*;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
@@ -25,7 +22,7 @@ public class SessionModel {
     private String sessionKey;
 
     @PastOrPresent(message = "Last query cannot possibly be in the future!")
-    private Long lastQuery;
+    private Timestamp lastQuery;
 
 
     public SessionModel() {
@@ -34,7 +31,13 @@ public class SessionModel {
     public SessionModel(Long userID) {
         this.userID = userID;
         this.sessionKey = SessionTokenGen.generateToken();
-        this.lastQuery = System.currentTimeMillis();
+        this.lastQuery = new Timestamp(System.currentTimeMillis());
+    }
+
+    public SessionModel(Long userID, String sessionKey) { // for testing purposes
+        this.userID = userID;
+        this.sessionKey = sessionKey;
+        this.lastQuery = new Timestamp(System.currentTimeMillis());
     }
 
     public Long getUserID() {
@@ -46,6 +49,13 @@ public class SessionModel {
     }
 
     public void update(){
-        this.lastQuery = System.currentTimeMillis();
+        this.lastQuery = new Timestamp(System.currentTimeMillis());
+    }
+
+    public SessionModel(Long id, Long userID, String sessionKey, Timestamp lastQuery) {
+        this.id = id;
+        this.userID = userID;
+        this.sessionKey = sessionKey;
+        this.lastQuery = lastQuery;
     }
 }

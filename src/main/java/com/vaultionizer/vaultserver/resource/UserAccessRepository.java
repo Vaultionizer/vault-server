@@ -9,4 +9,7 @@ import java.util.Set;
 public interface UserAccessRepository extends JpaRepository<UserAccessModel, Long> {
     @Query("SELECT it.spaceID FROM UserAccessModel it WHERE it.userID = ?1")
     Set<Long> getSpacesAccessible(Long userID);
+
+    @Query("SELECT COUNT(it) FROM UserAccessModel it WHERE it.userID = ?1 AND it.spaceID = ?2")
+    Long hasAccess(Long userID, Long spaceID);
 }

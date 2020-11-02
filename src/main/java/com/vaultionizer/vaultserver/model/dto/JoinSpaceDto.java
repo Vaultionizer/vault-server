@@ -9,6 +9,12 @@ public class JoinSpaceDto {
         return auth;
     }
 
+    public JoinSpaceDto(GenericAuthDto auth, Long spaceID, String authKey) {
+        this.auth = auth;
+        this.spaceID = spaceID;
+        this.authKey = authKey;
+    }
+
     public Long getSpaceID() {
         return spaceID;
     }

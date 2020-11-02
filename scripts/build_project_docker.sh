@@ -6,7 +6,7 @@ echo "installing dependencies..."
 mvn clean install -o > /home/vaultionizer/log_install.txt
 echo "Finished installing dependencies."
 echo "Packaging project"
-mvn package  -Dmaven.test.skip=true
+mvn package
 
 mv target/*jar ../vaultionizer_server.jar
 cd ..
