@@ -11,7 +11,10 @@ import org.springframework.data.jpa.repository.config.EnableJpaAuditing;
 public class VaultserverApplication {
 
 	public static void main(String[] args) {
-		SpringApplication.run(VaultserverApplication.class, args);
+		SpringApplication app = new SpringApplication(VaultserverApplication.class);
+		app.setAdditionalProfiles("ssl");
+		app.run(args);
+
 	}
 
 }
