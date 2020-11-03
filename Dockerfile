@@ -7,5 +7,5 @@ RUN bash build_project.sh
 
 FROM openjdk:14-alpine
 COPY --from=mavenImage /home/vaultionizer/vaultionizer_server.jar /home/vaultionizer/vaultionizer_server.jar
-EXPOSE 8080
+EXPOSE 443
 ENTRYPOINT ["java", "-jar", "/home/vaultionizer/vaultionizer_server.jar"]
