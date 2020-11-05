@@ -17,4 +17,7 @@ public interface SpaceRepository extends JpaRepository<SpaceModel, Long> {
             "FROM SpaceModel it WHERE it.spaceID = ?1 AND it.isPrivateSpace = false")
     Optional<SpaceAuthKeyResponseDto> getSpaceAuthKey(Long spaceID);
 
+
+    @Query("SELECT it.refFileID FROM SpaceModel it WHERE it.spaceID = ?1")
+    Optional<Long> getRefFileID(Long spaceID);
 }

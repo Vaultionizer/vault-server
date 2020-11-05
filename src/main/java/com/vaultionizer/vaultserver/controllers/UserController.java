@@ -43,6 +43,7 @@ public class UserController {
     })
     @ResponseBody ResponseEntity<?>
     createUser(@RequestBody RegisterUserDto req){
+        System.out.println("Hallo");
         if (req.getKey() == null || req.getRefFile() == null ||
                 req.getKey().length() < Config.MIN_USER_KEY_LENGTH || req.getRefFile().length() == 0){
             return new ResponseEntity<>(null, HttpStatus.BAD_REQUEST);

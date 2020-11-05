@@ -40,6 +40,10 @@ public class SessionModel {
         this.lastQuery = new Timestamp(System.currentTimeMillis());
     }
 
+    public Long getId() {
+        return id;
+    }
+
     public Long getUserID() {
         return userID;
     }

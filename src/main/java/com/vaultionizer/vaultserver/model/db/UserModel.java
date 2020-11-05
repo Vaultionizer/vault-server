@@ -11,7 +11,6 @@ import javax.validation.constraints.NotNull;
 
 @Entity(name = "users")
 public class UserModel {
-
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
