@@ -51,7 +51,7 @@ public class UserControllerTest {
                 .thenReturn(1L);
 
         Mockito.when(sessionService.addSession(1L))
-                .thenReturn(new SessionModel(1L, 1L, UserTestData.registerResponses[0].getSessionKey(), null));
+                .thenReturn(new SessionModel(1L, 1L, UserTestData.registerResponses[0].getSessionKey(), "", null));
 
         Mockito.when(sessionService.addSession(2L))
                 .thenReturn(new SessionModel(2L, "testSession"));

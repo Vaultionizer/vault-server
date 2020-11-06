@@ -21,4 +21,13 @@ public class PendingUploadService {
             this.pendingUploadRepository.save(model);
         }
     }
+
+    public boolean uploadFile(Long spaceID, Long sessionID, Long saveIndex){
+        var model = pendingUploadRepository.findItem(spaceID, sessionID, saveIndex);
+        if (model != null){
+            pendingUploadRepository.delete(model);
+            return true;
+        }
+        return false;
+    }
 }

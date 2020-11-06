@@ -9,4 +9,9 @@ public class Config {
             "Vaultionizer v0.1",
             "No maintainer"
     );
+
+    public static final String WEBSOCKET_PREFIX = "/api/ws";
+    public static final String WEBSOCKET_RES = "/api/wsres";
+
+    public static final String SPACE_PATH = "/home/vaultionizer/spaces/";
 }

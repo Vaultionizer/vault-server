@@ -26,7 +26,7 @@ public class SessionService {
         do
         {
             session = new SessionModel(userID);
-        } while(sessionRepository.getSessionModelByKey(userID, session.getSessionKey()).size() > 0);
+        } while(sessionRepository.checkUnique(session.getWebSocketToken(), session.getSessionKey()) > 0);
         return sessionRepository.save(session);
     }
 

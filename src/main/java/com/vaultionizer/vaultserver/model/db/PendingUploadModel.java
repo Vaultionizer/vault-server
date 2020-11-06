@@ -23,10 +23,9 @@ public class PendingUploadModel {
     @Min(value = 0, message = "SaveIndex cannot be below zero...")
     private Long saveIndex;
 
-
     @NotNull(message = "SessionID that is permitted to do the upload cannot be null!")
     @Min(value = 0, message = "PermittedSessionID cannot be below zero...")
-    private Long permittedSessionID; // not the token but the id
+    private Long permittedSessionID; // not the token but the id of the session
 
     @PastOrPresent(message = "The upload cannot possibly have been requested in the future!")
     private Timestamp requested;
