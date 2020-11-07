@@ -5,15 +5,21 @@ name: Run tests in docker container
 
 on:
   push:
-    branches: [ develop ]
+    branches: [ develop | master ]
   pull_request:
-    branches: [ develop ]
+    branches: [ develop | master ]
 
 jobs:
   build:
-
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
+        name: Cache local Maven repository
+      - uses: actions/cache@v2
+        with:
+          path: ~/.m2/repository
+          key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
+          restore-keys: | 
+            ${{ runner.os }}-maven-
       - name: Run docker
         run: docker-compose build
