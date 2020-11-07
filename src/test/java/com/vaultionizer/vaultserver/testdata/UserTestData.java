@@ -18,7 +18,7 @@ public class UserTestData {
     };
 
     public static final RegisterUserResponseDto[] registerResponses = new RegisterUserResponseDto[]{
-            new RegisterUserResponseDto(1L, "testSessionKey")
+            new RegisterUserResponseDto(1L, "testSessionKey", "")
     };
 
     public static final LoginUserDto[] loginUser = new LoginUserDto[]{

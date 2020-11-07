@@ -50,7 +50,8 @@ public class UserController {
         UserModel userModel = userRepository.save(new UserModel(req.getKey()));
         spaceService.addPrivateSpace(userModel.getId(), req.getRefFile());
         SessionModel sessionModel = sessionService.addSession(userModel.getId());
-        return new ResponseEntity<>(new RegisterUserResponseDto(userModel.getId(), sessionModel.getSessionKey()),
+        return new ResponseEntity<>(
+                new RegisterUserResponseDto(userModel.getId(), sessionModel.getSessionKey(), sessionModel.getWebSocketToken()),
                 HttpStatus.CREATED);
     }
 
@@ -70,7 +71,7 @@ public class UserController {
         SessionModel model = sessionService.addSession(req.getUserID());
 
         return new ResponseEntity<>(
-                new LoginUserResponseDto(req.getUserID(), model.getSessionKey()),
+                new LoginUserResponseDto(req.getUserID(), model.getSessionKey(), model.getWebSocketToken()),
                 HttpStatus.OK);
     }
 

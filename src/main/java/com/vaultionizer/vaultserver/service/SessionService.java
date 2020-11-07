@@ -40,6 +40,11 @@ public class SessionService {
         return model == null ? -1L : model.getId();
     }
 
+    public String getSessionWebsocketToken(Long userID, String sessionKey){
+        SessionModel model = getSessionModel(userID, sessionKey);
+        return model == null ? null : model.getWebSocketToken();
+    }
+
     private SessionModel getSessionModel(Long userID, String sessionKey){
         Set<SessionModel> sessions = sessionRepository.getSessionModelByKey(userID, sessionKey);
         if(sessions.size() == 1) {

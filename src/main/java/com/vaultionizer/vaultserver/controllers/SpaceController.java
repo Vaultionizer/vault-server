@@ -43,7 +43,7 @@ public class SpaceController {
     )
     @ApiResponses(value = {
             @ApiResponse(code = 200, message = "The response contains all spaces the user has access to."),
-            @ApiResponse(code = 401, message = "The user either does not exist or the key is wrong. User is thus not authorized."),
+            @ApiResponse(code = 401, message = "The user either does not exist or the sessionKey is wrong. User is thus not authorized."),
     })
     @ResponseBody ResponseEntity<?>
     getAllSpaces(@RequestBody GenericAuthDto req){
@@ -60,7 +60,7 @@ public class SpaceController {
         response = Long.class)
     @ApiResponses(value = {
             @ApiResponse(code = 201, message = "The space was created successfully. The returned value is the space's ID."),
-            @ApiResponse(code = 401, message = "The user either does not exist or the key is wrong."),
+            @ApiResponse(code = 401, message = "The user either does not exist or the sessionKey is wrong."),
     })
     @ResponseBody ResponseEntity<?>
     createSpace(@RequestBody CreateSpaceDto req){
@@ -78,7 +78,7 @@ public class SpaceController {
     @ApiOperation(value = "Adds the user to the space.")
     @ApiResponses(value = {
             @ApiResponse(code = 200, message = "The user was successfully added to the space."),
-            @ApiResponse(code = 401, message = "The user either does not exist or the key is wrong. User is thus not authorized."),
+            @ApiResponse(code = 401, message = "The user either does not exist or the sessionKey is wrong. User is thus not authorized."),
             @ApiResponse(code = 403, message = "Either the space with given ID does not exist, it is private or the authorization key is wrong.")
     })
     @ResponseBody ResponseEntity<?>
@@ -99,7 +99,7 @@ public class SpaceController {
     @ApiOperation(value = "Adds the user to the space.")
     @ApiResponses(value = {
             @ApiResponse(code = 200, message = "The user was successfully added to the space."),
-            @ApiResponse(code = 401, message = "The user either does not exist or the key is wrong. User is thus not authorized."),
+            @ApiResponse(code = 401, message = "The user either does not exist or the sessionKey is wrong. User is thus not authorized."),
             @ApiResponse(code = 403, message = "Either the space with given ID does not exist, it is private or the authorization key is wrong.")
     })
     @ResponseBody ResponseEntity<?>

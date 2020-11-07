@@ -1,9 +1,5 @@
 package com.vaultionizer.vaultserver.config;
 
-import com.vaultionizer.vaultserver.model.dto.FileUploadWebsocketDto;
-import com.vaultionizer.vaultserver.model.dto.GenericAuthDto;
-import com.vaultionizer.vaultserver.service.SessionService;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.messaging.Message;
 import org.springframework.messaging.MessageChannel;
 import org.springframework.messaging.simp.stomp.StompCommand;

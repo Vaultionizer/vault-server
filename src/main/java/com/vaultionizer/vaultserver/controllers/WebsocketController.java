@@ -1,5 +1,6 @@
 package com.vaultionizer.vaultserver.controllers;
 
+import com.vaultionizer.vaultserver.helpers.Config;
 import com.vaultionizer.vaultserver.service.FileService;
 import com.vaultionizer.vaultserver.service.PendingUploadService;
 import com.vaultionizer.vaultserver.service.SessionService;
@@ -35,6 +36,7 @@ public class WebsocketController {
 
     @MessageMapping("/upload")
     public void upload(@Payload String content, Message<?> file, HttpServletResponse response){
+        // TODO: check how to send errors
         if (content == null) return;
         LinkedMultiValueMap<String, String> nativeHeaders = parseNativeHeaders(file.getHeaders().get("nativeHeaders"));
         if (nativeHeaders == null) return;
@@ -49,11 +51,17 @@ public class WebsocketController {
         Long sessID = sessionService.getSessionID(userID, sessionKey);
         if (sessID == -1) return;
         boolean granted = pendingUploadService.uploadFile(spaceID, sessID, saveIndex);
-
         if (!granted) return;
 
-        // TODO: lock the file now
+        fileService.setUploadFile(spaceID, saveIndex);
+
         fileService.writeToFile(content, spaceID, saveIndex);
+    }
+
+    public synchronized void download(String websocketToken, Long spaceID, Long saveIndex){
+        // TODO: check how to set headers (namely: spaceID and saveIndex)
+        simpMessagingTemplate.convertAndSend("/download/"+websocketToken,
+                fileService.makeDownload(spaceID, saveIndex));
     }
 
     private Long parseLongFromHeader(LinkedMultiValueMap<String, String> map, String key){
