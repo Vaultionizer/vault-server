@@ -21,6 +21,12 @@ public class SessionModel {
     @NotBlank(message = "Session key cannot be blank!")
     private String sessionKey;
 
+
+    @Column(unique = true)
+    @NotNull(message = "Session key cannot be null!")
+    @NotBlank(message = "Session key cannot be blank!")
+    private String webSocketToken;
+
     @PastOrPresent(message = "Last query cannot possibly be in the future!")
     private Timestamp lastQuery;
 
@@ -31,13 +37,19 @@ public class SessionModel {
     public SessionModel(Long userID) {
         this.userID = userID;
         this.sessionKey = SessionTokenGen.generateToken();
+        this.webSocketToken = SessionTokenGen.generateToken();
         this.lastQuery = new Timestamp(System.currentTimeMillis());
     }
 
     public SessionModel(Long userID, String sessionKey) { // for testing purposes
         this.userID = userID;
         this.sessionKey = sessionKey;
+        this.webSocketToken = SessionTokenGen.generateToken();
         this.lastQuery = new Timestamp(System.currentTimeMillis());
+    }
+
+    public Long getId() {
+        return id;
     }
 
     public Long getUserID() {
@@ -48,14 +60,20 @@ public class SessionModel {
         return sessionKey;
     }
 
+    public String getWebSocketToken() {
+        return webSocketToken;
+    }
+
     public void update(){
         this.lastQuery = new Timestamp(System.currentTimeMillis());
     }
 
-    public SessionModel(Long id, Long userID, String sessionKey, Timestamp lastQuery) {
+
+    public SessionModel(Long id, Long userID, String sessionKey, String webSocketToken, Timestamp lastQuery) {
         this.id = id;
         this.userID = userID;
         this.sessionKey = sessionKey;
+        this.webSocketToken = webSocketToken;
         this.lastQuery = lastQuery;
     }
 }

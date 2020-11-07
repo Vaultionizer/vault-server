@@ -38,6 +38,7 @@ public class SpaceService {
         userAccessService.addUserAccess(spaceModel.getSpaceID(), userID);
     }
 
+    // returns the spaces a user has access to
     public ArrayList<GetSpacesResponseDto> getSpacesAccessible(Long userID){
         ArrayList<GetSpacesResponseDto> spaces = new ArrayList<>();
         Set<Long> spaceIDs = userAccessService.getAllWithUser(userID);
@@ -50,7 +51,14 @@ public class SpaceService {
         return spaces;
     }
 
+    // checks whether a space's credentials equal the given ones.
     public boolean checkSpaceCredentials(Long spaceID, String authKey){
         return spaceRepository.checkJoinableWithCredentials(spaceID, authKey) == 1;
+    }
+
+    public Long getRefFileID(Long spaceID){
+        var id = this.spaceRepository.getRefFileID(spaceID);
+        if (id.isEmpty()) return -1L;
+        return id.get();
     }
 }

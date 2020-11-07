@@ -70,6 +70,7 @@ public class SpaceController {
         var refFile = refFileService.addNewRefFile(req.getReferenceFile());
         SpaceModel model = spaceRepository.save(new SpaceModel(req.getAuth().getUserID(), refFile.getRefFileId(),
                 req.isPrivate(), req.getAuthKey()));
+        userAccessService.addUserAccess(model.getSpaceID(), req.getAuth().getUserID());
         return new ResponseEntity<>(model.getSpaceID(), HttpStatus.CREATED);
     }
 
