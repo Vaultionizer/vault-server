@@ -31,3 +31,7 @@ build/
 
 ### VS Code ###
 .vscode/
+
+# do not upload keys
+vaultionizerServer.p12
+src/main/resources/keystore/*
