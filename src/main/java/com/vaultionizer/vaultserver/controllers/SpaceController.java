@@ -74,7 +74,7 @@ public class SpaceController {
         return new ResponseEntity<>(model.getSpaceID(), HttpStatus.CREATED);
     }
 
-    @RequestMapping(value = "/api/spaces/join", method = RequestMethod.POST)
+    @RequestMapping(value = "/api/spaces/join", method = RequestMethod.PUT)
     @ApiOperation(value = "Adds the user to the space.")
     @ApiResponses(value = {
             @ApiResponse(code = 200, message = "The user was successfully added to the space."),

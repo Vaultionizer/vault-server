@@ -88,7 +88,7 @@ public class FileController {
     }
 
 
-    @RequestMapping(value = "/api/file/download", method = RequestMethod.POST)
+    @RequestMapping(value = "/api/file/download", method = RequestMethod.PUT)
     @ApiOperation(value = "Requests to download a specific file.",
             response = Long.class
     )

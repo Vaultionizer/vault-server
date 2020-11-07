@@ -1,6 +1,7 @@
 package com.vaultionizer.vaultserver.controllers;
 
 import com.vaultionizer.vaultserver.helpers.Config;
+import com.vaultionizer.vaultserver.model.dto.WebsocketFileDto;
 import com.vaultionizer.vaultserver.service.FileService;
 import com.vaultionizer.vaultserver.service.PendingUploadService;
 import com.vaultionizer.vaultserver.service.SessionService;
@@ -35,9 +36,9 @@ public class WebsocketController {
     }
 
     @MessageMapping("/upload")
-    public void upload(@Payload String content, Message<?> file, HttpServletResponse response){
+    public void upload(@Payload WebsocketFileDto content, Message<?> file){
         // TODO: check how to send errors
-        if (content == null) return;
+        if (content == null || content.getContent() == null) return;
         LinkedMultiValueMap<String, String> nativeHeaders = parseNativeHeaders(file.getHeaders().get("nativeHeaders"));
         if (nativeHeaders == null) return;
 
@@ -55,12 +56,18 @@ public class WebsocketController {
 
         fileService.setUploadFile(spaceID, saveIndex);
 
-        fileService.writeToFile(content, spaceID, saveIndex);
+        boolean success = fileService.writeToFile(content.getContent(), spaceID, saveIndex);
+        if (!success) { reportError(userID, sessionKey, 500); }
+    }
+
+    private void reportError(Long userID, String sessionKey, int status){
+        System.out.println("Error");
     }
 
     public synchronized void download(String websocketToken, Long spaceID, Long saveIndex){
         // TODO: check how to set headers (namely: spaceID and saveIndex)
-        simpMessagingTemplate.convertAndSend("/download/"+websocketToken,
+        System.out.println(fileService.readFromFile(spaceID, saveIndex));
+        simpMessagingTemplate.convertAndSend( Config.WEBSOCKET_RES+"/download/"+websocketToken,
                 fileService.makeDownload(spaceID, saveIndex));
     }
 

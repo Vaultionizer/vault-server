@@ -19,6 +19,10 @@ public class RegisterUserResponseDto {
         return sessionKey;
     }
 
+    public String getWebsocketToken() {
+        return websocketToken;
+    }
+
     public RegisterUserResponseDto(String websocketToken) {
         this.websocketToken = websocketToken;
     }

@@ -51,7 +51,7 @@ public class FileService {
 
     public boolean writeToFile(String content, Long spaceID, Long saveIndex){
         FileModel model = findFile(spaceID, saveIndex);
-        if (model == null) return false;
+        if (model == null || model.getStatus() != FileStatus.UPLOADING) return false;
         File f = new File(getFilePath(spaceID, saveIndex));
         if (!f.exists()){
             try {
