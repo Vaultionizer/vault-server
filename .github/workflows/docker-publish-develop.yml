@@ -6,6 +6,11 @@ on:
       - develop
     tags:
       - v*
+  pull_request:
+    branches: 
+      - develop
+    tags:
+      - v*
 
 env:
   IMAGE_NAME: vault-server-dev
@@ -17,27 +22,25 @@ jobs:
 
     steps:
       - uses: actions/checkout@v2
+        env:
+          CR_PAT: ${{ secrets.CR_PAT }}
 
       - name: Build image
         run: docker build . --file Dockerfile --tag $IMAGE_NAME
 
       - name: Log into registry
-        run: echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u ${{ github.actor }} --password-stdin
+        run: echo "$CR_PAT" | docker login ghcr.io -u ${{ github.actor }} --password-stdin
 
       - name: Push image
         run: |
           IMAGE_ID=ghcr.io/${{ github.repository }}/$IMAGE_NAME
 
-          # Change all uppercase to lowercase
           IMAGE_ID=$(echo $IMAGE_ID | tr '[A-Z]' '[a-z]')
 
-          # Strip git ref prefix from version
           VERSION=$(echo "${{ github.ref }}" | sed -e 's,.*/\(.*\),\1,')
 
-          # Strip "v" prefix from tag name
           [[ "${{ github.ref }}" == "refs/tags/"* ]] && VERSION=$(echo $VERSION | sed -e 's/^v//')
 
-          # Use Docker `latest` tag convention
           [ "$VERSION" == "develop" ] && VERSION=latest
 
           echo IMAGE_ID=$IMAGE_ID
