@@ -5,6 +5,10 @@ public class RegisterUserResponseDto {
     private String sessionKey;
     private String websocketToken;
 
+    public RegisterUserResponseDto(String websocketToken) {
+        this.websocketToken = websocketToken;
+    }
+
     public RegisterUserResponseDto(Long userID, String sessionKey, String websocketToken) {
         this.userID = userID;
         this.sessionKey = sessionKey;
@@ -23,7 +27,4 @@ public class RegisterUserResponseDto {
         return websocketToken;
     }
 
-    public RegisterUserResponseDto(String websocketToken) {
-        this.websocketToken = websocketToken;
-    }
 }

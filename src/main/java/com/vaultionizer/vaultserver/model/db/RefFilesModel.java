@@ -42,6 +42,7 @@ public class RefFilesModel {
     public RefFilesModel(String content) {
         this.saveIndex = 0L;
         this.content = content;
+        this.lastUpdatedContent = new Timestamp(System.currentTimeMillis());
     }
 
     public Long getRefFileId() {

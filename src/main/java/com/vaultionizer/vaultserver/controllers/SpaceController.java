@@ -34,7 +34,7 @@ public class SpaceController {
         this.userAccessService = userAccessService;
     }
 
-    @RequestMapping(value = "/api/spaces/getall", method = RequestMethod.POST)
+    @RequestMapping(value = "/api/spaces/getAll", method = RequestMethod.POST)
     @ApiOperation(value = "Returns all spaces a user has access to.",
         response = GetSpacesResponseDto.class,
         responseContainer = "List"

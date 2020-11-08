@@ -14,7 +14,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.web.bind.annotation.CrossOrigin;
 
-@CrossOrigin(maxAge = 3600)
+// @CrossOrigin(maxAge = 3600)
 @Controller
 public class WebsocketController {
     private final SessionService sessionService;
@@ -62,8 +62,7 @@ public class WebsocketController {
 
     public synchronized void download(String websocketToken, Long spaceID, Long saveIndex){
         // TODO: check how to set headers (namely: spaceID and saveIndex)
-        System.out.println(fileService.readFromFile(spaceID, saveIndex));
-        simpMessagingTemplate.convertAndSend( Config.WEBSOCKET_RES+"/download/"+websocketToken,
+        simpMessagingTemplate.convertAndSend( Config.WEBSOCKET_DOWNLOAD + websocketToken,
                 fileService.makeDownload(spaceID, saveIndex));
     }
 

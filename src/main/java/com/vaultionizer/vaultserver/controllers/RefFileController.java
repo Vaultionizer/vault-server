@@ -37,8 +37,7 @@ public class RefFileController {
     @ApiOperation(value = "Read the reference file of the specified space or if lastRead is older than last update on reference file, NOT_MODIFIED is sent as status.")
     @ApiResponses(value = {
             @ApiResponse(code = 200, message = "The response contains the content of the current ref file."),
-            // TODO: change status code (I had no Internet connection to check)
-            @ApiResponse(code = 200, message = "The response is empty because the last time the reference file was fetched is the newest version."),
+            @ApiResponse(code = 304, message = "The response is empty because the last time the reference file was fetched is the newest version."),
             @ApiResponse(code = 401, message = "The user either does not exist or the sessionKey is wrong. User is thus not authorized."),
             @ApiResponse(code = 403, message = "Either the space with given ID does not exist or the user has no access to that space."),
             @ApiResponse(code = 500, message = "Inconsistencies on the server side. Should never be the case.")
@@ -54,7 +53,9 @@ public class RefFileController {
             if (refFileID == -1L) {
                 return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
             }
-            if (req.getLastRead() != null && refFileService.hasNewVersion(refFileID, req.getLastRead())){
+
+            // if the last fetched version is latest, just tell user not modified
+            if (req.getLastRead() != null && !refFileService.hasNewVersion(refFileID, req.getLastRead())){
                 return new ResponseEntity<>(null, HttpStatus.NOT_MODIFIED);
             }
             String content = refFileService.readRefFile(refFileID);

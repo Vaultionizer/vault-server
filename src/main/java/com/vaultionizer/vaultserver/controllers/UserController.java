@@ -3,10 +3,7 @@ package com.vaultionizer.vaultserver.controllers;
 import com.vaultionizer.vaultserver.helpers.Config;
 import com.vaultionizer.vaultserver.model.db.SessionModel;
 import com.vaultionizer.vaultserver.model.db.UserModel;
-import com.vaultionizer.vaultserver.model.dto.LoginUserDto;
-import com.vaultionizer.vaultserver.model.dto.LoginUserResponseDto;
-import com.vaultionizer.vaultserver.model.dto.RegisterUserDto;
-import com.vaultionizer.vaultserver.model.dto.RegisterUserResponseDto;
+import com.vaultionizer.vaultserver.model.dto.*;
 import com.vaultionizer.vaultserver.resource.UserRepository;
 import com.vaultionizer.vaultserver.service.SessionService;
 import com.vaultionizer.vaultserver.service.SpaceService;
@@ -82,8 +79,8 @@ public class UserController {
             @ApiResponse(code = 403, message = "The user authorization failed.")
     })
     @ResponseBody ResponseEntity<?>
-    logoutUser(@RequestBody LoginUserDto req){
-        boolean success = sessionService.deleteSession(req.getUserID(), req.getKey());
+    logoutUser(@RequestBody GenericAuthDto req){
+        boolean success = sessionService.deleteSession(req.getUserID(), req.getSessionKey());
         return new ResponseEntity<>(null,
                 success ? HttpStatus.OK : HttpStatus.FORBIDDEN);
     }

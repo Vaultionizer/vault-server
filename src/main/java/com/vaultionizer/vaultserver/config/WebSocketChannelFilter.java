@@ -21,7 +21,6 @@ public class WebSocketChannelFilter implements ChannelInterceptor {
     @Override
     public Message<?> preSend(Message<?> message, MessageChannel channel) {
         StompHeaderAccessor accessor = MessageHeaderAccessor.getAccessor(message, StompHeaderAccessor.class);
-
         if (StompCommand.SUBSCRIBE.equals(accessor.getCommand())){
             // TODO: check whether user has rights to subscribe
             String dest = accessor.getDestination();
