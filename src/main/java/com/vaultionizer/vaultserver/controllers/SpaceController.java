@@ -94,7 +94,9 @@ public class SpaceController {
     }
 
     @RequestMapping(value = "/api/spaces/key", method = RequestMethod.POST)
-    @ApiOperation(value = "Adds the user to the space.")
+    @ApiOperation(  value = "Returns the authentication key of a file.",
+                    response = SpaceAuthKeyResponseDto.class
+    )
     @ApiResponses(value = {
             @ApiResponse(code = 200, message = "The user was successfully added to the space."),
             @ApiResponse(code = 401, message = "The user either does not exist or the sessionKey is wrong. User is thus not authorized."),
