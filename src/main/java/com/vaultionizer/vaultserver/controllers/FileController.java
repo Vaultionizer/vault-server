@@ -2,7 +2,9 @@ package com.vaultionizer.vaultserver.controllers;
 
 
 import com.vaultionizer.vaultserver.helpers.FileStatus;
-import com.vaultionizer.vaultserver.model.dto.*;
+import com.vaultionizer.vaultserver.model.dto.DeleteFileDto;
+import com.vaultionizer.vaultserver.model.dto.FileDownloadDto;
+import com.vaultionizer.vaultserver.model.dto.FileUploadDto;
 import com.vaultionizer.vaultserver.service.*;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;

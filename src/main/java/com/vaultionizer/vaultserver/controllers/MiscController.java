@@ -2,18 +2,17 @@ package com.vaultionizer.vaultserver.controllers;
 
 
 import com.vaultionizer.vaultserver.helpers.Config;
-import com.vaultionizer.vaultserver.model.db.SessionModel;
-import com.vaultionizer.vaultserver.model.db.UserModel;
 import com.vaultionizer.vaultserver.model.dto.GetVersionResponseDto;
-import com.vaultionizer.vaultserver.model.dto.RegisterUserDto;
-import com.vaultionizer.vaultserver.model.dto.RegisterUserResponseDto;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.bind.annotation.RestController;
 
 @Api(value = "/api/misc/", description = "Controller that handles miscellaneous requests.")
 @RestController

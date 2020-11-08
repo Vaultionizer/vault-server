@@ -1,6 +1,5 @@
 package com.vaultionizer.vaultserver.config;
 
-import com.vaultionizer.vaultserver.helpers.Config;
 import com.vaultionizer.vaultserver.service.SessionService;
 import org.springframework.messaging.Message;
 import org.springframework.messaging.MessageChannel;
@@ -9,9 +8,8 @@ import org.springframework.messaging.simp.stomp.StompHeaderAccessor;
 import org.springframework.messaging.support.ChannelInterceptor;
 import org.springframework.messaging.support.MessageHeaderAccessor;
 
-import java.util.Objects;
-
-import static com.vaultionizer.vaultserver.helpers.Config.*;
+import static com.vaultionizer.vaultserver.helpers.Config.WEBSOCKET_DOWNLOAD;
+import static com.vaultionizer.vaultserver.helpers.Config.WEBSOCKET_UPLOAD;
 
 public class WebSocketChannelFilter implements ChannelInterceptor {
     private final SessionService sessionService;

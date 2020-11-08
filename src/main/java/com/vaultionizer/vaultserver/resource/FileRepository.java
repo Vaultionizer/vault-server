@@ -1,7 +1,6 @@
 package com.vaultionizer.vaultserver.resource;
 
 import com.vaultionizer.vaultserver.model.db.FileModel;
-import com.vaultionizer.vaultserver.model.db.PendingUploadModel;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 

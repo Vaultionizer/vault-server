@@ -1,11 +1,8 @@
 package com.vaultionizer.vaultserver.testdata;
 
-import com.vaultionizer.vaultserver.model.db.UserModel;
 import com.vaultionizer.vaultserver.model.dto.LoginUserDto;
 import com.vaultionizer.vaultserver.model.dto.RegisterUserDto;
 import com.vaultionizer.vaultserver.model.dto.RegisterUserResponseDto;
-
-import java.util.ArrayList;
 
 public class UserTestData {
     public static final RegisterUserDto[] registerData = new RegisterUserDto[]{

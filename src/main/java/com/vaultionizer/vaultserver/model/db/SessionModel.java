@@ -1,6 +1,7 @@
 package com.vaultionizer.vaultserver.model.db;
 
 import com.vaultionizer.vaultserver.helpers.SessionTokenGen;
+
 import javax.persistence.*;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
