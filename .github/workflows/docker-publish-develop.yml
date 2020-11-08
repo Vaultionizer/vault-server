@@ -6,6 +6,11 @@ on:
       - develop
     tags:
       - v*
+  pull_request:
+    branches: 
+      - develop
+    tags:
+      - v*
 
 env:
   IMAGE_NAME: vault-server-dev
@@ -35,7 +40,7 @@ jobs:
           VERSION=$(echo "${{ github.ref }}" | sed -e 's,.*/\(.*\),\1,')
 
           # Strip "v" prefix from tag name
-          [[ "${{ github.ref }}" == "refs/tags/"* ]] && VERSION=$(echo $VERSION | sed -e 's/^v//')
+          [[ "${{ secrets.CR_PAT }}" == "refs/tags/"* ]] && VERSION=$(echo $VERSION | sed -e 's/^v//')
 
           # Use Docker `latest` tag convention
           [ "$VERSION" == "develop" ] && VERSION=latest
