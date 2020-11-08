@@ -12,6 +12,8 @@ public class Config {
 
     public static final String WEBSOCKET_PREFIX = "/api/ws";
     public static final String WEBSOCKET_RES = "/api/wsres";
+    public static final String WEBSOCKET_DOWNLOAD = WEBSOCKET_RES + "/download/";
+    public static final String WEBSOCKET_UPLOAD = WEBSOCKET_PREFIX + "/download/";
 
     public static final String SPACE_PATH = "/home/vaultionizer/spaces/";
 }

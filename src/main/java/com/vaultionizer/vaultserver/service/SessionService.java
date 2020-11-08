@@ -54,4 +54,8 @@ public class SessionService {
         }
         return null;
     }
+
+    public boolean checkValidWebsocketToken(Long userID, String websocketToken, String sessionKey){
+        return sessionRepository.checkValidWebsocketToken(userID, websocketToken, sessionKey) == 1;
+    }
 }

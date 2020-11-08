@@ -113,4 +113,23 @@ public class FileService {
     private synchronized FileModel findFile(Long spaceID, Long saveIndex){
         return fileRepository.findFile(spaceID, saveIndex);
     }
+
+    public boolean deleteFile(Long spaceID, Long saveIndex){
+        FileModel file = fileRepository.findFile(spaceID, saveIndex);
+        if (file == null) return true;
+        switch (file.getStatus()){
+            case ACCESSIBLE:
+            case READ_FROM:
+                fileRepository.delete(file);
+                return removeFileFromDisk(spaceID, saveIndex);
+            default:
+                return false;
+        }
+    }
+
+    private boolean removeFileFromDisk(Long spaceID, Long saveIndex){
+        File file = new File(getFilePath(spaceID, saveIndex));
+        if (file.exists()) return file.delete();
+        return true;
+    }
 }
