@@ -39,7 +39,7 @@ public class UserController {
             response = RegisterUserResponseDto.class)
     @ApiResponses(value = {
             @ApiResponse(code = 201, message = "The user was created successfully. The response is a session key and the newly created user's ID."),
-            @ApiResponse(code = 400, message = "The values for key or the reference file does not match the constraints."),
+            @ApiResponse(code = 400, message = "The values for key or the reference file does not match the constraints.")
     })
     @ResponseBody ResponseEntity<?>
     createUser(@RequestBody RegisterUserDto req){
@@ -60,7 +60,7 @@ public class UserController {
             response = LoginUserResponseDto.class)
     @ApiResponses(value = {
             @ApiResponse(code = 200, message = "The user was signed in successfully. The response is a session key."),
-            @ApiResponse(code = 401, message = "The user authorization failed."),
+            @ApiResponse(code = 401, message = "The user authorization failed.")
     })
     @ResponseBody ResponseEntity<?>
     loginUser(@RequestBody LoginUserDto req){
@@ -73,6 +73,19 @@ public class UserController {
         return new ResponseEntity<>(
                 new LoginUserResponseDto(req.getUserID(), model.getSessionKey(), model.getWebSocketToken()),
                 HttpStatus.OK);
+    }
+
+    @RequestMapping(value = "/api/users/logout", method = RequestMethod.PUT)
+    @ApiOperation(value = "Logs the user out.")
+    @ApiResponses(value = {
+            @ApiResponse(code = 200, message = "The user was logged out successfully."),
+            @ApiResponse(code = 403, message = "The user authorization failed.")
+    })
+    @ResponseBody ResponseEntity<?>
+    logoutUser(@RequestBody LoginUserDto req){
+        boolean success = sessionService.deleteSession(req.getUserID(), req.getKey());
+        return new ResponseEntity<>(null,
+                success ? HttpStatus.OK : HttpStatus.FORBIDDEN);
     }
 
 }

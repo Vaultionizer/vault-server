@@ -58,4 +58,12 @@ public class SessionService {
     public boolean checkValidWebsocketToken(Long userID, String websocketToken, String sessionKey){
         return sessionRepository.checkValidWebsocketToken(userID, websocketToken, sessionKey) == 1;
     }
+
+    public boolean deleteSession(Long userID, String sessionKey){
+        Set<SessionModel> model = sessionRepository.getSessionModelByKey(userID, sessionKey);
+        if (model == null) return true;
+        if (model.size() == 0) return false;
+        model.forEach(m -> {sessionRepository.delete(m);});
+        return true;
+    }
 }
