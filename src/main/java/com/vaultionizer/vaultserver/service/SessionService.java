@@ -40,6 +40,11 @@ public class SessionService {
         return model == null ? -1L : model.getId();
     }
 
+    public String getSessionWebsocketToken(Long userID, String sessionKey){
+        SessionModel model = getSessionModel(userID, sessionKey);
+        return model == null ? null : model.getWebSocketToken();
+    }
+
     private SessionModel getSessionModel(Long userID, String sessionKey){
         Set<SessionModel> sessions = sessionRepository.getSessionModelByKey(userID, sessionKey);
         if(sessions.size() == 1) {
@@ -48,5 +53,17 @@ public class SessionService {
             return sessionModel;
         }
         return null;
+    }
+
+    public boolean checkValidWebsocketToken(Long userID, String websocketToken, String sessionKey){
+        return sessionRepository.checkValidWebsocketToken(userID, websocketToken, sessionKey) == 1;
+    }
+
+    public boolean deleteSession(Long userID, String sessionKey){
+        Set<SessionModel> model = sessionRepository.getSessionModelByKey(userID, sessionKey);
+        if (model == null) return true;
+        if (model.size() == 0) return false;
+        model.forEach(m -> {sessionRepository.delete(m);});
+        return true;
     }
 }

@@ -1,28 +1,17 @@
 package com.vaultionizer.vaultserver.controllers;
 
 import com.vaultionizer.vaultserver.model.db.RefFilesModel;
-import com.vaultionizer.vaultserver.model.db.SessionModel;
 import com.vaultionizer.vaultserver.model.db.SpaceModel;
-import com.vaultionizer.vaultserver.model.db.UserModel;
-import com.vaultionizer.vaultserver.model.dto.GetSpacesResponseDto;
 import com.vaultionizer.vaultserver.resource.SpaceRepository;
-import com.vaultionizer.vaultserver.resource.UserRepository;
 import com.vaultionizer.vaultserver.service.RefFileService;
 import com.vaultionizer.vaultserver.service.SessionService;
 import com.vaultionizer.vaultserver.service.SpaceService;
 import com.vaultionizer.vaultserver.service.UserAccessService;
 import com.vaultionizer.vaultserver.testdata.SpaceTestData;
-import com.vaultionizer.vaultserver.testdata.UserTestData;
 import org.junit.jupiter.api.*;
-import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.servlet.function.EntityResponse;
-
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
 
 import static org.mockito.ArgumentMatchers.any;
 

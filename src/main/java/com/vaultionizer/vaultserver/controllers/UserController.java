@@ -3,10 +3,7 @@ package com.vaultionizer.vaultserver.controllers;
 import com.vaultionizer.vaultserver.helpers.Config;
 import com.vaultionizer.vaultserver.model.db.SessionModel;
 import com.vaultionizer.vaultserver.model.db.UserModel;
-import com.vaultionizer.vaultserver.model.dto.LoginUserDto;
-import com.vaultionizer.vaultserver.model.dto.LoginUserResponseDto;
-import com.vaultionizer.vaultserver.model.dto.RegisterUserDto;
-import com.vaultionizer.vaultserver.model.dto.RegisterUserResponseDto;
+import com.vaultionizer.vaultserver.model.dto.*;
 import com.vaultionizer.vaultserver.resource.UserRepository;
 import com.vaultionizer.vaultserver.service.SessionService;
 import com.vaultionizer.vaultserver.service.SpaceService;
@@ -39,7 +36,7 @@ public class UserController {
             response = RegisterUserResponseDto.class)
     @ApiResponses(value = {
             @ApiResponse(code = 201, message = "The user was created successfully. The response is a session key and the newly created user's ID."),
-            @ApiResponse(code = 400, message = "The values for key or the reference file does not match the constraints."),
+            @ApiResponse(code = 400, message = "The values for key or the reference file does not match the constraints.")
     })
     @ResponseBody ResponseEntity<?>
     createUser(@RequestBody RegisterUserDto req){
@@ -50,7 +47,8 @@ public class UserController {
         UserModel userModel = userRepository.save(new UserModel(req.getKey()));
         spaceService.addPrivateSpace(userModel.getId(), req.getRefFile());
         SessionModel sessionModel = sessionService.addSession(userModel.getId());
-        return new ResponseEntity<>(new RegisterUserResponseDto(userModel.getId(), sessionModel.getSessionKey()),
+        return new ResponseEntity<>(
+                new RegisterUserResponseDto(userModel.getId(), sessionModel.getSessionKey(), sessionModel.getWebSocketToken()),
                 HttpStatus.CREATED);
     }
 
@@ -59,7 +57,7 @@ public class UserController {
             response = LoginUserResponseDto.class)
     @ApiResponses(value = {
             @ApiResponse(code = 200, message = "The user was signed in successfully. The response is a session key."),
-            @ApiResponse(code = 401, message = "The user authorization failed."),
+            @ApiResponse(code = 401, message = "The user authorization failed.")
     })
     @ResponseBody ResponseEntity<?>
     loginUser(@RequestBody LoginUserDto req){
@@ -70,8 +68,21 @@ public class UserController {
         SessionModel model = sessionService.addSession(req.getUserID());
 
         return new ResponseEntity<>(
-                new LoginUserResponseDto(req.getUserID(), model.getSessionKey()),
+                new LoginUserResponseDto(req.getUserID(), model.getSessionKey(), model.getWebSocketToken()),
                 HttpStatus.OK);
+    }
+
+    @RequestMapping(value = "/api/users/logout", method = RequestMethod.PUT)
+    @ApiOperation(value = "Logs the user out.")
+    @ApiResponses(value = {
+            @ApiResponse(code = 200, message = "The user was logged out successfully."),
+            @ApiResponse(code = 403, message = "The user authorization failed.")
+    })
+    @ResponseBody ResponseEntity<?>
+    logoutUser(@RequestBody GenericAuthDto req){
+        boolean success = sessionService.deleteSession(req.getUserID(), req.getSessionKey());
+        return new ResponseEntity<>(null,
+                success ? HttpStatus.OK : HttpStatus.FORBIDDEN);
     }
 
 }

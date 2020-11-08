@@ -1,22 +1,20 @@
 package com.vaultionizer.vaultserver.controllers;
 
-import com.vaultionizer.vaultserver.model.db.SessionModel;
 import com.vaultionizer.vaultserver.model.db.SpaceModel;
-import com.vaultionizer.vaultserver.model.db.UserModel;
 import com.vaultionizer.vaultserver.model.dto.*;
 import com.vaultionizer.vaultserver.resource.SpaceRepository;
 import com.vaultionizer.vaultserver.service.RefFileService;
 import com.vaultionizer.vaultserver.service.SessionService;
 import com.vaultionizer.vaultserver.service.SpaceService;
 import com.vaultionizer.vaultserver.service.UserAccessService;
-import io.swagger.annotations.*;
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.ApiResponse;
+import io.swagger.annotations.ApiResponses;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.ArrayList;
-import java.util.Optional;
 
 @Api(value = "/api/spaces/", description = "Controller that manages spaces.")
 @RestController
@@ -36,14 +34,14 @@ public class SpaceController {
         this.userAccessService = userAccessService;
     }
 
-    @RequestMapping(value = "/api/spaces/getall", method = RequestMethod.POST)
+    @RequestMapping(value = "/api/spaces/getAll", method = RequestMethod.POST)
     @ApiOperation(value = "Returns all spaces a user has access to.",
         response = GetSpacesResponseDto.class,
         responseContainer = "List"
     )
     @ApiResponses(value = {
             @ApiResponse(code = 200, message = "The response contains all spaces the user has access to."),
-            @ApiResponse(code = 401, message = "The user either does not exist or the key is wrong. User is thus not authorized."),
+            @ApiResponse(code = 401, message = "The user either does not exist or the sessionKey is wrong. User is thus not authorized."),
     })
     @ResponseBody ResponseEntity<?>
     getAllSpaces(@RequestBody GenericAuthDto req){
@@ -60,7 +58,7 @@ public class SpaceController {
         response = Long.class)
     @ApiResponses(value = {
             @ApiResponse(code = 201, message = "The space was created successfully. The returned value is the space's ID."),
-            @ApiResponse(code = 401, message = "The user either does not exist or the key is wrong."),
+            @ApiResponse(code = 401, message = "The user either does not exist or the sessionKey is wrong."),
     })
     @ResponseBody ResponseEntity<?>
     createSpace(@RequestBody CreateSpaceDto req){
@@ -74,11 +72,11 @@ public class SpaceController {
         return new ResponseEntity<>(model.getSpaceID(), HttpStatus.CREATED);
     }
 
-    @RequestMapping(value = "/api/spaces/join", method = RequestMethod.POST)
+    @RequestMapping(value = "/api/spaces/join", method = RequestMethod.PUT)
     @ApiOperation(value = "Adds the user to the space.")
     @ApiResponses(value = {
             @ApiResponse(code = 200, message = "The user was successfully added to the space."),
-            @ApiResponse(code = 401, message = "The user either does not exist or the key is wrong. User is thus not authorized."),
+            @ApiResponse(code = 401, message = "The user either does not exist or the sessionKey is wrong. User is thus not authorized."),
             @ApiResponse(code = 403, message = "Either the space with given ID does not exist, it is private or the authorization key is wrong.")
     })
     @ResponseBody ResponseEntity<?>
@@ -96,10 +94,12 @@ public class SpaceController {
     }
 
     @RequestMapping(value = "/api/spaces/key", method = RequestMethod.POST)
-    @ApiOperation(value = "Adds the user to the space.")
+    @ApiOperation(  value = "Returns the authentication key of a file.",
+                    response = SpaceAuthKeyResponseDto.class
+    )
     @ApiResponses(value = {
             @ApiResponse(code = 200, message = "The user was successfully added to the space."),
-            @ApiResponse(code = 401, message = "The user either does not exist or the key is wrong. User is thus not authorized."),
+            @ApiResponse(code = 401, message = "The user either does not exist or the sessionKey is wrong. User is thus not authorized."),
             @ApiResponse(code = 403, message = "Either the space with given ID does not exist, it is private or the authorization key is wrong.")
     })
     @ResponseBody ResponseEntity<?>
