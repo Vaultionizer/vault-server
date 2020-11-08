@@ -1,5 +1,7 @@
 package com.vaultionizer.vaultserver.model.dto;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 public class CreateSpaceDto {
     private GenericAuthDto auth;
     private boolean isPrivate;
@@ -10,6 +12,7 @@ public class CreateSpaceDto {
         return auth;
     }
 
+    @JsonProperty("isPrivate")
     public boolean isPrivate() {
         return isPrivate;
     }
