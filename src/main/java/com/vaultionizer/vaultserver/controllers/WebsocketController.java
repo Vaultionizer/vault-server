@@ -14,7 +14,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.web.bind.annotation.CrossOrigin;
 
-// @CrossOrigin(maxAge = 3600)
+@CrossOrigin(maxAge = 3600)
 @Controller
 public class WebsocketController {
     private final SessionService sessionService;
