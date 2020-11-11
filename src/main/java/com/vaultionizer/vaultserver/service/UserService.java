@@ -26,6 +26,9 @@ public class UserService {
     }
 
     public UserModel createUser(String username, String key){
-        return userRepository.save(new UserModel(username, key));
+        try {return userRepository.save(new UserModel(username, key));}
+        catch (Exception e){ // in case that username exists
+            return null;
+        }
     }
 }
