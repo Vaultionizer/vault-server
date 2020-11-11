@@ -1,19 +1,19 @@
 package com.vaultionizer.vaultserver.model.dto;
 
 public class LoginUserDto {
-    private Long userID;
+    private String username;
     private String key;
 
-    public Long getUserID() {
-        return userID;
+    public LoginUserDto(String username, String key) {
+        this.username = username;
+        this.key = key;
     }
 
     public String getKey() {
         return key;
     }
 
-    public LoginUserDto(Long userID, String key) {
-        this.userID = userID;
-        this.key = key;
+    public String getUsername() {
+        return username;
     }
 }

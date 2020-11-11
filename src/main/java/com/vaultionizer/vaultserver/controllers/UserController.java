@@ -4,9 +4,9 @@ import com.vaultionizer.vaultserver.helpers.Config;
 import com.vaultionizer.vaultserver.model.db.SessionModel;
 import com.vaultionizer.vaultserver.model.db.UserModel;
 import com.vaultionizer.vaultserver.model.dto.*;
-import com.vaultionizer.vaultserver.resource.UserRepository;
 import com.vaultionizer.vaultserver.service.SessionService;
 import com.vaultionizer.vaultserver.service.SpaceService;
+import com.vaultionizer.vaultserver.service.UserService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiResponse;
@@ -20,13 +20,13 @@ import org.springframework.web.bind.annotation.*;
 @Api(value = "/api/users/", description = "Controller that manages user interaction.")
 public class UserController {
 
-    private final UserRepository userRepository;
+    private final UserService userService;
     private final SessionService sessionService;
     private final SpaceService spaceService;
 
     @Autowired
-    public UserController(UserRepository userRepository, SessionService sessionService, SpaceService spaceService) {
-        this.userRepository = userRepository;
+    public UserController(UserService userService, SessionService sessionService, SpaceService spaceService) {
+        this.userService = userService;
         this.sessionService = sessionService;
         this.spaceService = spaceService;
     }
@@ -36,15 +36,22 @@ public class UserController {
             response = RegisterUserResponseDto.class)
     @ApiResponses(value = {
             @ApiResponse(code = 201, message = "The user was created successfully. The response is a session key and the newly created user's ID."),
-            @ApiResponse(code = 400, message = "The values for key or the reference file does not match the constraints.")
+            @ApiResponse(code = 400, message = "The values for key or the reference file does not match the constraints."),
+            @ApiResponse(code = 409, message = "The username is in use.")
     })
     @ResponseBody ResponseEntity<?>
     createUser(@RequestBody RegisterUserDto req){
         if (req.getKey() == null || req.getRefFile() == null ||
-                req.getKey().length() < Config.MIN_USER_KEY_LENGTH || req.getRefFile().length() == 0){
+                req.getKey().length() < Config.MIN_USER_KEY_LENGTH || req.getRefFile().length() == 0 ||
+                req.getUsername() == null || req.getUsername().length() < Config.MIN_USERNAME_LENGTH
+            ){
             return new ResponseEntity<>(null, HttpStatus.BAD_REQUEST);
         }
-        UserModel userModel = userRepository.save(new UserModel(req.getKey()));
+
+        UserModel userModel = userService.createUser(req.getUsername(), req.getKey());
+        if (userModel == null) {
+            return new ResponseEntity<>(null, HttpStatus.CONFLICT);
+        }
         spaceService.addPrivateSpace(userModel.getId(), req.getRefFile());
         SessionModel sessionModel = sessionService.addSession(userModel.getId());
         return new ResponseEntity<>(
@@ -61,14 +68,15 @@ public class UserController {
     })
     @ResponseBody ResponseEntity<?>
     loginUser(@RequestBody LoginUserDto req){
-        if (userRepository.checkCredentials(req.getUserID(), req.getKey()) != 1){
+        Long userID = userService.getUserIDCheckCredentials(req.getUsername(), req.getKey());
+        if (userID == -1){
             // no user has that id in combination with the key
             return new ResponseEntity<>(null, HttpStatus.UNAUTHORIZED);
         }
-        SessionModel model = sessionService.addSession(req.getUserID());
+        SessionModel model = sessionService.addSession(userID);
 
         return new ResponseEntity<>(
-                new LoginUserResponseDto(req.getUserID(), model.getSessionKey(), model.getWebSocketToken()),
+                new LoginUserResponseDto(userID, model.getSessionKey(), model.getWebSocketToken()),
                 HttpStatus.OK);
     }
 
