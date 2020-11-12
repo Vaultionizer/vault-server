@@ -24,7 +24,7 @@ jobs:
         run: docker build . --file Dockerfile --tag $IMAGE_NAME
 
       - name: Log into registry
-        run: echo ${{ secrets.CR_PAT }} | docker login ghcr.io -u ${ secrets.CR_PAT_OWNER } --password-stdin
+        run: echo ${{ secrets.CR_PAT }} | docker login ghcr.io -u ${{ secrets.CR_PAT_OWNER }} --password-stdin
 
       - name: Push image
         run: |
