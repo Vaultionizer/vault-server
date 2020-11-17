@@ -30,4 +30,12 @@ public class PendingUploadService {
         }
         return false;
     }
+
+    public void deleteAllPendingUploads(Long spaceID){
+        pendingUploadRepository.deletePendingUploads(spaceID);
+    }
+
+    public void deletePendingUploadsByUser(Long userID){
+        pendingUploadRepository.deleteAllByUser(userID);
+    }
 }

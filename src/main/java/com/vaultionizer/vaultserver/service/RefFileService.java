@@ -54,4 +54,8 @@ public class RefFileService {
     public boolean hasNewVersion(Long refFileID, Timestamp lastFetched){
         return refFileRepository.checkNewVersion(refFileID, lastFetched) == 1;
     }
+
+    public void deleteRefFile(Long refFileID){
+        // TODO
+    }
 }

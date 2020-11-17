@@ -18,4 +18,7 @@ public interface RefFileRepository extends JpaRepository<RefFilesModel, Long> {
 
     @Query("SELECT COUNT(it) FROM RefFilesModel it WHERE it.refFileId = ?1 AND it.lastUpdatedContent >= ?2")
     int checkNewVersion(Long refFileID, Timestamp lastFetched);
+
+    @Query("DELETE FROM RefFilesModel it WHERE it.refFileId = ?1")
+    void deleteRefFile(Long refFileID);
 }

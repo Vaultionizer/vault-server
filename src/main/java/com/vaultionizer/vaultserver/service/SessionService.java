@@ -66,4 +66,8 @@ public class SessionService {
         model.forEach(m -> {sessionRepository.delete(m);});
         return true;
     }
+
+    public void deleteAllSessionsWithUser(Long userID){
+        sessionRepository.logOutUser(userID);
+    }
 }

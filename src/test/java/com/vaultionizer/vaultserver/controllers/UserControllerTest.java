@@ -4,11 +4,11 @@ import com.vaultionizer.vaultserver.model.db.SessionModel;
 import com.vaultionizer.vaultserver.model.db.UserModel;
 import com.vaultionizer.vaultserver.model.dto.LoginUserResponseDto;
 import com.vaultionizer.vaultserver.model.dto.RegisterUserResponseDto;
-import com.vaultionizer.vaultserver.service.SessionService;
-import com.vaultionizer.vaultserver.service.SpaceService;
-import com.vaultionizer.vaultserver.service.UserService;
+import com.vaultionizer.vaultserver.resource.SpaceRepository;
+import com.vaultionizer.vaultserver.service.*;
 import com.vaultionizer.vaultserver.testdata.UserTestData;
 import org.junit.jupiter.api.*;
+import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.ResponseEntity;
@@ -31,6 +31,16 @@ public class UserControllerTest {
     @MockBean
     private SpaceService spaceService;
 
+    @MockBean
+    private UserAccessService userAccessService;
+
+    @MockBean
+    private PendingUploadService pendingUploadService;
+
+
+    @MockBean
+    private SpaceController spaceController;
+
     private UserController userController;
 
     @BeforeEach
@@ -38,6 +48,9 @@ public class UserControllerTest {
         userService = Mockito.mock(UserService.class);
         spaceService = Mockito.mock(SpaceService.class);
         sessionService = Mockito.mock(SessionService.class);
+        userAccessService = Mockito.mock(UserAccessService.class);
+        pendingUploadService = Mockito.mock(PendingUploadService.class);
+        spaceController = Mockito.mock(SpaceController.class);
 
         Mockito.when(userService.createUser(UserTestData.registerData[3].getUsername(), UserTestData.registerData[3].getKey()))
                 .thenReturn(new UserModel(0L, "username", UserTestData.registerResponses[0].getSessionKey()));
@@ -53,7 +66,7 @@ public class UserControllerTest {
         Mockito.when(sessionService.addSession(1L))
                 .thenReturn(new SessionModel(1L, "testSession"));
 
-        userController = new UserController(userService, sessionService, spaceService);
+        userController = new UserController(userService, sessionService, spaceService, spaceController, userAccessService, pendingUploadService);
     }
 
 

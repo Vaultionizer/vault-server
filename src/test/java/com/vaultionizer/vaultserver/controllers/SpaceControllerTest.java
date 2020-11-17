@@ -3,10 +3,7 @@ package com.vaultionizer.vaultserver.controllers;
 import com.vaultionizer.vaultserver.model.db.RefFilesModel;
 import com.vaultionizer.vaultserver.model.db.SpaceModel;
 import com.vaultionizer.vaultserver.resource.SpaceRepository;
-import com.vaultionizer.vaultserver.service.RefFileService;
-import com.vaultionizer.vaultserver.service.SessionService;
-import com.vaultionizer.vaultserver.service.SpaceService;
-import com.vaultionizer.vaultserver.service.UserAccessService;
+import com.vaultionizer.vaultserver.service.*;
 import com.vaultionizer.vaultserver.testdata.SpaceTestData;
 import org.junit.jupiter.api.*;
 import org.mockito.Mockito;
@@ -33,6 +30,14 @@ public class SpaceControllerTest {
     @MockBean
     private UserAccessService userAccessService;
 
+    @MockBean
+    private PendingUploadService pendingUploadService;
+
+    @MockBean
+    private FileService fileService;
+
+
+
     private SpaceController spaceController;
 
     @BeforeEach
@@ -42,6 +47,8 @@ public class SpaceControllerTest {
         sessionService = Mockito.mock(SessionService.class);
         refFileService = Mockito.mock(RefFileService.class);
         userAccessService = Mockito.mock(UserAccessService.class);
+        fileService = Mockito.mock(FileService.class);
+        pendingUploadService = Mockito.mock(PendingUploadService.class);
 
 
         Mockito.when(sessionService.getSession(
@@ -86,7 +93,7 @@ public class SpaceControllerTest {
         Mockito.when(spaceRepository.getSpaceAuthKey(SpaceTestData.getAuthKeys[2].getSpaceID()))
                 .thenReturn(null);
 
-        spaceController = new SpaceController(spaceRepository, sessionService, spaceService, refFileService, userAccessService);
+        spaceController = new SpaceController(spaceRepository, sessionService, spaceService, refFileService, pendingUploadService, fileService, userAccessService);
     }
 
     // Tests create space api

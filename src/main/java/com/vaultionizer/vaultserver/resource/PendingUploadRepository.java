@@ -8,4 +8,12 @@ public interface PendingUploadRepository extends JpaRepository<PendingUploadMode
     @Query("SELECT it FROM PendingUploadModel it " +
             "WHERE it.spaceID = ?1 AND it.permittedSessionID = ?2 AND it.saveIndex = ?3")
     PendingUploadModel findItem(Long spaceID, Long sessionID, Long saveIndex);
+
+    @Query("DELETE FROM PendingUploadModel it WHERE it.spaceID = ?1")
+    void deletePendingUploads(Long spaceID);
+
+    @Query("DELETE FROM PendingUploadModel it " +
+            "WHERE it.permittedSessionID IN " +
+            "       (SELECT sess FROM SessionModel sess WHERE sess.userID = ?1)")
+    void deleteAllByUser(Long userID);
 }
