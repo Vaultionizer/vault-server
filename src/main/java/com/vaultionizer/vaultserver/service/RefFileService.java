@@ -4,8 +4,7 @@ import com.vaultionizer.vaultserver.model.db.RefFilesModel;
 import com.vaultionizer.vaultserver.resource.RefFileRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-
-import java.sql.Timestamp;
+import java.time.Instant;
 import java.util.Optional;
 import java.util.Set;
 
@@ -51,11 +50,11 @@ public class RefFileService {
         return true;
     }
 
-    public boolean hasNewVersion(Long refFileID, Timestamp lastFetched){
+    public boolean hasNewVersion(Long refFileID, Instant lastFetched){
         return refFileRepository.checkNewVersion(refFileID, lastFetched) == 1;
     }
 
     public void deleteRefFile(Long refFileID){
-        // TODO
+        this.refFileRepository.deleteRefFile(refFileID);
     }
 }

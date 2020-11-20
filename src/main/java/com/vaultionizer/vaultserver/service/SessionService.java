@@ -1,10 +1,12 @@
 package com.vaultionizer.vaultserver.service;
 
+import com.vaultionizer.vaultserver.helpers.Config;
 import com.vaultionizer.vaultserver.model.db.SessionModel;
 import com.vaultionizer.vaultserver.resource.SessionRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.time.Instant;
 import java.util.Set;
 
 @Service
@@ -46,7 +48,7 @@ public class SessionService {
     }
 
     private SessionModel getSessionModel(Long userID, String sessionKey){
-        Set<SessionModel> sessions = sessionRepository.getSessionModelByKey(userID, sessionKey);
+        Set<SessionModel> sessions = sessionRepository.getSessionModelByKey(userID, sessionKey, getAllowedAge());
         if(sessions.size() == 1) {
             SessionModel sessionModel = sessions.stream().findFirst().get();
             updateSessionTimeStamp(sessionModel);
@@ -56,18 +58,22 @@ public class SessionService {
     }
 
     public boolean checkValidWebsocketToken(Long userID, String websocketToken, String sessionKey){
-        return sessionRepository.checkValidWebsocketToken(userID, websocketToken, sessionKey) == 1;
+        return sessionRepository.checkValidWebsocketToken(userID, websocketToken, sessionKey, getAllowedAge()) == 1;
     }
 
-    public boolean deleteSession(Long userID, String sessionKey){
-        Set<SessionModel> model = sessionRepository.getSessionModelByKey(userID, sessionKey);
-        if (model == null) return true;
-        if (model.size() == 0) return false;
-        model.forEach(m -> {sessionRepository.delete(m);});
-        return true;
+    public void deleteSession(Long userID, String sessionKey){
+        sessionRepository.deleteSession(userID, sessionKey);
     }
 
     public void deleteAllSessionsWithUser(Long userID){
         sessionRepository.logOutUser(userID);
+    }
+
+    private Instant getAllowedAge(){
+        return Instant.now().minusSeconds(Config.MAX_SESSION_AGE);
+    }
+
+    public void cleanAllSessionsExpired(){
+        this.sessionRepository.deleteAllOldSessions(getAllowedAge());
     }
 }

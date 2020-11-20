@@ -94,14 +94,13 @@ public class UserController {
     @RequestMapping(value = "/api/users/logout", method = RequestMethod.PUT)
     @ApiOperation(value = "Logs the user out.")
     @ApiResponses(value = {
-            @ApiResponse(code = 200, message = "The user was logged out successfully."),
-            @ApiResponse(code = 403, message = "The user authorization failed.")
+            @ApiResponse(code = 200, message = "The user was logged out successfully.")
     })
     @ResponseBody ResponseEntity<?>
-    logoutUser(@RequestBody GenericAuthDto req){
-        boolean success = sessionService.deleteSession(req.getUserID(), req.getSessionKey());
-        return new ResponseEntity<>(null,
-                success ? HttpStatus.OK : HttpStatus.FORBIDDEN);
+    logoutUser(@RequestBody AuthWrapperDto req){
+        GenericAuthDto auth = req.getAuth();
+        sessionService.deleteSession(auth.getUserID(), auth.getSessionKey());
+        return new ResponseEntity<>(null, HttpStatus.OK);
     }
 
     @RequestMapping(value = "/api/users/delete", method = RequestMethod.DELETE)
@@ -111,22 +110,22 @@ public class UserController {
             @ApiResponse(code = 403, message = "The user authorization failed.")
     })
     @ResponseBody ResponseEntity<?>
-    deleteUser(@RequestBody GenericAuthDto req){
-
-        if (!sessionService.getSession(req.getUserID(), req.getSessionKey())){
+    deleteUser(@RequestBody AuthWrapperDto req){
+        GenericAuthDto auth = req.getAuth();
+        if (!sessionService.getSession(auth.getUserID(), auth.getSessionKey())){
             return new ResponseEntity<>(null, HttpStatus.FORBIDDEN);
         }
-        userService.setDeleted(req.getUserID());
-        pendingUploadService.deletePendingUploadsByUser(req.getUserID());
-        sessionService.deleteAllSessionsWithUser(req.getUserID());
-        ArrayList<GetSpacesResponseDto> spaces = spaceService.getSpacesAccessible(req.getUserID());
+        userService.setDeleted(auth.getUserID());
+        pendingUploadService.deletePendingUploadsByUser(auth.getUserID());
+        sessionService.deleteAllSessionsWithUser(auth.getUserID());
+        ArrayList<GetSpacesResponseDto> spaces = spaceService.getSpacesAccessible(auth.getUserID());
         spaces.forEach(space -> {
             if (space.isCreator()) {
                 spaceController.deleteSpaceRoutine(space.getSpaceID());
             }
         });
-        userAccessService.deleteAllWithUser(req.getUserID());
-        userService.setDeletionDone(req.getUserID());
+        userAccessService.deleteAllWithUser(auth.getUserID());
+        userService.setDeletionDone(auth.getUserID());
         return new ResponseEntity<>(null, HttpStatus.OK);
     }
 

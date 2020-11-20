@@ -49,12 +49,13 @@ public class SpaceController {
             @ApiResponse(code = 401, message = "The user either does not exist or the sessionKey is wrong. User is thus not authorized."),
     })
     @ResponseBody ResponseEntity<?>
-    getAllSpaces(@RequestBody GenericAuthDto req){
-        if (!sessionService.getSession(req.getUserID(), req.getSessionKey())){
+    getAllSpaces(@RequestBody AuthWrapperDto req){
+        GenericAuthDto auth = req.getAuth();
+        if (!sessionService.getSession(auth.getUserID(), auth.getSessionKey())){
             return new ResponseEntity<>(null, HttpStatus.UNAUTHORIZED);
         }
         return new ResponseEntity<>(
-                spaceService.getSpacesAccessible(req.getUserID()), HttpStatus.OK);
+                spaceService.getSpacesAccessible(auth.getUserID()), HttpStatus.OK);
     }
 
 
@@ -133,13 +134,14 @@ public class SpaceController {
             @ApiResponse(code = 412, message = "Space is probably currently in deletion process.")
     })
     @ResponseBody ResponseEntity<?>
-    deleteSpace(@RequestBody GenericAuthDto req, @PathVariable Long spaceID){
-        if (!sessionService.getSession(req.getUserID(), req.getSessionKey())){
+    deleteSpace(@RequestBody AuthWrapperDto req, @PathVariable Long spaceID){
+        GenericAuthDto auth = req.getAuth();
+        if (!sessionService.getSession(auth.getUserID(), auth.getSessionKey())){
             return new ResponseEntity<>(null, HttpStatus.UNAUTHORIZED);
         }
 
-        if (!userAccessService.userHasAccess(req.getUserID(), spaceID) ||
-                !spaceService.checkCreator(spaceID, req.getUserID())){
+        if (!userAccessService.userHasAccess(auth.getUserID(), spaceID) ||
+                !spaceService.checkCreator(spaceID, auth.getUserID())){
             return new ResponseEntity<>(null, HttpStatus.FORBIDDEN);
         }
 

@@ -7,7 +7,7 @@ import javax.persistence.Id;
 import javax.validation.constraints.Min;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.PastOrPresent;
-import java.sql.Timestamp;
+import java.time.Instant;
 
 @Entity
 public class RefFilesModel {
@@ -22,7 +22,7 @@ public class RefFilesModel {
 
     @NotNull(message = "Last time updated content cannot be null!")
     @PastOrPresent(message = "Last time updated content cannot possibly be in the future!")
-    private Timestamp lastUpdatedContent; // needed to specify when the ref file has been updated the last time
+    private Instant lastUpdatedContent; // needed to specify when the ref file has been updated the last time
 
     @NotNull(message = "Reference file's content cannot be null!")
     private String content;
@@ -35,14 +35,14 @@ public class RefFilesModel {
     public RefFilesModel(Long refFileId, String content) {
         this.refFileId = refFileId;
         this.saveIndex = 0L;
-        this.lastUpdatedContent = new Timestamp(System.currentTimeMillis());
+        this.lastUpdatedContent = Instant.now();
         this.content = content;
     }
 
     public RefFilesModel(String content) {
         this.saveIndex = 0L;
         this.content = content;
-        this.lastUpdatedContent = new Timestamp(System.currentTimeMillis());
+        this.lastUpdatedContent = Instant.now();
     }
 
     public Long getRefFileId() {
@@ -63,6 +63,6 @@ public class RefFilesModel {
 
     public void setContent(String content) {
         this.content = content;
-        this.lastUpdatedContent = new Timestamp(System.currentTimeMillis());
+        this.lastUpdatedContent = Instant.now();
     }
 }
