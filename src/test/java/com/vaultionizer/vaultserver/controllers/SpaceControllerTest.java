@@ -77,7 +77,7 @@ public class SpaceControllerTest {
                 SpaceTestData.joinSpaces[2].getAuthKey())
         ).thenReturn(true);
 
-        Mockito.when(spaceService.getSpacesAccessible(SpaceTestData.getAllSpaces[0].getUserID()))
+        Mockito.when(spaceService.getSpacesAccessible(SpaceTestData.getAllSpaces[0].getAuth().getUserID()))
                 .thenReturn(null);
 
         Mockito.when(userAccessService.userHasAccess(

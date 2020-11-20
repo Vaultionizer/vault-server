@@ -8,6 +8,6 @@ ADD scripts/build_project_docker.sh build_project.sh
 RUN bash build_project.sh
 
 FROM openjdk:14-alpine
-COPY --from=build_step /home/vaultionizer/ /home/vaultionizer/
+COPY --from=build_step /home/vaultionizer/vaultionizer_server.jar /home/vaultionizer/vaultionizer_server.jar
 EXPOSE 443
 ENTRYPOINT ["java", "-jar", "/home/vaultionizer/vaultionizer_server.jar"]
