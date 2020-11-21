@@ -9,21 +9,25 @@ import javax.validation.constraints.PastOrPresent;
 import java.time.Instant;
 
 @Entity
+@Table(uniqueConstraints = {
+        @UniqueConstraint(name = "sessionKeyUnique", columnNames = {"userID", "sessionKey", "webSocketToken"})
+})
 public class SessionModel {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     @NotNull
+    @Column(name = "userID")
     private Long userID;
 
-    @Column(unique = true)
+    @Column(unique = true, name = "sessionKey")
     @NotNull(message = "Session key cannot be null!")
     @NotBlank(message = "Session key cannot be blank!")
     private String sessionKey;
 
 
-    @Column(unique = true)
+    @Column(unique = true, name = "webSocketToken")
     @NotNull(message = "Session key cannot be null!")
     @NotBlank(message = "Session key cannot be blank!")
     private String webSocketToken;
