@@ -1,9 +1,6 @@
 package com.vaultionizer.vaultserver.model.db;
 
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
+import javax.persistence.*;
 import javax.validation.constraints.Min;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.PastOrPresent;
@@ -24,6 +21,7 @@ public class RefFilesModel {
     @PastOrPresent(message = "Last time updated content cannot possibly be in the future!")
     private Instant lastUpdatedContent; // needed to specify when the ref file has been updated the last time
 
+    @Column(columnDefinition = "TEXT")
     @NotNull(message = "Reference file's content cannot be null!")
     private String content;
 
