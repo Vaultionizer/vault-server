@@ -22,11 +22,11 @@ public class UserAccessService {
     }
 
     public void deleteAllWithSpace(Long spaceID){
-
+        userAccessRepository.deleteSpace(spaceID);
     }
 
-    public void deleteAllWithUser(Long spaceID){
-
+    public void deleteAllWithUser(Long userID){
+        userAccessRepository.removeUser(userID);
     }
 
     // returns all spaceIDs a userID is associated with

@@ -3,10 +3,7 @@ package com.vaultionizer.vaultserver.controllers;
 import com.vaultionizer.vaultserver.model.db.SpaceModel;
 import com.vaultionizer.vaultserver.model.dto.*;
 import com.vaultionizer.vaultserver.resource.SpaceRepository;
-import com.vaultionizer.vaultserver.service.RefFileService;
-import com.vaultionizer.vaultserver.service.SessionService;
-import com.vaultionizer.vaultserver.service.SpaceService;
-import com.vaultionizer.vaultserver.service.UserAccessService;
+import com.vaultionizer.vaultserver.service.*;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiResponse;
@@ -23,16 +20,24 @@ public class SpaceController {
     private final SessionService sessionService;
     private final SpaceService spaceService;
     private final RefFileService refFileService;
+    private final PendingUploadService pendingUploadService;
+    private final FileService fileService;
     private final UserAccessService userAccessService;
 
     @Autowired
-    public SpaceController(SpaceRepository spaceRepository, SessionService sessionService, SpaceService spaceService, RefFileService refFileService, UserAccessService userAccessService) {
+    public SpaceController(SpaceRepository spaceRepository, SessionService sessionService, SpaceService spaceService,
+                           RefFileService refFileService, PendingUploadService pendingUploadService, FileService fileService,
+                           UserAccessService userAccessService) {
         this.spaceRepository = spaceRepository;
         this.sessionService = sessionService;
         this.spaceService = spaceService;
         this.refFileService = refFileService;
+        this.pendingUploadService = pendingUploadService;
+        this.fileService = fileService;
         this.userAccessService = userAccessService;
     }
+
+
 
     @RequestMapping(value = "/api/spaces/getAll", method = RequestMethod.POST)
     @ApiOperation(value = "Returns all spaces a user has access to.",
@@ -44,12 +49,13 @@ public class SpaceController {
             @ApiResponse(code = 401, message = "The user either does not exist or the sessionKey is wrong. User is thus not authorized."),
     })
     @ResponseBody ResponseEntity<?>
-    getAllSpaces(@RequestBody GenericAuthDto req){
-        if (!sessionService.getSession(req.getUserID(), req.getSessionKey())){
+    getAllSpaces(@RequestBody AuthWrapperDto req){
+        GenericAuthDto auth = req.getAuth();
+        if (!sessionService.getSession(auth.getUserID(), auth.getSessionKey())){
             return new ResponseEntity<>(null, HttpStatus.UNAUTHORIZED);
         }
         return new ResponseEntity<>(
-                spaceService.getSpacesAccessible(req.getUserID()), HttpStatus.OK);
+                spaceService.getSpacesAccessible(auth.getUserID()), HttpStatus.OK);
     }
 
 
@@ -108,10 +114,54 @@ public class SpaceController {
             return new ResponseEntity<>(null, HttpStatus.UNAUTHORIZED);
         }
 
-        if (userAccessService.userHasAccess(req.getAuth().getUserID(), req.getSpaceID())){
+        if (spaceService.checkDeleted(req.getSpaceID()) &&
+            userAccessService.userHasAccess(req.getAuth().getUserID(), req.getSpaceID())){
             return new ResponseEntity<>(spaceRepository.getSpaceAuthKey(req.getSpaceID()), HttpStatus.OK);
         }
 
         return new ResponseEntity<>(null, HttpStatus.FORBIDDEN);
+    }
+
+
+    @RequestMapping(value = "/api/spaces/delete/{spaceID}", method = RequestMethod.DELETE)
+    @ApiOperation(  value = "Deletes the specified space if permitted.",
+            response = SpaceAuthKeyResponseDto.class
+    )
+    @ApiResponses(value = {
+            @ApiResponse(code = 200, message = "The user was successfully added to the space."),
+            @ApiResponse(code = 401, message = "The user either does not exist or the sessionKey is wrong. User is thus not authorized."),
+            @ApiResponse(code = 403, message = "Either the space with given ID does not exist, it is private or the authorization key is wrong."),
+            @ApiResponse(code = 412, message = "Space is probably currently in deletion process.")
+    })
+    @ResponseBody ResponseEntity<?>
+    deleteSpace(@RequestBody AuthWrapperDto req, @PathVariable Long spaceID){
+        GenericAuthDto auth = req.getAuth();
+        if (!sessionService.getSession(auth.getUserID(), auth.getSessionKey())){
+            return new ResponseEntity<>(null, HttpStatus.UNAUTHORIZED);
+        }
+
+        if (!userAccessService.userHasAccess(auth.getUserID(), spaceID) ||
+                !spaceService.checkCreator(spaceID, auth.getUserID())){
+            return new ResponseEntity<>(null, HttpStatus.FORBIDDEN);
+        }
+
+        if (!spaceService.markSpaceDeleted(spaceID)){
+            return new ResponseEntity<>(null, HttpStatus.PRECONDITION_FAILED);
+        }
+        deleteSpaceRoutine(spaceID);
+
+        return new ResponseEntity<>(null, HttpStatus.OK);
+    }
+
+    public void deleteSpaceRoutine(Long spaceID){
+        userAccessService.deleteAllWithSpace(spaceID);
+
+        fileService.deleteAllFilesInSpace(spaceID);
+
+        pendingUploadService.deleteAllPendingUploads(spaceID);
+
+        Long refFileID = spaceService.getRefFileID(spaceID);
+        refFileService.deleteRefFile(refFileID);
+        spaceService.deleteSpace(spaceID);
     }
 }

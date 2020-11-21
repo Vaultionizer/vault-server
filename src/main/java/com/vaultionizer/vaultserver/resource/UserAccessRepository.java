@@ -12,4 +12,10 @@ public interface UserAccessRepository extends JpaRepository<UserAccessModel, Lon
 
     @Query("SELECT COUNT(it) FROM UserAccessModel it WHERE it.userID = ?1 AND it.spaceID = ?2")
     Long hasAccess(Long userID, Long spaceID);
+
+    @Query("DELETE FROM UserAccessModel it WHERE it.spaceID = ?1")
+    void deleteSpace(Long spaceID);
+
+    @Query("DELETE FROM UserAccessModel it WHERE it.userID = ?1")
+    void removeUser(Long userID);
 }

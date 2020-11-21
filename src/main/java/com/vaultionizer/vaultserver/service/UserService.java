@@ -6,15 +6,18 @@ import org.apache.catalina.User;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.HashSet;
 import java.util.Set;
 
 @Service
 public class UserService {
     private final UserRepository userRepository;
+    private final HashSet<Long> deletedUsers;
 
     @Autowired
     public UserService(UserRepository userRepository) {
         this.userRepository = userRepository;
+        deletedUsers = new HashSet<>();
     }
 
     public Long getUserIDCheckCredentials(String username, String key){
@@ -22,7 +25,8 @@ public class UserService {
         if (models.size() != 1){
             return -1L;
         }
-        return models.stream().findFirst().get().getId();
+        Long userID = models.stream().findFirst().get().getId();
+        return deletedUsers.contains(userID) ? -1L : userID;
     }
 
     public UserModel createUser(String username, String key){
@@ -30,5 +34,16 @@ public class UserService {
         catch (Exception e){ // in case that username exists
             return null;
         }
+    }
+
+    public synchronized boolean setDeleted(Long userID){
+        if (deletedUsers.contains(userID)) return false;
+        deletedUsers.add(userID);
+        return true;
+    }
+
+    public synchronized void setDeletionDone(Long userID){
+        userRepository.deleteUser(userID);
+        deletedUsers.remove(userID);
     }
 }

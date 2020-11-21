@@ -1,6 +1,6 @@
 package com.vaultionizer.vaultserver.controllers;
 
-import com.vaultionizer.vaultserver.model.dto.GenericAuthDto;
+import com.vaultionizer.vaultserver.model.dto.AuthWrapperDto;
 import com.vaultionizer.vaultserver.service.SessionService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -22,15 +22,15 @@ public class SessionController {
     }
 
     @RequestMapping(value = "/api/session/renew", method = RequestMethod.PUT)
-    @ApiOperation(value = "Creates a new user, a new private space and adds a session.")
+    @ApiOperation(value = "Renews the session with specified key.")
     @ApiResponses(value = {
             @ApiResponse(code = 200, message = "The session has been renewed successfully."),
             @ApiResponse(code = 403, message = "The session either does not exist or has become invalid already."),
     })
     @ResponseBody
     ResponseEntity<?>
-    createUser(@RequestBody GenericAuthDto req){
-        if (!sessionService.getSession(req.getUserID(), req.getSessionKey())){
+    renewSession(@RequestBody AuthWrapperDto req){
+        if (!sessionService.getSession(req.getAuth().getUserID(), req.getAuth().getSessionKey())){
             return new ResponseEntity<>(null, HttpStatus.FORBIDDEN);
         } // if the session exists, the session has just indirectly been renewed.
         return new ResponseEntity<>(null, HttpStatus.OK);
