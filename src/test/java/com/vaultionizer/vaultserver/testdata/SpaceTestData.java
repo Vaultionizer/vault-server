@@ -1,9 +1,6 @@
 package com.vaultionizer.vaultserver.testdata;
 
-import com.vaultionizer.vaultserver.model.dto.CreateSpaceDto;
-import com.vaultionizer.vaultserver.model.dto.GenericAuthDto;
-import com.vaultionizer.vaultserver.model.dto.JoinSpaceDto;
-import com.vaultionizer.vaultserver.model.dto.SpaceAuthKeyDto;
+import com.vaultionizer.vaultserver.model.dto.*;
 
 public class SpaceTestData {
     public static final CreateSpaceDto[] createSpace = {
@@ -33,9 +30,9 @@ public class SpaceTestData {
             ), 2L, "thatWasTheAuthKey!")
     };
 
-    public static final GenericAuthDto[] getAllSpaces = {
-        new GenericAuthDto(1L, "definitely wrong"),
-        new GenericAuthDto(1L, "correctTestSessionKey")
+    public static final AuthWrapperDto[] getAllSpaces = {
+        new AuthWrapperDto(new GenericAuthDto(1L, "definitely wrong")),
+        new AuthWrapperDto(new GenericAuthDto(1L, "correctTestSessionKey"))
     };
 
     public static final SpaceAuthKeyDto[] getAuthKeys = {

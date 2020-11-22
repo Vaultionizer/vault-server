@@ -7,7 +7,7 @@ import javax.persistence.Id;
 import javax.validation.constraints.Min;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.PastOrPresent;
-import java.sql.Timestamp;
+import java.time.Instant;
 
 @Entity
 public class PendingUploadModel {
@@ -28,7 +28,7 @@ public class PendingUploadModel {
     private Long permittedSessionID; // not the token but the id of the session
 
     @PastOrPresent(message = "The upload cannot possibly have been requested in the future!")
-    private Timestamp requested;
+    private Instant requested;
 
     public PendingUploadModel() {
     }
@@ -37,7 +37,7 @@ public class PendingUploadModel {
         this.spaceID = spaceID;
         this.saveIndex = saveIndex;
         this.permittedSessionID = permittedSessionID;
-        this.requested = new Timestamp(System.currentTimeMillis());
+        this.requested = Instant.now();
     }
 
     public Long getUploadID() {
@@ -56,7 +56,7 @@ public class PendingUploadModel {
         return permittedSessionID;
     }
 
-    public Timestamp getRequested() {
+    public Instant getRequested() {
         return requested;
     }
 }

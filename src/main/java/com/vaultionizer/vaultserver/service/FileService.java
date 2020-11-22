@@ -25,6 +25,16 @@ public class FileService {
         this.readMap = new HashMap<>();
     }
 
+    public void deleteAllFilesInSpace(Long spaceID){
+        var ids = fileRepository.getAllFiles(spaceID);
+        fileRepository.deleteFiles(spaceID);
+        synchronized (readMap) {
+            ids.forEach(readMap::remove);
+        }
+        deleteDirectory(spaceID);
+
+    }
+
     public boolean setUploadFile(Long spaceID, Long saveIndex){
         FileModel model = findFile(spaceID, saveIndex);
         if (model != null) return false;
@@ -113,6 +123,10 @@ public class FileService {
         return Config.SPACE_PATH +spaceID+"/"+saveIndex+".bin";
     }
 
+    private String getFilePath(Long spaceID){
+        return Config.SPACE_PATH +spaceID;
+    }
+
     private synchronized FileModel findFile(Long spaceID, Long saveIndex){
         return fileRepository.findFile(spaceID, saveIndex);
     }
@@ -127,6 +141,13 @@ public class FileService {
                 return removeFileFromDisk(spaceID, saveIndex);
             default:
                 return false;
+        }
+    }
+
+    private void deleteDirectory(Long spaceID){
+        File file = new File(getFilePath(spaceID));
+        if (file.isDirectory()){
+            file.delete();
         }
     }
 

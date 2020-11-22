@@ -9,4 +9,7 @@ import java.util.Set;
 public interface UserRepository extends JpaRepository<UserModel, Long> {
     @Query("SELECT it FROM users it WHERE it.username = ?1 AND it.key = ?2")
     Set<UserModel> checkCredentials(String username, String key);
+
+    @Query("DELETE FROM users it WHERE it.id = ?1")
+    void deleteUser(Long userID);
 }

@@ -7,9 +7,7 @@ import com.vaultionizer.vaultserver.resource.SpaceRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
 
 @Service
 public class SpaceService {
@@ -17,6 +15,8 @@ public class SpaceService {
     private final SpaceRepository spaceRepository;
     private RefFileService refFileService;
     private UserAccessService userAccessService;
+    private final HashSet<Long> isDeleted;
+    private final Object deleteLock;
 
 
     @Autowired
@@ -24,6 +24,8 @@ public class SpaceService {
         this.spaceRepository = spaceRepository;
         this.refFileService = refFileService;
         this.userAccessService = userAccessService;
+        this.isDeleted = new HashSet<>();
+        deleteLock = null;
     }
 
     public GetSpacesResponseDto getSpace(Long spaceID, Long userID){
@@ -60,5 +62,31 @@ public class SpaceService {
         var id = this.spaceRepository.getRefFileID(spaceID);
         if (id.isEmpty()) return -1L;
         return id.get();
+    }
+
+    public boolean checkCreator(Long spaceID, Long userID){
+        return spaceRepository.checkIsCreator(spaceID, userID) == 1;
+    }
+
+    public boolean markSpaceDeleted(Long spaceID){
+        synchronized (deleteLock) {
+            if (this.isDeleted.contains(spaceID)) {
+                return false;
+            }
+
+            this.isDeleted.add(spaceID);
+        }
+        return true;
+    }
+
+    public void deleteSpace(Long spaceID){
+        spaceRepository.deleteSpace(spaceID);
+        synchronized (deleteLock){
+            this.isDeleted.remove(spaceID);
+        }
+    }
+
+    public synchronized boolean checkDeleted(Long spaceID){
+        return this.isDeleted.contains(spaceID);
     }
 }

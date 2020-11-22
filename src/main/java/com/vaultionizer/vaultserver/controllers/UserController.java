@@ -4,9 +4,7 @@ import com.vaultionizer.vaultserver.helpers.Config;
 import com.vaultionizer.vaultserver.model.db.SessionModel;
 import com.vaultionizer.vaultserver.model.db.UserModel;
 import com.vaultionizer.vaultserver.model.dto.*;
-import com.vaultionizer.vaultserver.service.SessionService;
-import com.vaultionizer.vaultserver.service.SpaceService;
-import com.vaultionizer.vaultserver.service.UserService;
+import com.vaultionizer.vaultserver.service.*;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiResponse;
@@ -16,6 +14,9 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.ArrayList;
+import java.util.HashSet;
+
 @RestController
 @Api(value = "/api/users/", description = "Controller that manages user interaction.")
 public class UserController {
@@ -23,13 +24,23 @@ public class UserController {
     private final UserService userService;
     private final SessionService sessionService;
     private final SpaceService spaceService;
+    private final SpaceController spaceController;
+    private final UserAccessService userAccessService;
+    private final PendingUploadService pendingUploadService;
 
     @Autowired
-    public UserController(UserService userService, SessionService sessionService, SpaceService spaceService) {
+    public UserController(UserService userService, SessionService sessionService,
+                          SpaceService spaceService, SpaceController spaceController,
+                          UserAccessService userAccessService, PendingUploadService pendingUploadService) {
         this.userService = userService;
         this.sessionService = sessionService;
         this.spaceService = spaceService;
+        this.spaceController = spaceController;
+        this.userAccessService = userAccessService;
+        this.pendingUploadService = pendingUploadService;
     }
+
+
 
     @RequestMapping(value = "/api/users/create", method = RequestMethod.POST)
     @ApiOperation(value = "Creates a new user, a new private space and adds a session.",
@@ -83,14 +94,39 @@ public class UserController {
     @RequestMapping(value = "/api/users/logout", method = RequestMethod.PUT)
     @ApiOperation(value = "Logs the user out.")
     @ApiResponses(value = {
-            @ApiResponse(code = 200, message = "The user was logged out successfully."),
+            @ApiResponse(code = 200, message = "The user was logged out successfully.")
+    })
+    @ResponseBody ResponseEntity<?>
+    logoutUser(@RequestBody AuthWrapperDto req){
+        GenericAuthDto auth = req.getAuth();
+        sessionService.deleteSession(auth.getUserID(), auth.getSessionKey());
+        return new ResponseEntity<>(null, HttpStatus.OK);
+    }
+
+    @RequestMapping(value = "/api/users/delete", method = RequestMethod.DELETE)
+    @ApiOperation(value = "Deletes the specified user and all spaces the user created.")
+    @ApiResponses(value = {
+            @ApiResponse(code = 200, message = "The deletion process was successful."),
             @ApiResponse(code = 403, message = "The user authorization failed.")
     })
     @ResponseBody ResponseEntity<?>
-    logoutUser(@RequestBody GenericAuthDto req){
-        boolean success = sessionService.deleteSession(req.getUserID(), req.getSessionKey());
-        return new ResponseEntity<>(null,
-                success ? HttpStatus.OK : HttpStatus.FORBIDDEN);
+    deleteUser(@RequestBody AuthWrapperDto req){
+        GenericAuthDto auth = req.getAuth();
+        if (!sessionService.getSession(auth.getUserID(), auth.getSessionKey())){
+            return new ResponseEntity<>(null, HttpStatus.FORBIDDEN);
+        }
+        userService.setDeleted(auth.getUserID());
+        pendingUploadService.deletePendingUploadsByUser(auth.getUserID());
+        sessionService.deleteAllSessionsWithUser(auth.getUserID());
+        ArrayList<GetSpacesResponseDto> spaces = spaceService.getSpacesAccessible(auth.getUserID());
+        spaces.forEach(space -> {
+            if (space.isCreator()) {
+                spaceController.deleteSpaceRoutine(space.getSpaceID());
+            }
+        });
+        userAccessService.deleteAllWithUser(auth.getUserID());
+        userService.setDeletionDone(auth.getUserID());
+        return new ResponseEntity<>(null, HttpStatus.OK);
     }
 
 }

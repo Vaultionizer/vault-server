@@ -1,13 +1,14 @@
 package com.vaultionizer.vaultserver.model.dto;
 
-import java.sql.Timestamp;
+
+import java.time.Instant;
 
 public class ReadRefFileDto {
     private GenericAuthDto auth;
     private Long spaceID;
-    private Timestamp lastRead;
+    private Instant lastRead;
 
-    public ReadRefFileDto(GenericAuthDto auth, Long spaceID, Timestamp lastRead) {
+    public ReadRefFileDto(GenericAuthDto auth, Long spaceID, Instant lastRead) {
         this.auth = auth;
         this.spaceID = spaceID;
         this.lastRead = lastRead;
@@ -21,7 +22,7 @@ public class ReadRefFileDto {
         return spaceID;
     }
 
-    public Timestamp getLastRead() {
+    public Instant getLastRead() {
         return lastRead;
     }
 }
