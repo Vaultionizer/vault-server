@@ -25,7 +25,7 @@ public class SpaceService {
         this.refFileService = refFileService;
         this.userAccessService = userAccessService;
         this.isDeleted = new HashSet<>();
-        deleteLock = null;
+        deleteLock = new Object();
     }
 
     public GetSpacesResponseDto getSpace(Long spaceID, Long userID){

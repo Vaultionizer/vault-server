@@ -99,6 +99,27 @@ public class SpaceController {
         return new ResponseEntity<>(null, HttpStatus.FORBIDDEN);
     }
 
+    @RequestMapping(value = "/api/spaces/quit/{spaceID}", method = RequestMethod.DELETE)
+    @ApiOperation(value = "Removes the user from the space.")
+    @ApiResponses(value = {
+            @ApiResponse(code = 200, message = "The user successfully quit the space."),
+            @ApiResponse(code = 401, message = "The user either does not exist or the sessionKey is wrong. User is thus not authorized."),
+            @ApiResponse(code = 404, message = "The spaceID does not exist or you do not have access in the first place."),
+            @ApiResponse(code = 406, message = "The user is the creator of the space and thus must delete the space manually.")
+    })
+    @ResponseBody ResponseEntity<?>
+    quitSpace(@RequestBody AuthWrapperDto req, @PathVariable Long spaceID){
+        if (!sessionService.getSession(req.getAuth().getUserID(), req.getAuth().getSessionKey())){
+            return new ResponseEntity<>(null, HttpStatus.UNAUTHORIZED);
+        }
+        if (spaceService.checkCreator(spaceID, req.getAuth().getUserID())){
+            return new ResponseEntity<>(null, HttpStatus.NOT_ACCEPTABLE);
+        }
+        return new ResponseEntity<>(null, userAccessService.removeAccess(req.getAuth().getUserID(), spaceID) ?
+                HttpStatus.OK : HttpStatus.NOT_FOUND);
+
+    }
+
     @RequestMapping(value = "/api/spaces/key", method = RequestMethod.POST)
     @ApiOperation(  value = "Returns the authentication key of a file.",
                     response = SpaceAuthKeyResponseDto.class
