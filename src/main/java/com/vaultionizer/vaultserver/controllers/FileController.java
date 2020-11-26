@@ -132,7 +132,7 @@ public class FileController {
         }
     }
 
-    @RequestMapping(value = "/api/file/delete", method = RequestMethod.PUT)
+    @RequestMapping(value = "/api/file/delete", method = RequestMethod.DELETE)
     @ApiOperation(value = "Requests to delete a specific file.")
     @ApiResponses(value = {
             @ApiResponse(code = 200, message = "File has successfully been deleted."),
