@@ -37,4 +37,12 @@ public class UserAccessService {
     public boolean userHasAccess(Long userID, Long spaceID){
         return userAccessRepository.hasAccess(userID, spaceID) == 1;
     }
+
+    public boolean removeAccess(Long userID, Long spaceID){
+        if (this.userAccessRepository.hasAccess(userID, spaceID) == 1){
+            this.userAccessRepository.removeUserFromSpace(userID, spaceID);
+            return true;
+        }
+        return false;
+    }
 }
