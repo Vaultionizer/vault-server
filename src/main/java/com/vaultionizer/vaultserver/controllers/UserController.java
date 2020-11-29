@@ -47,7 +47,7 @@ public class UserController {
             @ApiResponse(code = 400, message = "The values for key or the reference file does not match the constraints."),
             @ApiResponse(code = 409, message = "The username is in use.")
     })
-    @ResponseBody ResponseEntity<?>
+    public @ResponseBody ResponseEntity<?>
     createUser(@RequestBody RegisterUserDto req){
         if (req.getKey() == null || req.getRefFile() == null ||
                 req.getKey().length() < Config.MIN_USER_KEY_LENGTH || req.getRefFile().length() == 0 ||
@@ -71,7 +71,7 @@ public class UserController {
             @ApiResponse(code = 200, message = "The user was signed in successfully. The response is a session key."),
             @ApiResponse(code = 401, message = "The user authorization failed.")
     })
-    @ResponseBody ResponseEntity<?>
+    public @ResponseBody ResponseEntity<?>
     loginUser(@RequestBody LoginUserDto req){
         Long userID = userService.getUserIDCheckCredentials(req.getUsername(), req.getKey());
         if (userID == -1){
@@ -87,7 +87,7 @@ public class UserController {
     @ApiResponses(value = {
             @ApiResponse(code = 200, message = "The user was logged out successfully.")
     })
-    @ResponseBody ResponseEntity<?>
+    public @ResponseBody ResponseEntity<?>
     logoutUser(@RequestBody AuthWrapperDto req){
         GenericAuthDto auth = req.getAuth();
         sessionService.deleteSession(auth.getUserID(), auth.getSessionKey());
@@ -100,7 +100,7 @@ public class UserController {
             @ApiResponse(code = 200, message = "The deletion process was successful."),
             @ApiResponse(code = 403, message = "The user authorization failed.")
     })
-    @ResponseBody ResponseEntity<?>
+    public @ResponseBody ResponseEntity<?>
     deleteUser(@RequestBody AuthWrapperDto req){
         GenericAuthDto auth = req.getAuth();
         if (!sessionService.getSession(auth.getUserID(), auth.getSessionKey())){

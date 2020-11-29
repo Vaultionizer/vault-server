@@ -25,6 +25,10 @@ public class FileService {
         this.readMap = new HashMap<>();
     }
 
+    public long countFilesInSpace(Long spaceID){
+        return fileRepository.countFilesInSpace(spaceID);
+    }
+
     public void deleteAllFilesInSpace(Long spaceID){
         var ids = fileRepository.getAllFiles(spaceID);
         fileRepository.deleteFiles(spaceID);
