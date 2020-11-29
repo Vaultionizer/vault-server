@@ -1,8 +1,6 @@
 package com.vaultionizer.vaultserver.controllers;
 
 import com.vaultionizer.vaultserver.helpers.Config;
-import com.vaultionizer.vaultserver.model.db.SessionModel;
-import com.vaultionizer.vaultserver.model.db.UserModel;
 import com.vaultionizer.vaultserver.model.dto.*;
 import com.vaultionizer.vaultserver.service.*;
 import io.swagger.annotations.Api;
@@ -15,7 +13,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.ArrayList;
-import java.util.HashSet;
 
 @RestController
 @Api(value = "/api/users/", description = "Controller that manages user interaction.")
@@ -44,7 +41,7 @@ public class UserController {
 
     @RequestMapping(value = "/api/users/create", method = RequestMethod.POST)
     @ApiOperation(value = "Creates a new user, a new private space and adds a session.",
-            response = RegisterUserResponseDto.class)
+            response = LoginUserResponseDto.class)
     @ApiResponses(value = {
             @ApiResponse(code = 201, message = "The user was created successfully. The response is a session key and the newly created user's ID."),
             @ApiResponse(code = 400, message = "The values for key or the reference file does not match the constraints."),
@@ -59,15 +56,12 @@ public class UserController {
             return new ResponseEntity<>(null, HttpStatus.BAD_REQUEST);
         }
 
-        UserModel userModel = userService.createUser(req.getUsername(), req.getKey());
-        if (userModel == null) {
+        Long userID = userService.createUser(req.getUsername(), req.getKey());
+        if (userID == null) {
             return new ResponseEntity<>(null, HttpStatus.CONFLICT);
         }
-        spaceService.addPrivateSpace(userModel.getId(), req.getRefFile());
-        SessionModel sessionModel = sessionService.addSession(userModel.getId());
-        return new ResponseEntity<>(
-                new RegisterUserResponseDto(userModel.getId(), sessionModel.getSessionKey(), sessionModel.getWebSocketToken()),
-                HttpStatus.CREATED);
+        spaceService.createSpace(userID, req.getRefFile(), true, null);
+        return new ResponseEntity<>(sessionService.addSession(userID), HttpStatus.CREATED);
     }
 
     @RequestMapping(value = "/api/users/login", method = RequestMethod.POST)
@@ -84,11 +78,8 @@ public class UserController {
             // no user has that id in combination with the key
             return new ResponseEntity<>(null, HttpStatus.UNAUTHORIZED);
         }
-        SessionModel model = sessionService.addSession(userID);
 
-        return new ResponseEntity<>(
-                new LoginUserResponseDto(userID, model.getSessionKey(), model.getWebSocketToken()),
-                HttpStatus.OK);
+        return new ResponseEntity<>(sessionService.addSession(userID), HttpStatus.OK);
     }
 
     @RequestMapping(value = "/api/users/logout", method = RequestMethod.PUT)

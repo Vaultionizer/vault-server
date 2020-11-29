@@ -17,8 +17,8 @@ public class RefFileService {
         this.refFileRepository = refFileRepository;
     }
 
-    public RefFilesModel addNewRefFile(String content){
-        return refFileRepository.save(new RefFilesModel(content));
+    public Long addNewRefFile(String content){
+        return refFileRepository.save(new RefFilesModel(content)).getRefFileId();
     }
 
     public Long requestUploadFiles(Long refFileID, Long amountValues){

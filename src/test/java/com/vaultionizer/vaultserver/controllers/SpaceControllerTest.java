@@ -6,6 +6,7 @@ import com.vaultionizer.vaultserver.resource.SpaceRepository;
 import com.vaultionizer.vaultserver.service.*;
 import com.vaultionizer.vaultserver.testdata.SpaceTestData;
 import org.junit.jupiter.api.*;
+import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.ResponseEntity;
@@ -15,9 +16,6 @@ import static org.mockito.ArgumentMatchers.any;
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 @DisplayName("Space Controller")
 public class SpaceControllerTest {
-    @MockBean
-    private SpaceRepository spaceRepository;
-
     @MockBean
     private SessionService sessionService;
 
@@ -42,7 +40,6 @@ public class SpaceControllerTest {
 
     @BeforeEach
     private void initialize(){
-        spaceRepository = Mockito.mock(SpaceRepository.class);
         spaceService = Mockito.mock(SpaceService.class);
         sessionService = Mockito.mock(SessionService.class);
         refFileService = Mockito.mock(RefFileService.class);
@@ -60,12 +57,6 @@ public class SpaceControllerTest {
                 SpaceTestData.createSpace[1].getAuth().getUserID(),
                 SpaceTestData.createSpace[1].getAuth().getSessionKey())
         ).thenReturn(true);
-
-        Mockito.when(refFileService.addNewRefFile(SpaceTestData.createSpace[1].getReferenceFile()))
-                .thenReturn(new RefFilesModel(1L, ""));
-
-        Mockito.when(spaceRepository.save(any(SpaceModel.class)))
-                .thenReturn(new SpaceModel(1L, 1L, 1L, true, ""));
 
         Mockito.when(spaceService.checkSpaceCredentials(
                 SpaceTestData.joinSpaces[1].getSpaceID(),
@@ -90,10 +81,13 @@ public class SpaceControllerTest {
                 SpaceTestData.getAuthKeys[2].getSpaceID())
         ).thenReturn(true);
 
-        Mockito.when(spaceRepository.getSpaceAuthKey(SpaceTestData.getAuthKeys[2].getSpaceID()))
-                .thenReturn(null);
+        Mockito.when(spaceService.createSpace(SpaceTestData.createSpace[1].getAuth().getUserID(),
+                SpaceTestData.createSpace[1].getReferenceFile(), SpaceTestData.createSpace[1].isPrivate(),
+                SpaceTestData.createSpace[1].getAuthKey())
+        ).thenReturn(1L);
 
-        spaceController = new SpaceController(spaceRepository, sessionService, spaceService, refFileService, pendingUploadService, fileService, userAccessService);
+
+        spaceController = new SpaceController(sessionService, spaceService, refFileService, pendingUploadService, fileService, userAccessService);
     }
 
     // Tests create space api

@@ -29,8 +29,8 @@ public class UserService {
         return deletedUsers.contains(userID) ? -1L : userID;
     }
 
-    public UserModel createUser(String username, String key){
-        try {return userRepository.save(new UserModel(username, key));}
+    public Long createUser(String username, String key){
+        try {return userRepository.save(new UserModel(username, key)).getId();}
         catch (Exception e){ // in case that username exists
             return null;
         }
