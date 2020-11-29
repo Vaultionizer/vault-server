@@ -2,6 +2,7 @@ package com.vaultionizer.vaultserver.service;
 
 import com.vaultionizer.vaultserver.helpers.Config;
 import com.vaultionizer.vaultserver.model.db.SessionModel;
+import com.vaultionizer.vaultserver.model.dto.LoginUserResponseDto;
 import com.vaultionizer.vaultserver.resource.SessionRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -23,13 +24,14 @@ public class SessionService {
         sessionRepository.save(model);
     }
 
-    public SessionModel addSession(Long userID){
+    public LoginUserResponseDto addSession(Long userID){
         SessionModel session;
         do
         {
             session = new SessionModel(userID);
         } while(sessionRepository.checkUnique(session.getWebSocketToken(), session.getSessionKey()) > 0);
-        return sessionRepository.save(session);
+        session = sessionRepository.save(session);
+        return new LoginUserResponseDto(session.getUserID(), session.getSessionKey(), session.getWebSocketToken());
     }
 
     public boolean getSession(Long userID, String sessionKey){

@@ -1,8 +1,8 @@
 package com.vaultionizer.vaultserver.testdata;
 
 import com.vaultionizer.vaultserver.model.dto.LoginUserDto;
+import com.vaultionizer.vaultserver.model.dto.LoginUserResponseDto;
 import com.vaultionizer.vaultserver.model.dto.RegisterUserDto;
-import com.vaultionizer.vaultserver.model.dto.RegisterUserResponseDto;
 
 public class UserTestData {
     public static final RegisterUserDto[] registerData = new RegisterUserDto[]{
@@ -14,8 +14,8 @@ public class UserTestData {
                     "test") // legitimate key (correct length)
     };
 
-    public static final RegisterUserResponseDto[] registerResponses = new RegisterUserResponseDto[]{
-            new RegisterUserResponseDto(1L, "testSessionKey", "")
+    public static final LoginUserResponseDto[] registerResponses = new LoginUserResponseDto[]{
+            new LoginUserResponseDto(1L, "testSessionKey", "")
     };
 
     public static final LoginUserDto[] loginUser = new LoginUserDto[]{

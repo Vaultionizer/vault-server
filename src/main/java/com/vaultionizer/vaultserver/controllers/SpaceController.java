@@ -16,7 +16,6 @@ import org.springframework.web.bind.annotation.*;
 @Api(value = "/api/spaces/", description = "Controller that manages spaces.")
 @RestController
 public class SpaceController {
-    private final SpaceRepository spaceRepository;
     private final SessionService sessionService;
     private final SpaceService spaceService;
     private final RefFileService refFileService;
@@ -25,10 +24,8 @@ public class SpaceController {
     private final UserAccessService userAccessService;
 
     @Autowired
-    public SpaceController(SpaceRepository spaceRepository, SessionService sessionService, SpaceService spaceService,
-                           RefFileService refFileService, PendingUploadService pendingUploadService, FileService fileService,
-                           UserAccessService userAccessService) {
-        this.spaceRepository = spaceRepository;
+    public SpaceController(SessionService sessionService, SpaceService spaceService, RefFileService refFileService,
+                           PendingUploadService pendingUploadService, FileService fileService, UserAccessService userAccessService) {
         this.sessionService = sessionService;
         this.spaceService = spaceService;
         this.refFileService = refFileService;
@@ -71,11 +68,9 @@ public class SpaceController {
         if (!sessionService.getSession(req.getAuth().getUserID(), req.getAuth().getSessionKey())){
             return new ResponseEntity<>(null, HttpStatus.UNAUTHORIZED);
         }
-        var refFile = refFileService.addNewRefFile(req.getReferenceFile());
-        SpaceModel model = spaceRepository.save(new SpaceModel(req.getAuth().getUserID(), refFile.getRefFileId(),
-                req.isPrivate(), req.getAuthKey()));
-        userAccessService.addUserAccess(model.getSpaceID(), req.getAuth().getUserID());
-        return new ResponseEntity<>(model.getSpaceID(), HttpStatus.CREATED);
+        Long spaceID = spaceService.createSpace(req.getAuth().getUserID(), req.getReferenceFile(), req.isPrivate(), req.getAuthKey());
+
+        return new ResponseEntity<>(spaceID, HttpStatus.CREATED);
     }
 
     @RequestMapping(value = "/api/spaces/join", method = RequestMethod.PUT)
@@ -137,7 +132,7 @@ public class SpaceController {
 
         if (spaceService.checkDeleted(req.getSpaceID()) &&
             userAccessService.userHasAccess(req.getAuth().getUserID(), req.getSpaceID())){
-            return new ResponseEntity<>(spaceRepository.getSpaceAuthKey(req.getSpaceID()), HttpStatus.OK);
+            return new ResponseEntity<>(spaceService.getSpaceAuthKey(req.getSpaceID()), HttpStatus.OK);
         }
 
         return new ResponseEntity<>(null, HttpStatus.FORBIDDEN);
