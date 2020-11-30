@@ -45,4 +45,8 @@ public class PendingUploadService {
     public void deleteOldPendingUploads(){
         pendingUploadRepository.deleteOldUploads(Instant.now().minusSeconds(Config.MAX_UPLOAD_AGE));
     }
+
+    public long countPendingUploadsForSpace(Long spaceID){
+        return pendingUploadRepository.countBySpace(spaceID);
+    }
 }

@@ -1,14 +1,9 @@
 package com.vaultionizer.vaultserver.controllers;
 
-import com.vaultionizer.vaultserver.model.db.SessionModel;
-import com.vaultionizer.vaultserver.model.db.UserModel;
 import com.vaultionizer.vaultserver.model.dto.LoginUserResponseDto;
-import com.vaultionizer.vaultserver.model.dto.RegisterUserResponseDto;
-import com.vaultionizer.vaultserver.resource.SpaceRepository;
 import com.vaultionizer.vaultserver.service.*;
 import com.vaultionizer.vaultserver.testdata.UserTestData;
 import org.junit.jupiter.api.*;
-import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.ResponseEntity;
@@ -53,7 +48,7 @@ public class UserControllerTest {
         spaceController = Mockito.mock(SpaceController.class);
 
         Mockito.when(userService.createUser(UserTestData.registerData[3].getUsername(), UserTestData.registerData[3].getKey()))
-                .thenReturn(new UserModel(0L, "username", UserTestData.registerResponses[0].getSessionKey()));
+                .thenReturn(0L);
 
         Mockito.when(userService.getUserIDCheckCredentials(UserTestData.loginUser[0].getUsername(), UserTestData.loginUser[0].getKey()))
                 .thenReturn(-1L);
@@ -61,10 +56,10 @@ public class UserControllerTest {
                 .thenReturn(1L);
 
         Mockito.when(sessionService.addSession(0L))
-                .thenReturn(new SessionModel(1L, 0L, UserTestData.registerResponses[0].getSessionKey(), "", null));
+                .thenReturn(new LoginUserResponseDto(0L, UserTestData.registerResponses[0].getSessionKey(), ""));
 
         Mockito.when(sessionService.addSession(1L))
-                .thenReturn(new SessionModel(1L, "testSession"));
+                .thenReturn(new LoginUserResponseDto(1L, "testSession", "testWebsocket"));
 
         userController = new UserController(userService, sessionService, spaceService, spaceController, userAccessService, pendingUploadService);
     }
@@ -98,8 +93,8 @@ public class UserControllerTest {
         ResponseEntity<?> res = userController.createUser(UserTestData.registerData[3]);
         Assertions.assertEquals(res.getStatusCodeValue(), 201);
         Assertions.assertTrue(res.hasBody());
-        Assertions.assertEquals(((RegisterUserResponseDto)(Objects.requireNonNull(res.getBody()))).getUserID(), 0);
-        Assertions.assertEquals(((RegisterUserResponseDto)(Objects.requireNonNull(res.getBody()))).getSessionKey(), "testSessionKey");
+        Assertions.assertEquals(((LoginUserResponseDto)(Objects.requireNonNull(res.getBody()))).getUserID(), 0);
+        Assertions.assertEquals(((LoginUserResponseDto)(Objects.requireNonNull(res.getBody()))).getSessionKey(), "testSessionKey");
     }
 
     // testing login method

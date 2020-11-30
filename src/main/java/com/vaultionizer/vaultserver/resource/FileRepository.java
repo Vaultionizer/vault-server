@@ -13,6 +13,10 @@ public interface FileRepository extends JpaRepository<FileModel, Long> {
             "WHERE it.spaceID = ?1  AND it.saveIndex = ?2")
     FileModel findFile(Long spaceID, Long saveIndex);
 
+    @Query("SELECT COUNT(it) FROM FileModel it " +
+            "WHERE it.spaceID = ?1")
+    long countFilesInSpace(Long spaceID);
+
     @Transactional
     @Modifying
     @Query("DELETE FROM FileModel it WHERE it.spaceID = ?1")

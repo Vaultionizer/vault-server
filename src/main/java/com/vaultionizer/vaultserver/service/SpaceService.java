@@ -3,6 +3,7 @@ package com.vaultionizer.vaultserver.service;
 import com.vaultionizer.vaultserver.model.db.RefFilesModel;
 import com.vaultionizer.vaultserver.model.db.SpaceModel;
 import com.vaultionizer.vaultserver.model.dto.GetSpacesResponseDto;
+import com.vaultionizer.vaultserver.model.dto.SpaceAuthKeyResponseDto;
 import com.vaultionizer.vaultserver.resource.SpaceRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -34,10 +35,16 @@ public class SpaceService {
         return new GetSpacesResponseDto(spaceID, model.get().isPrivateSpace(), model.get().getCreatorID().equals(userID));
     }
 
-    public void addPrivateSpace(Long userID, String refFileContent){
-        RefFilesModel refFile = refFileService.addNewRefFile(refFileContent);
-        SpaceModel spaceModel = spaceRepository.save(new SpaceModel(userID, refFile.getRefFileId()));
-        userAccessService.addUserAccess(spaceModel.getSpaceID(), userID);
+    public Long createSpace(Long userID, String refFileContent, boolean isPrivate, String authKey){
+        Long refFileID = refFileService.addNewRefFile(refFileContent);
+        SpaceModel model = new SpaceModel(userID, refFileID, isPrivate, authKey);
+        model = spaceRepository.save(model);
+        userAccessService.addUserAccess(model.getSpaceID(), userID);
+        return model.getSpaceID();
+    }
+
+    public Optional<SpaceAuthKeyResponseDto> getSpaceAuthKey(Long spaceID){
+        return spaceRepository.getSpaceAuthKey(spaceID);
     }
 
     // returns the spaces a user has access to
