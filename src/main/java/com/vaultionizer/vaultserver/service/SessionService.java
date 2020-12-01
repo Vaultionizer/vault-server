@@ -29,13 +29,15 @@ public class SessionService {
         SessionModel session = null;
         do
         {
+            System.out.println(userID);
             try {
                 session = new SessionModel(userID);
             }
             catch(NoSuchAlgorithmException e) {
+                e.printStackTrace();
                 continue;
             }
-        } while(session != null || sessionRepository.checkUnique(session.getWebSocketToken(), session.getSessionKey()) > 0);
+        } while(sessionRepository.checkUnique(session.getWebSocketToken(), session.getSessionKey()) > 0);
         session = sessionRepository.save(session);
         return new LoginUserResponseDto(session.getUserID(), session.getSessionKey(), session.getWebSocketToken());
     }

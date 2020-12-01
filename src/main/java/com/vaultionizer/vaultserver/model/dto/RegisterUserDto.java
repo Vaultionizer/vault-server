@@ -1,11 +1,14 @@
 package com.vaultionizer.vaultserver.model.dto;
 
 public class RegisterUserDto {
-    private final String username;
-    private final String key;
-    private final String refFile;
+    private String username;
+    private String key;
+    private String refFile;
     private String serverUser;
     private String serverAuthKey;
+
+    public RegisterUserDto() {
+    }
 
     public RegisterUserDto(String username, String key, String refFile) {
         this.username = username;

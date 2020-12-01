@@ -51,7 +51,8 @@ public class UserController {
     public @ResponseBody ResponseEntity<?>
     createUser(@RequestBody RegisterUserDto req){
         if (Config.VERSION.isHasAuthKey() &&
-                (!req.getServerUser().equals(Config.serverUser) || !req.getServerAuthKey().equals(Config.serverAuth)))
+                ( req.getServerUser() == null || req.getServerAuthKey() == null ||
+                  !req.getServerUser().equals(Config.serverUser) || !req.getServerAuthKey().equals(Config.serverAuth)))
         {
             return new ResponseEntity<>(null, HttpStatus.FORBIDDEN);
         }
