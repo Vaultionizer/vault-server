@@ -45,10 +45,17 @@ public class UserController {
     @ApiResponses(value = {
             @ApiResponse(code = 201, message = "The user was created successfully. The response is a session key and the newly created user's ID."),
             @ApiResponse(code = 400, message = "The values for key or the reference file does not match the constraints."),
+            @ApiResponse(code = 403, message = "The server credentials are wrong."),
             @ApiResponse(code = 409, message = "The username is in use.")
     })
     public @ResponseBody ResponseEntity<?>
     createUser(@RequestBody RegisterUserDto req){
+        if (Config.VERSION.isHasAuthKey() &&
+                (!req.getServerUser().equals(Config.serverUser) || !req.getServerAuthKey().equals(Config.serverAuth)))
+        {
+            return new ResponseEntity<>(null, HttpStatus.FORBIDDEN);
+        }
+
         if (req.getKey() == null || req.getRefFile() == null ||
                 req.getKey().length() < Config.MIN_USER_KEY_LENGTH || req.getRefFile().length() == 0 ||
                 req.getUsername() == null || req.getUsername().length() < Config.MIN_USERNAME_LENGTH

@@ -11,8 +11,12 @@ public class Config {
 
     public static final GetVersionResponseDto VERSION = new GetVersionResponseDto(
             "Vaultionizer v0.1",
-            "No maintainer"
+            "No maintainer",
+            false
     );
+
+    public static final String serverUser = "root";
+    public static final String serverAuth = "toor";
 
     public static final String WEBSOCKET_PREFIX = "/api/ws";
     public static final String WEBSOCKET_RES = "/api/wsres";

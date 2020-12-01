@@ -7,6 +7,7 @@ import com.vaultionizer.vaultserver.resource.SessionRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.security.NoSuchAlgorithmException;
 import java.time.Instant;
 import java.util.Set;
 
@@ -24,12 +25,17 @@ public class SessionService {
         sessionRepository.save(model);
     }
 
-    public LoginUserResponseDto addSession(Long userID){
-        SessionModel session;
+    public LoginUserResponseDto addSession(Long userID) {
+        SessionModel session = null;
         do
         {
-            session = new SessionModel(userID);
-        } while(sessionRepository.checkUnique(session.getWebSocketToken(), session.getSessionKey()) > 0);
+            try {
+                session = new SessionModel(userID);
+            }
+            catch(NoSuchAlgorithmException e) {
+                continue;
+            }
+        } while(session != null || sessionRepository.checkUnique(session.getWebSocketToken(), session.getSessionKey()) > 0);
         session = sessionRepository.save(session);
         return new LoginUserResponseDto(session.getUserID(), session.getSessionKey(), session.getWebSocketToken());
     }
