@@ -19,7 +19,7 @@ public class UserModel {
     private String username;
 
     @NotNull(message = "Key cannot be null!")
-    @Length(min = Config.MIN_USER_KEY_LENGTH, message = "Hashed key must be at least 64 characters long!")
+    @Length(min = Config.MIN_USER_KEY_LENGTH, message = "Hashed key must be at least "+Config.MIN_USER_KEY_LENGTH+" characters long!")
     private String key; // Note: key can be blank because a cryptographic key is randomly distributed.
                         //       The length must have a minimum size.
 

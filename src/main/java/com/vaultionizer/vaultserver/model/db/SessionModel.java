@@ -6,6 +6,7 @@ import javax.persistence.*;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.PastOrPresent;
+import java.security.NoSuchAlgorithmException;
 import java.time.Instant;
 
 @Entity
@@ -39,14 +40,14 @@ public class SessionModel {
     public SessionModel() {
     }
 
-    public SessionModel(Long userID) {
+    public SessionModel(Long userID) throws NoSuchAlgorithmException {
         this.userID = userID;
         this.sessionKey = SessionTokenGen.generateToken();
         this.webSocketToken = SessionTokenGen.generateToken();
         this.lastQuery = Instant.now();
     }
 
-    public SessionModel(Long userID, String sessionKey) { // for testing purposes
+    public SessionModel(Long userID, String sessionKey) throws NoSuchAlgorithmException { // for testing purposes
         this.userID = userID;
         this.sessionKey = sessionKey;
         this.webSocketToken = SessionTokenGen.generateToken();
