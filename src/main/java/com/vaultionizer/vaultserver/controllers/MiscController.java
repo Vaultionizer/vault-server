@@ -36,7 +36,7 @@ public class MiscController {
     @ResponseBody ResponseEntity<?>
     checkAuthenticated(@RequestBody CheckAuthenticatedDto req){
         return new ResponseEntity<>((!Config.VERSION.isHasAuthKey() ||
-                (Config.serverUser.equals(req.getServerUser()) && Config.serverAuth.equals(req.getServerAuthKey())))
+                (Config.SERVER_USER.equals(req.getServerUser()) && Config.SERVER_AUTH.equals(req.getServerAuthKey())))
             ? HttpStatus.ACCEPTED : HttpStatus.FORBIDDEN);
     }
 }

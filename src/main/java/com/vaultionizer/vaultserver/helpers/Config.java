@@ -15,8 +15,8 @@ public class Config {
             false
     );
 
-    public static final String serverUser = "root";
-    public static final String serverAuth = "toor";
+    public static final String SERVER_USER = "root";
+    public static final String SERVER_AUTH = "toor";
 
     public static final String WEBSOCKET_PREFIX = "/api/ws";
     public static final String WEBSOCKET_RES = "/api/wsres";
