@@ -1,9 +1,11 @@
 package com.vaultionizer.vaultserver.service;
 
+import com.vaultionizer.vaultserver.helpers.Hashing;
 import com.vaultionizer.vaultserver.model.db.UserModel;
 import com.vaultionizer.vaultserver.resource.UserRepository;
 import org.apache.catalina.User;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.HashSet;
@@ -21,7 +23,7 @@ public class UserService {
     }
 
     public Long getUserIDCheckCredentials(String username, String key){
-        Set<UserModel> models = userRepository.checkCredentials(username, key);
+        Set<UserModel> models = userRepository.checkCredentials(username, Hashing.hashBcrypt(key));
         if (models.size() != 1){
             return -1L;
         }
@@ -30,7 +32,7 @@ public class UserService {
     }
 
     public Long createUser(String username, String key){
-        try {return userRepository.save(new UserModel(username, key)).getId();}
+        try {return userRepository.save(new UserModel(username, Hashing.hashBcrypt(key))).getId();}
         catch (Exception e){ // in case that username exists
             return null;
         }
