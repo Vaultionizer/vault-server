@@ -43,14 +43,14 @@ public class SessionModel {
     public SessionModel(Long userID) throws NoSuchAlgorithmException {
         this.userID = userID;
         this.sessionKey = SessionTokenGen.generateToken();
-        this.webSocketToken = SessionTokenGen.generateToken();
+        this.webSocketToken = SessionTokenGen.generateUUID();
         this.lastQuery = Instant.now();
     }
 
     public SessionModel(Long userID, String sessionKey) throws NoSuchAlgorithmException { // for testing purposes
         this.userID = userID;
         this.sessionKey = sessionKey;
-        this.webSocketToken = SessionTokenGen.generateToken();
+        this.webSocketToken = SessionTokenGen.generateUUID();
         this.lastQuery = Instant.now();
     }
 
