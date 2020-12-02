@@ -13,7 +13,7 @@ public interface SessionRepository extends JpaRepository<SessionModel, Long> {
     @Query("SELECT it FROM SessionModel it WHERE it.userID = ?1 AND it.sessionKey = ?2 AND it.lastQuery > ?3")
     Set<SessionModel> getSessionModelByKey(Long userID, String sessionKey, Instant now);
 
-    @Query("SELECT COUNT(it) FROM SessionModel it WHERE it.webSocketToken = ?1 AND it.sessionKey = ?2")
+    @Query("SELECT COUNT(it) FROM SessionModel it WHERE it.webSocketToken = ?1 OR it.sessionKey = ?2")
     int checkUnique(String webSocketToken, String sessionKey);
 
     @Query("SELECT COUNT(it) FROM SessionModel it " +
