@@ -29,7 +29,6 @@ public class SessionService {
         SessionModel session = null;
         do
         {
-            System.out.println(userID);
             try {
                 session = new SessionModel(userID);
             }

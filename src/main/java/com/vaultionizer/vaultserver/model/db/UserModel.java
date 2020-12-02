@@ -40,4 +40,8 @@ public class UserModel {
     public Long getId() {
         return id;
     }
+
+    public String getKey() {
+        return key;
+    }
 }
