@@ -7,4 +7,9 @@ public class Hashing {
         BCryptPasswordEncoder bcrypt = new BCryptPasswordEncoder();
         return bcrypt.encode(s);
     }
+
+    public static boolean checkMatchingHash(String hashed, String plain){
+        BCryptPasswordEncoder bcrypt = new BCryptPasswordEncoder();
+        return bcrypt.matches(plain, hashed);
+    }
 }

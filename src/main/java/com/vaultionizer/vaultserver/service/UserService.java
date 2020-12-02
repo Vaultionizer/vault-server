@@ -23,11 +23,12 @@ public class UserService {
     }
 
     public Long getUserIDCheckCredentials(String username, String key){
-        Set<UserModel> models = userRepository.checkCredentials(username, Hashing.hashBcrypt(key));
-        if (models.size() != 1){
+        Set<UserModel> users = userRepository.getPwd(username);
+        if (users.size() != 1){
             return -1L;
         }
-        Long userID = models.stream().findFirst().get().getId();
+        UserModel model = users.stream().findFirst().get();
+        Long userID = Hashing.checkMatchingHash(model.getKey(), key) ? model.getId() : -1;
         return deletedUsers.contains(userID) ? -1L : userID;
     }
 
