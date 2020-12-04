@@ -24,7 +24,9 @@ public class SwaggerConfig {
 
     @Bean
     public Docket api() {
-        return new Docket(DocumentationType.SWAGGER_2).select()
+        return new Docket(DocumentationType.SWAGGER_2)
+		.host("www.vault.gottwuerfeltnicht.de")
+		.select()
                 .apis(RequestHandlerSelectors.withClassAnnotation(RestController.class))
                 .paths(PathSelectors.any())
                 .build()
@@ -42,7 +44,7 @@ public class SwaggerConfig {
                 "Vaultionizer API",
                 "A safe space for everybody that seeks after privacy.",
                 "1.0.0",
-                "None",
+                "https://www.vaultionizer.com",
                 new Contact("Team Vaultionizer", "https://vaultionizer.com/", "contact@vaultionizer.com"),
                 "ODC DbCL v1.0 License",
                 "https://opendatacommons.org/licenses/dbcl/1.0/",
