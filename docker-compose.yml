@@ -8,6 +8,12 @@ services:
       - "443:443"
     depends_on:
       - postgres_vault
+    environment:
+      - VAULT_ENABLE_SSL=false
+      - VAULT_DB_USER=postgres
+      - VAULT_DB_PASSWORD=password
+      - VAULT_DB_DATABASE=mydb
+      - VAULT_DB_HOST=postgres_vault
   postgres_vault:
     image: postgres
     ports:

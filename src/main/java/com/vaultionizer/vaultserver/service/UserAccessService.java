@@ -22,11 +22,11 @@ public class UserAccessService {
     }
 
     public void deleteAllWithSpace(Long spaceID){
-
+        userAccessRepository.deleteSpace(spaceID);
     }
 
-    public void deleteAllWithUser(Long spaceID){
-
+    public void deleteAllWithUser(Long userID){
+        userAccessRepository.removeUser(userID);
     }
 
     // returns all spaceIDs a userID is associated with
@@ -36,5 +36,13 @@ public class UserAccessService {
 
     public boolean userHasAccess(Long userID, Long spaceID){
         return userAccessRepository.hasAccess(userID, spaceID) == 1;
+    }
+
+    public boolean removeAccess(Long userID, Long spaceID){
+        if (this.userAccessRepository.hasAccess(userID, spaceID) == 1){
+            this.userAccessRepository.removeUserFromSpace(userID, spaceID);
+            return true;
+        }
+        return false;
     }
 }

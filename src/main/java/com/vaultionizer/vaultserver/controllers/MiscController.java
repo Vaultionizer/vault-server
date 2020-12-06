@@ -2,11 +2,8 @@ package com.vaultionizer.vaultserver.controllers;
 
 
 import com.vaultionizer.vaultserver.helpers.Config;
-import com.vaultionizer.vaultserver.model.db.SessionModel;
-import com.vaultionizer.vaultserver.model.db.UserModel;
+import com.vaultionizer.vaultserver.model.dto.CheckAuthenticatedDto;
 import com.vaultionizer.vaultserver.model.dto.GetVersionResponseDto;
-import com.vaultionizer.vaultserver.model.dto.RegisterUserDto;
-import com.vaultionizer.vaultserver.model.dto.RegisterUserResponseDto;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiResponse;
@@ -28,5 +25,18 @@ public class MiscController {
     getVersion(){
         return new ResponseEntity<>(Config.VERSION,
                 HttpStatus.OK);
+    }
+
+    @RequestMapping(value = "/api/misc/checkAuthenticated", method = RequestMethod.POST)
+    @ApiOperation(value = "Returns whether the authentication for the server is correct.")
+    @ApiResponses(value = {
+            @ApiResponse(code = 202, message = "The authentication is correct."),
+            @ApiResponse(code = 403, message = "The authentication failed.")
+    })
+    @ResponseBody ResponseEntity<?>
+    checkAuthenticated(@RequestBody CheckAuthenticatedDto req){
+        return new ResponseEntity<>((!Config.VERSION.isHasAuthKey() ||
+                (Config.SERVER_USER.equals(req.getServerUser()) && Config.SERVER_AUTH.equals(req.getServerAuthKey())))
+            ? HttpStatus.ACCEPTED : HttpStatus.FORBIDDEN);
     }
 }

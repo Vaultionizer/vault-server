@@ -1,9 +1,12 @@
 package com.vaultionizer.vaultserver.service;
 
+import com.vaultionizer.vaultserver.helpers.Config;
 import com.vaultionizer.vaultserver.model.db.PendingUploadModel;
 import com.vaultionizer.vaultserver.resource.PendingUploadRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+
+import java.time.Instant;
 
 @Service
 public class PendingUploadService {
@@ -29,5 +32,21 @@ public class PendingUploadService {
             return true;
         }
         return false;
+    }
+
+    public void deleteAllPendingUploads(Long spaceID){
+        pendingUploadRepository.deletePendingUploads(spaceID);
+    }
+
+    public void deletePendingUploadsByUser(Long userID){
+        pendingUploadRepository.deleteAllByUser(userID);
+    }
+
+    public void deleteOldPendingUploads(){
+        pendingUploadRepository.deleteOldUploads(Instant.now().minusSeconds(Config.MAX_UPLOAD_AGE));
+    }
+
+    public long countPendingUploadsForSpace(Long spaceID){
+        return pendingUploadRepository.countBySpace(spaceID);
     }
 }

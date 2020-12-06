@@ -4,15 +4,19 @@ import javax.persistence.*;
 import javax.validation.constraints.NotNull;
 
 @Entity
+@Table(uniqueConstraints = {
+        @UniqueConstraint(columnNames = {"userID", "spaceID"})
+})
 public class UserAccessModel {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    // TODO: add unique constraint
+    @Column(name = "userID")
     @NotNull(message = "User ID cannot be null!")
     private Long userID;
 
+    @Column(name = "spaceID")
     @NotNull(message = "Space ID cannot be null!")
     private Long spaceID;
 

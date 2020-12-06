@@ -1,18 +1,9 @@
 package com.vaultionizer.vaultserver.controllers;
 
-import com.vaultionizer.vaultserver.model.db.SessionModel;
-import com.vaultionizer.vaultserver.model.db.UserModel;
 import com.vaultionizer.vaultserver.model.dto.LoginUserResponseDto;
-import com.vaultionizer.vaultserver.model.dto.RegisterUserResponseDto;
-import com.vaultionizer.vaultserver.resource.SessionRepository;
-import com.vaultionizer.vaultserver.resource.UserRepository;
-import com.vaultionizer.vaultserver.service.SessionService;
-import com.vaultionizer.vaultserver.service.SpaceService;
+import com.vaultionizer.vaultserver.service.*;
 import com.vaultionizer.vaultserver.testdata.UserTestData;
-import org.apache.catalina.User;
-import org.aspectj.lang.annotation.Before;
 import org.junit.jupiter.api.*;
-import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.ResponseEntity;
@@ -27,7 +18,7 @@ import static org.mockito.ArgumentMatchers.any;
 public class UserControllerTest {
 
     @MockBean
-    private UserRepository userRepository;
+    private UserService userService;
 
     @MockBean
     private SessionService sessionService;
@@ -35,28 +26,42 @@ public class UserControllerTest {
     @MockBean
     private SpaceService spaceService;
 
+    @MockBean
+    private UserAccessService userAccessService;
+
+    @MockBean
+    private PendingUploadService pendingUploadService;
+
+
+    @MockBean
+    private SpaceController spaceController;
+
     private UserController userController;
 
     @BeforeEach
     private void initialize(){
-        userRepository = Mockito.mock(UserRepository.class);
+        userService = Mockito.mock(UserService.class);
         spaceService = Mockito.mock(SpaceService.class);
         sessionService = Mockito.mock(SessionService.class);
+        userAccessService = Mockito.mock(UserAccessService.class);
+        pendingUploadService = Mockito.mock(PendingUploadService.class);
+        spaceController = Mockito.mock(SpaceController.class);
 
-        Mockito.when(userRepository.save(any(UserModel.class)))
-                .thenReturn(new UserModel(1L, UserTestData.registerResponses[0].getSessionKey()));
-        Mockito.when(userRepository.checkCredentials(UserTestData.loginUser[0].getUserID(), UserTestData.loginUser[0].getKey()))
+        Mockito.when(userService.createUser(UserTestData.registerData[3].getUsername(), UserTestData.registerData[3].getKey()))
                 .thenReturn(0L);
-        Mockito.when(userRepository.checkCredentials(UserTestData.loginUser[1].getUserID(), UserTestData.loginUser[1].getKey()))
+
+        Mockito.when(userService.getUserIDCheckCredentials(UserTestData.loginUser[0].getUsername(), UserTestData.loginUser[0].getKey()))
+                .thenReturn(-1L);
+        Mockito.when(userService.getUserIDCheckCredentials(UserTestData.loginUser[1].getUsername(), UserTestData.loginUser[1].getKey()))
                 .thenReturn(1L);
 
+        Mockito.when(sessionService.addSession(0L))
+                .thenReturn(new LoginUserResponseDto(0L, UserTestData.registerResponses[0].getSessionKey(), ""));
+
         Mockito.when(sessionService.addSession(1L))
-                .thenReturn(new SessionModel(1L, 1L, UserTestData.registerResponses[0].getSessionKey(), "", null));
+                .thenReturn(new LoginUserResponseDto(1L, "testSession", "testWebsocket"));
 
-        Mockito.when(sessionService.addSession(2L))
-                .thenReturn(new SessionModel(2L, "testSession"));
-
-        userController = new UserController(userRepository, sessionService, spaceService);
+        userController = new UserController(userService, sessionService, spaceService, spaceController, userAccessService, pendingUploadService);
     }
 
 
@@ -88,8 +93,8 @@ public class UserControllerTest {
         ResponseEntity<?> res = userController.createUser(UserTestData.registerData[3]);
         Assertions.assertEquals(res.getStatusCodeValue(), 201);
         Assertions.assertTrue(res.hasBody());
-        Assertions.assertEquals(((RegisterUserResponseDto)(Objects.requireNonNull(res.getBody()))).getUserID(), 1);
-        Assertions.assertEquals(((RegisterUserResponseDto)(Objects.requireNonNull(res.getBody()))).getSessionKey(), "testSessionKey");
+        Assertions.assertEquals(((LoginUserResponseDto)(Objects.requireNonNull(res.getBody()))).getUserID(), 0);
+        Assertions.assertEquals(((LoginUserResponseDto)(Objects.requireNonNull(res.getBody()))).getSessionKey(), "testSessionKey");
     }
 
     // testing login method
@@ -97,6 +102,7 @@ public class UserControllerTest {
     @DisplayName("Tests login with wrong key")
     public void loginUserWrongKey(){
         ResponseEntity<?> res = userController.loginUser(UserTestData.loginUser[0]);
+        System.out.println(res);
         Assertions.assertEquals(res.getStatusCodeValue(), 401);
     }
 
