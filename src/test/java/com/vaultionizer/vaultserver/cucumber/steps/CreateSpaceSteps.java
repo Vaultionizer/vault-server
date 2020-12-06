@@ -1,5 +1,6 @@
 package com.vaultionizer.vaultserver.cucumber.steps;
 
+import com.vaultionizer.vaultserver.controllers.FileController;
 import com.vaultionizer.vaultserver.controllers.SessionController;
 import com.vaultionizer.vaultserver.controllers.SpaceController;
 import com.vaultionizer.vaultserver.controllers.UserController;
@@ -26,13 +27,14 @@ public class CreateSpaceSteps extends Services {
 
     @Autowired
     public CreateSpaceSteps(SpaceService spaceService, UserService userService,
-                         UserAccessService userAccessService, SessionService sessionService,
-                         RefFileService refFileService, PendingUploadService pendingUploadService,
-                         FileService fileService, UserController userController,
-                         SpaceController spaceController, SessionController sessionController) {
+                            UserAccessService userAccessService, SessionService sessionService,
+                            RefFileService refFileService, PendingUploadService pendingUploadService,
+                            FileService fileService, UserController userController,
+                            SpaceController spaceController, SessionController sessionController,
+                            FileController fileController) {
 
         super(spaceService, userService, userAccessService, sessionService, refFileService,
-                pendingUploadService, fileService, userController, spaceController, sessionController);
+                pendingUploadService, fileService, userController, spaceController, sessionController, fileController);
     }
 
     @Given("the user is logged in with name {string}")
