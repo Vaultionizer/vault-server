@@ -1,5 +1,6 @@
 package com.vaultionizer.vaultserver.config;
 
+import com.vaultionizer.vaultserver.helpers.Config;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.socket.config.annotation.WebSocketConfigurer;
@@ -12,8 +13,8 @@ public class WebSocketConfigTomcat implements WebSocketConfigurer {
     @Bean
     public ServletServerContainerFactoryBean createWebSocketContainer() {
         ServletServerContainerFactoryBean container = new ServletServerContainerFactoryBean();
-        container.setMaxTextMessageBufferSize(1024 * 1024 * 1024);
-        container.setMaxBinaryMessageBufferSize(1024 * 1024 * 1024);
+        container.setMaxTextMessageBufferSize(Config.MSG_SIZE_LIMITS);
+        container.setMaxBinaryMessageBufferSize(Config.MSG_SIZE_LIMITS);
         return container;
     }
 
