@@ -8,6 +8,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Optional;
+import java.util.Set;
 
 public interface SpaceRepository extends JpaRepository<SpaceModel, Long> {
     @Query("SELECT COUNT(it) FROM SpaceModel it WHERE it.spaceID = ?1 AND it.isPrivateSpace = false AND it.authKey = ?2")
@@ -21,6 +22,8 @@ public interface SpaceRepository extends JpaRepository<SpaceModel, Long> {
     @Query("SELECT it.refFileID FROM SpaceModel it WHERE it.spaceID = ?1")
     Optional<Long> getRefFileID(Long spaceID);
 
+    @Query("SELECT it.spaceID FROM SpaceModel it WHERE it.creatorID = ?1")
+    Set<Long> getAllOwnedSpaces(Long userID);
 
     @Query("SELECT COUNT(it) FROM SpaceModel it WHERE it.spaceID = ?1 AND it.creatorID = ?2")
     int checkIsCreator(Long spaceID, Long userID);

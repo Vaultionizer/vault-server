@@ -23,7 +23,8 @@ public class Config {
     public static final String WEBSOCKET_DOWNLOAD = WEBSOCKET_RES + "/download/";
     public static final String WEBSOCKET_UPLOAD = WEBSOCKET_PREFIX + "/upload";
 
-    public static final String SPACE_PATH = "/home/vaultionizer/spaces/";
+    // is adjusted in the tests (thus not final)
+    public static String SPACE_PATH = "/home/vaultionizer/spaces/";
 
 
 

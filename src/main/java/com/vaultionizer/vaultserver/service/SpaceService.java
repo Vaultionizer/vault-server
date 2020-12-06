@@ -71,6 +71,10 @@ public class SpaceService {
         return id.get();
     }
 
+    public Set<Long> getAllOwnedSpaces(Long userID){
+        return spaceRepository.getAllOwnedSpaces(userID);
+    }
+
     public boolean checkCreator(Long spaceID, Long userID){
         return spaceRepository.checkIsCreator(spaceID, userID) == 1;
     }
