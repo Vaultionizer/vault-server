@@ -18,6 +18,8 @@ public class Config {
     public static final String SERVER_USER = "root";
     public static final String SERVER_AUTH = "toor";
 
+    public static final int MSG_SIZE_LIMITS = 50 * 1024 * 1024;
+    public static final String WEBSOCKET_CONNECT = "/wss";
     public static final String WEBSOCKET_PREFIX = "/api/ws";
     public static final String WEBSOCKET_RES = "/api/wsres";
     public static final String WEBSOCKET_DOWNLOAD = WEBSOCKET_RES + "/download/";
@@ -31,5 +33,5 @@ public class Config {
     public static final int SESSION_JOB_DELAY = 3600 * 1000;
     public static final int PENDING_UPLOAD_JOB_DELAY = 86400 * 1000;
 
-    public static final String randomAlgo = "SHA1PRNG";
+    public static final String RANDOM_ALGO = "SHA1PRNG";
 }

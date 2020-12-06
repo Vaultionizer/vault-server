@@ -8,7 +8,7 @@ import java.util.UUID;
 public class SessionTokenGen {
     public static String generateToken() throws NoSuchAlgorithmException {
         byte[] content = new byte[64];
-        SecureRandom.getInstance(Config.randomAlgo).nextBytes(content);
+        SecureRandom.getInstance(Config.RANDOM_ALGO).nextBytes(content);
         return Base64.getEncoder().encodeToString(content);
     }
 

@@ -29,9 +29,14 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
 
     @Override
     public void registerStompEndpoints(StompEndpointRegistry registry) {
-        registry.addEndpoint("/gs-guide-websocket");
+        registry.addEndpoint(Config.WEBSOCKET_CONNECT).withSockJS();
     }
 
+    @Override
+    public void configureWebSocketTransport(WebSocketTransportRegistration registration) {
+        registration.setMessageSizeLimit(Config.MSG_SIZE_LIMITS);
+        registration.setSendBufferSizeLimit(Config.MSG_SIZE_LIMITS);
+    }
 
 
     @Override
