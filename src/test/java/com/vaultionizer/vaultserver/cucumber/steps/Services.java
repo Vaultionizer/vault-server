@@ -1,5 +1,6 @@
 package com.vaultionizer.vaultserver.cucumber.steps;
 
+import com.vaultionizer.vaultserver.controllers.FileController;
 import com.vaultionizer.vaultserver.controllers.SessionController;
 import com.vaultionizer.vaultserver.controllers.SpaceController;
 import com.vaultionizer.vaultserver.controllers.UserController;
@@ -18,13 +19,16 @@ public class Services {
     protected final UserController userController;
     protected final SpaceController spaceController;
     protected final SessionController sessionController;
+    protected final FileController fileController;
 
     @Autowired
+
     public Services(SpaceService spaceService, UserService userService,
                     UserAccessService userAccessService, SessionService sessionService,
                     RefFileService refFileService, PendingUploadService pendingUploadService,
                     FileService fileService, UserController userController,
-                    SpaceController spaceController, SessionController sessionController) {
+                    SpaceController spaceController, SessionController sessionController,
+                    FileController fileController) {
         this.spaceService = spaceService;
         this.userService = userService;
         this.userAccessService = userAccessService;
@@ -35,5 +39,6 @@ public class Services {
         this.userController = userController;
         this.spaceController = spaceController;
         this.sessionController = sessionController;
+        this.fileController = fileController;
     }
 }

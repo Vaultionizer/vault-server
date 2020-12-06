@@ -55,16 +55,17 @@ public class FileController {
             @ApiResponse(code = 403, message = "The user has no rights for the requested space."),
             @ApiResponse(code = 404, message = "A consistency error occurred.")
     })
-    @ResponseBody ResponseEntity<?>
+    public @ResponseBody ResponseEntity<?>
     uploadFiles(@RequestBody FileUploadDto req){
-        if (req.getAmountFiles() <= 0 || req.getSpaceID() < 0){
-            return new ResponseEntity<>(null, HttpStatus.BAD_REQUEST);
-        }
-
         Long sessionID = sessionService.getSessionID(req.getAuth().getUserID(), req.getAuth().getSessionKey());
         if (sessionID == -1){
             return new ResponseEntity<>(null, HttpStatus.UNAUTHORIZED);
         }
+        if (req.getAmountFiles() <= 0 || req.getSpaceID() < 0){
+            return new ResponseEntity<>(null, HttpStatus.BAD_REQUEST);
+        }
+
+
         if (userAccessService.userHasAccess(req.getAuth().getUserID(), req.getSpaceID())){
             Long refFileID = spaceService.getRefFileID(req.getSpaceID());
             if (refFileID == -1){
@@ -97,7 +98,7 @@ public class FileController {
             @ApiResponse(code = 423, message = "The requested file is currently either being uploaded or modified. Thus, the file is locked."),
             @ApiResponse(code = 500, message = "A consistency error occurred. Should never be the case. Bug the developer!")
     })
-    @ResponseBody ResponseEntity<?>
+    public @ResponseBody ResponseEntity<?>
     downloadFile(@RequestBody FileDownloadDto req){
         String websocketToken = sessionService.
                 getSessionWebsocketToken(req.getAuth().getUserID(), req.getAuth().getSessionKey());
@@ -140,7 +141,7 @@ public class FileController {
             @ApiResponse(code = 403, message = "The user has no rights for the requested space."),
             @ApiResponse(code = 423, message = "The requested file is currently either being uploaded or modified. Thus, the file is locked."),
     })
-    @ResponseBody ResponseEntity<?>
+    public @ResponseBody ResponseEntity<?>
     deleteFile(@RequestBody DeleteFileDto req){
         String websocketToken = sessionService.
                 getSessionWebsocketToken(req.getAuth().getUserID(), req.getAuth().getSessionKey());

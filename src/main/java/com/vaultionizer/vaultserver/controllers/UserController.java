@@ -106,13 +106,13 @@ public class UserController {
     @ApiOperation(value = "Deletes the specified user and all spaces the user created.")
     @ApiResponses(value = {
             @ApiResponse(code = 200, message = "The deletion process was successful."),
-            @ApiResponse(code = 403, message = "The user authorization failed.")
+            @ApiResponse(code = 401, message = "The user authorization failed.")
     })
     public @ResponseBody ResponseEntity<?>
     deleteUser(@RequestBody AuthWrapperDto req){
         GenericAuthDto auth = req.getAuth();
         if (!sessionService.getSession(auth.getUserID(), auth.getSessionKey())){
-            return new ResponseEntity<>(null, HttpStatus.FORBIDDEN);
+            return new ResponseEntity<>(null, HttpStatus.UNAUTHORIZED);
         }
         userService.setDeleted(auth.getUserID());
         pendingUploadService.deletePendingUploadsByUser(auth.getUserID());

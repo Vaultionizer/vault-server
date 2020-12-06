@@ -36,3 +36,4 @@ build/
 # do not upload keys
 vaultionizerServer.p12
 src/main/resources/keystore/*
+trash/*

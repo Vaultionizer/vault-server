@@ -1,5 +1,6 @@
 package com.vaultionizer.vaultserver.cucumber.steps;
 
+import com.vaultionizer.vaultserver.controllers.FileController;
 import com.vaultionizer.vaultserver.controllers.SessionController;
 import com.vaultionizer.vaultserver.controllers.SpaceController;
 import com.vaultionizer.vaultserver.controllers.UserController;
@@ -27,10 +28,11 @@ public class CreateUserSteps extends Services {
                            UserAccessService userAccessService, SessionService sessionService,
                            RefFileService refFileService, PendingUploadService pendingUploadService,
                            FileService fileService, UserController userController,
-                           SpaceController spaceController, SessionController sessionController) {
+                           SpaceController spaceController, SessionController sessionController,
+                           FileController fileController) {
 
         super(spaceService, userService, userAccessService, sessionService, refFileService,
-                pendingUploadService, fileService, userController, spaceController, sessionController);
+                pendingUploadService, fileService, userController, spaceController, sessionController, fileController);
     }
 
 
