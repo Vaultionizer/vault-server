@@ -68,7 +68,7 @@ public class RefFileController {
         return new ResponseEntity<>(null, HttpStatus.FORBIDDEN);
     }
 
-    @RequestMapping(value = "/api/refFile/update", method = RequestMethod.PUT)
+    @RequestMapping(value = "/api/refFile/update", method = RequestMethod.POST)
     @ApiOperation(value = "Update the reference file of the specified space.")
     @ApiResponses(value = {
             @ApiResponse(code = 200, message = "The response contains the content of the current ref file."),
