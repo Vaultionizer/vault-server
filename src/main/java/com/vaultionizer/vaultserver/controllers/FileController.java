@@ -5,6 +5,7 @@ import com.vaultionizer.vaultserver.helpers.FileStatus;
 import com.vaultionizer.vaultserver.model.dto.DeleteFileDto;
 import com.vaultionizer.vaultserver.model.dto.FileDownloadDto;
 import com.vaultionizer.vaultserver.model.dto.FileUploadDto;
+import com.vaultionizer.vaultserver.model.dto.GenericAuthDto;
 import com.vaultionizer.vaultserver.service.*;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -64,7 +65,6 @@ public class FileController {
         if (req.getAmountFiles() <= 0 || req.getSpaceID() < 0){
             return new ResponseEntity<>(null, HttpStatus.BAD_REQUEST);
         }
-
 
         if (userAccessService.userHasAccess(req.getAuth().getUserID(), req.getSpaceID())){
             Long refFileID = spaceService.getRefFileID(req.getSpaceID());
@@ -143,8 +143,6 @@ public class FileController {
     })
     public @ResponseBody ResponseEntity<?>
     deleteFile(@RequestBody DeleteFileDto req){
-        String websocketToken = sessionService.
-                getSessionWebsocketToken(req.getAuth().getUserID(), req.getAuth().getSessionKey());
         if (!sessionService.getSession(req.getAuth().getUserID(), req.getAuth().getSessionKey())){
             return new ResponseEntity<>(null, HttpStatus.UNAUTHORIZED);
         }
@@ -158,5 +156,33 @@ public class FileController {
             return new ResponseEntity<>(null, HttpStatus.LOCKED);
         }
         return new ResponseEntity<>(null, HttpStatus.OK);
+    }
+
+
+    @RequestMapping(value = "/api/file/update/{spaceID}/{saveIndex}", method = RequestMethod.POST)
+    @ApiOperation(value = "Requests to update a specific file.")
+    @ApiResponses(value = {
+            @ApiResponse(code = 200, message = "File has successfully been marked for updating."),
+            @ApiResponse(code = 401, message = "The user either does not exist or the sessionKey is wrong. User is thus not authorized."),
+            @ApiResponse(code = 403, message = "The user has no rights for the requested space."),
+            @ApiResponse(code = 409, message = "Some conflict occurred."),
+    })
+    public @ResponseBody ResponseEntity<?>
+    updateFile(@RequestBody GenericAuthDto req, @PathVariable Long spaceID, @PathVariable Long saveIndex){
+        if (!sessionService.getSession(req.getUserID(), req.getSessionKey())){
+            return new ResponseEntity<>(null, HttpStatus.UNAUTHORIZED);
+        }
+        if (!userAccessService.userHasAccess(req.getUserID(), spaceID)){
+            return new ResponseEntity<>(null, HttpStatus.FORBIDDEN);
+        }
+
+        boolean granted = pendingUploadService.updateFile(spaceID,
+                sessionService.getSessionID(req.getUserID(),
+                req.getSessionKey()), saveIndex);
+
+        if (!granted){
+            return new ResponseEntity<>(null, HttpStatus.CONFLICT);
+        }
+        return new ResponseEntity<>(null, HttpStatus.ACCEPTED);
     }
 }
