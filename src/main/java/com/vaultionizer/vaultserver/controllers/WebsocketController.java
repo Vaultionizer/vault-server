@@ -2,7 +2,9 @@ package com.vaultionizer.vaultserver.controllers;
 
 import com.vaultionizer.vaultserver.helpers.Config;
 import com.vaultionizer.vaultserver.model.dto.WebsocketFileDto;
-import com.vaultionizer.vaultserver.model.dto.wserrors.*;
+import com.vaultionizer.vaultserver.model.dto.wserrors.GenericWSError;
+import com.vaultionizer.vaultserver.model.dto.wserrors.UploadData;
+import com.vaultionizer.vaultserver.model.dto.wserrors.WS_ERROR;
 import com.vaultionizer.vaultserver.service.FileService;
 import com.vaultionizer.vaultserver.service.PendingUploadService;
 import com.vaultionizer.vaultserver.service.SessionService;
@@ -60,21 +62,29 @@ public class WebsocketController {
             return;
         }
 
-        boolean granted = pendingUploadService.uploadFile(spaceID, sessID, saveIndex);
-        if (!granted) {
+        int granted = pendingUploadService.uploadFile(spaceID, sessID, saveIndex);
+        if (granted == 0) {
             sendError(wsToken, new GenericWSError(WS_ERROR.UPLOAD_NOT_GRANTED,
                     new UploadData(userID, spaceID, saveIndex, sessionKey)
             ));
             return;
         }
 
-        fileService.setUploadFile(spaceID, saveIndex);
+        boolean success;
+        if (granted == 1){
+            // usual upload
+            success = fileService.writeToFile(content.getContent(), spaceID, saveIndex);
+        }
+        else{
+            // updating requested
+            success = fileService.tryUpdating(content.getContent(), spaceID, saveIndex);
+        }
 
-        boolean success = fileService.writeToFile(content.getContent(), spaceID, saveIndex);
         if (!success) {
             sendError(wsToken, new GenericWSError(WS_ERROR.UPLOAD_UNSUCCESSFUL,
                     new UploadData(userID, spaceID, saveIndex, sessionKey)));
         }
+        fileService.setUploadFile(spaceID, saveIndex);
     }
 
     public synchronized void download(String websocketToken, Long spaceID, Long saveIndex){

@@ -68,7 +68,7 @@ public class FileService {
 
     public boolean writeToFile(String content, Long spaceID, Long saveIndex){
         FileModel model = findFile(spaceID, saveIndex);
-        if (model == null || model.getStatus() != FileStatus.UPLOADING) return false;
+        if (model != null) return false;
         File f = new File(getFilePath(spaceID, saveIndex));
         if (!f.exists()){
             try {
@@ -86,8 +86,26 @@ public class FileService {
             e.printStackTrace();
             return false;
         }
+        model = new FileModel(spaceID, saveIndex);
         model.setStatus(FileStatus.ACCESSIBLE);
         fileRepository.save(model);
+        return true;
+    }
+
+    public boolean tryUpdating(String content, Long spaceID, Long saveIndex){
+        if (!setUpdating(spaceID, saveIndex)) return false;
+        File file = new File(getFilePath(spaceID, saveIndex));
+        if (!file.exists()) return false;
+
+        try (PrintWriter writer = new PrintWriter(new FileWriter(file, false))){
+            writer.print(content);
+            writer.flush();
+        } catch (IOException e) {
+            e.printStackTrace();
+            setDoneUpdating(spaceID, saveIndex);
+            return false;
+        }
+        setDoneUpdating(spaceID, saveIndex);
         return true;
     }
 
@@ -104,7 +122,7 @@ public class FileService {
         }
         else{
             Integer amount = readMap.get(fileModel.getFileID());
-            if (amount <= 0 || amount == null) return null;
+            if (amount <= 0) return null;
             amount--;
             readMap.put(fileModel.getFileID(), amount);
         }
@@ -133,6 +151,18 @@ public class FileService {
 
     private synchronized FileModel findFile(Long spaceID, Long saveIndex){
         return fileRepository.findFile(spaceID, saveIndex);
+    }
+
+    private synchronized boolean setUpdating(Long spaceID, Long saveIndex){
+        FileModel file = fileRepository.findFile(spaceID, saveIndex);
+        if (file.getStatus() == FileStatus.UPLOADING || file.getStatus() == FileStatus.MODIFYING) return false;
+        file.setStatus(FileStatus.MODIFYING);
+        fileRepository.save(file);
+        return true;
+    }
+
+    private synchronized void setDoneUpdating(Long spaceID, Long saveIndex) {
+        fileRepository.updateFileStatus(spaceID, saveIndex, FileStatus.ACCESSIBLE);
     }
 
     public boolean deleteFile(Long spaceID, Long saveIndex){
@@ -167,5 +197,10 @@ public class FileService {
         FileModel fileModel = findFile(spaceID, saveIndex);
         fileModel.setStatus(FileStatus.MODIFYING);
         fileRepository.save(fileModel);
+    }
+
+    public boolean fileExists(Long spaceID, Long saveIndex){
+        File file = new File(getFilePath(spaceID, saveIndex));
+        return file.exists() && findFile(spaceID, saveIndex) != null;
     }
 }
