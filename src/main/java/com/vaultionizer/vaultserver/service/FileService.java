@@ -72,7 +72,6 @@ public class FileService {
         File f = new File(getFilePath(spaceID, saveIndex));
         if (!f.exists()){
             try {
-                System.out.println(f.getParentFile().toString());
                 f.getParentFile().mkdirs();
                 f.createNewFile();
             } catch (IOException e) {

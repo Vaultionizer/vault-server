@@ -23,6 +23,7 @@ public class Config {
     public static final String WEBSOCKET_PREFIX = "/api/ws";
     public static final String WEBSOCKET_RES = "/api/wsres";
     public static final String WEBSOCKET_DOWNLOAD = WEBSOCKET_RES + "/download/";
+    public static final String WEBSOCKET_ERROR    = WEBSOCKET_RES + "/error/";
     public static final String WEBSOCKET_UPLOAD = WEBSOCKET_PREFIX + "/upload";
 
     // is adjusted in the tests (thus not final)

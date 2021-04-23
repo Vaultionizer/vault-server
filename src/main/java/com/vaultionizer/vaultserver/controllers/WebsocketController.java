@@ -2,6 +2,7 @@ package com.vaultionizer.vaultserver.controllers;
 
 import com.vaultionizer.vaultserver.helpers.Config;
 import com.vaultionizer.vaultserver.model.dto.WebsocketFileDto;
+import com.vaultionizer.vaultserver.model.dto.wserrors.*;
 import com.vaultionizer.vaultserver.service.FileService;
 import com.vaultionizer.vaultserver.service.PendingUploadService;
 import com.vaultionizer.vaultserver.service.SessionService;
@@ -43,27 +44,47 @@ public class WebsocketController {
         Long spaceID = parseLongFromHeader(nativeHeaders, "spaceID");
         Long saveIndex = parseLongFromHeader(nativeHeaders, "saveIndex");
         String sessionKey = nativeHeaders.getFirst("sessionKey");
+        String wsToken = nativeHeaders.getFirst("websocketToken");
 
-        if (userID == null || spaceID == null || saveIndex == null || sessionKey == null) return;
+        if (sessionKey == null || wsToken == null) return;
+
         Long sessID = sessionService.getSessionID(userID, sessionKey);
-        if (sessID == -1) return;
+        if (sessID == -1) {
+            return;
+        }
+
+        if (userID == null || spaceID == null || saveIndex == null) {
+            sendError(wsToken, new GenericWSError(WS_ERROR.MISSHAPEN_UPLOAD,
+                    new UploadData(userID, spaceID, saveIndex, sessionKey)
+            ));
+            return;
+        }
+
         boolean granted = pendingUploadService.uploadFile(spaceID, sessID, saveIndex);
-        if (!granted) return;
+        if (!granted) {
+            sendError(wsToken, new GenericWSError(WS_ERROR.UPLOAD_NOT_GRANTED,
+                    new UploadData(userID, spaceID, saveIndex, sessionKey)
+            ));
+            return;
+        }
 
         fileService.setUploadFile(spaceID, saveIndex);
 
         boolean success = fileService.writeToFile(content.getContent(), spaceID, saveIndex);
-        if (!success) { reportError(userID, sessionKey, 500); }
-    }
-
-    private void reportError(Long userID, String sessionKey, int status){
-        System.out.println("Error");
+        if (!success) {
+            sendError(wsToken, new GenericWSError(WS_ERROR.UPLOAD_UNSUCCESSFUL,
+                    new UploadData(userID, spaceID, saveIndex, sessionKey)));
+        }
     }
 
     public synchronized void download(String websocketToken, Long spaceID, Long saveIndex){
         // TODO: check how to set headers (namely: spaceID and saveIndex)
         simpMessagingTemplate.convertAndSend( Config.WEBSOCKET_DOWNLOAD + websocketToken,
                 fileService.makeDownload(spaceID, saveIndex));
+    }
+
+    public void sendError(String websocketToken, GenericWSError error){
+        simpMessagingTemplate.convertAndSend( Config.WEBSOCKET_ERROR + websocketToken, error);
     }
 
     private Long parseLongFromHeader(LinkedMultiValueMap<String, String> map, String key){
