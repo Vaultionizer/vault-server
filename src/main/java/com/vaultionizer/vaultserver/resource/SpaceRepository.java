@@ -32,4 +32,12 @@ public interface SpaceRepository extends JpaRepository<SpaceModel, Long> {
     @Modifying
     @Query("DELETE FROM SpaceModel it WHERE it.spaceID = ?1")
     void deleteSpace(Long spaceID);
+
+    @Query("SELECT COUNT(it) FROM SpaceModel it WHERE it.spaceID = ?1 " +
+            "AND (it.creatorID = ?2 OR it.usersHaveWriteAccess = true)")
+    int getUserWriteAccess(Long spaceID, Long userID); // user has write access if creator or normal users have write access
+
+    @Query("SELECT COUNT(it) FROM SpaceModel it WHERE it.spaceID = ?1 " +
+            "AND (it.creatorID = ?2 OR it.usersCanGetAuthKey = true)")
+    int getUserAuthKeyAccess(Long spaceID, Long userID); // user has access to auth key if creator or normal users have access to auth key
 }

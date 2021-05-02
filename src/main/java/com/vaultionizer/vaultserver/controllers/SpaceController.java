@@ -36,7 +36,7 @@ public class SpaceController {
 
 
 
-    @RequestMapping(value = "/api/spaces/getAll", method = RequestMethod.POST)
+    @RequestMapping(value = "/api/spaces/get", method = RequestMethod.POST)
     @ApiOperation(value = "Returns all spaces a user has access to.",
         response = GetSpacesResponseDto.class,
         responseContainer = "List"
@@ -68,7 +68,8 @@ public class SpaceController {
         if (!sessionService.getSession(req.getAuth().getUserID(), req.getAuth().getSessionKey())){
             return new ResponseEntity<>(null, HttpStatus.UNAUTHORIZED);
         }
-        Long spaceID = spaceService.createSpace(req.getAuth().getUserID(), req.getReferenceFile(), req.isPrivate(), req.getAuthKey());
+        Long spaceID = spaceService.createSpace(req.getAuth().getUserID(), req.getReferenceFile(), req.isPrivate(),
+                req.getUsersWriteAccess(), req.getUsersAuthAccess(), req.getAuthKey());
 
         return new ResponseEntity<>(spaceID, HttpStatus.CREATED);
     }
@@ -122,20 +123,23 @@ public class SpaceController {
     @ApiResponses(value = {
             @ApiResponse(code = 200, message = "The auth key is returned."),
             @ApiResponse(code = 401, message = "The user either does not exist or the sessionKey is wrong. User is thus not authorized."),
-            @ApiResponse(code = 403, message = "Either the space with given ID does not exist, it is private or the authorization key is wrong.")
+            @ApiResponse(code = 403, message = "Either the space with given ID does not exist, it is private or the authorization key is wrong."),
+            @ApiResponse(code = 406, message = "User is not allowed to get the auth key.")
     })
     public @ResponseBody ResponseEntity<?>
     getAuthKey(@RequestBody SpaceAuthKeyDto req){
         if (!sessionService.getSession(req.getAuth().getUserID(), req.getAuth().getSessionKey())){
             return new ResponseEntity<>(null, HttpStatus.UNAUTHORIZED);
         }
-
-        if (spaceService.checkDeleted(req.getSpaceID()) &&
-            userAccessService.userHasAccess(req.getAuth().getUserID(), req.getSpaceID())){
-            return new ResponseEntity<>(spaceService.getSpaceAuthKey(req.getSpaceID()), HttpStatus.OK);
+        if (spaceService.checkDeleted(req.getSpaceID()) ||
+                !userAccessService.userHasAccess(req.getAuth().getUserID(), req.getSpaceID())){
+            return new ResponseEntity<>(null, HttpStatus.FORBIDDEN);
+        }
+        if (!spaceService.userHasAuthKeyAccess(req.getSpaceID(), req.getAuth().getUserID())){
+            return new ResponseEntity<>(null, HttpStatus.NOT_ACCEPTABLE);
         }
 
-        return new ResponseEntity<>(null, HttpStatus.FORBIDDEN);
+        return new ResponseEntity<>(spaceService.getSpaceAuthKey(req.getSpaceID()), HttpStatus.OK);
     }
 
 

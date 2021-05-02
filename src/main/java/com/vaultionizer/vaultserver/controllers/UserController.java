@@ -68,7 +68,7 @@ public class UserController {
         if (userID == null) {
             return new ResponseEntity<>(null, HttpStatus.CONFLICT);
         }
-        spaceService.createSpace(userID, req.getRefFile(), true, null);
+        spaceService.createSpace(userID, req.getRefFile(), true, false, false, null);
         return new ResponseEntity<>(sessionService.addSession(userID), HttpStatus.CREATED);
     }
 

@@ -54,6 +54,7 @@ public class FileController {
             @ApiResponse(code = 400, message = "SpaceID is invalid (< 0) or amount of files to be uploaded is invalid (<= 0)."),
             @ApiResponse(code = 401, message = "The user either does not exist or the sessionKey is wrong. User is thus not authorized."),
             @ApiResponse(code = 403, message = "The user has no rights for the requested space."),
+            @ApiResponse(code = 406, message = "The user has no write access."),
             @ApiResponse(code = 404, message = "A consistency error occurred.")
     })
     public @ResponseBody ResponseEntity<?>
@@ -67,6 +68,9 @@ public class FileController {
         }
 
         if (userAccessService.userHasAccess(req.getAuth().getUserID(), req.getSpaceID())){
+            if (!spaceService.userHasWriteAccess(req.getSpaceID(), req.getAuth().getUserID())){
+                return new ResponseEntity<>(null, HttpStatus.NOT_ACCEPTABLE);
+            }
             Long refFileID = spaceService.getRefFileID(req.getSpaceID());
             if (refFileID == -1){
                 return new ResponseEntity<>(null, HttpStatus.NOT_FOUND);
@@ -109,6 +113,9 @@ public class FileController {
         if (!userAccessService.userHasAccess(req.getAuth().getUserID(), req.getSpaceID())){
             return new ResponseEntity<>(null, HttpStatus.FORBIDDEN);
         }
+        if (!spaceService.userHasWriteAccess(req.getSpaceID(), req.getAuth().getUserID())){
+            return new ResponseEntity<>(null, HttpStatus.NOT_ACCEPTABLE);
+        }
 
         FileStatus status = fileService.setDownloadFile(req.getSpaceID(), req.getSaveIndex());
         if (status == null){
@@ -139,6 +146,7 @@ public class FileController {
             @ApiResponse(code = 200, message = "File has successfully been deleted."),
             @ApiResponse(code = 401, message = "The user either does not exist or the sessionKey is wrong. User is thus not authorized."),
             @ApiResponse(code = 403, message = "The user has no rights for the requested space."),
+            @ApiResponse(code = 406, message = "The user has no write access."),
             @ApiResponse(code = 423, message = "The requested file is currently either being uploaded or modified. Thus, the file is locked."),
     })
     public @ResponseBody ResponseEntity<?>
@@ -150,6 +158,9 @@ public class FileController {
         if (!userAccessService.userHasAccess(req.getAuth().getUserID(), req.getSpaceID())){
             return new ResponseEntity<>(null, HttpStatus.FORBIDDEN);
         }
+
+        if (!spaceService.userHasWriteAccess(req.getSpaceID(), req.getAuth().getUserID()))
+            return new ResponseEntity<>(null, HttpStatus.NOT_ACCEPTABLE);
 
         boolean success = fileService.deleteFile(req.getSpaceID(), req.getSaveIndex());
         if (!success){
@@ -165,6 +176,7 @@ public class FileController {
             @ApiResponse(code = 200, message = "File has successfully been marked for updating."),
             @ApiResponse(code = 401, message = "The user either does not exist or the sessionKey is wrong. User is thus not authorized."),
             @ApiResponse(code = 403, message = "The user has no rights for the requested space."),
+            @ApiResponse(code = 406, message = "The user has no write access."),
             @ApiResponse(code = 409, message = "Some conflict occurred."),
     })
     public @ResponseBody ResponseEntity<?>

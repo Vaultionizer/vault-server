@@ -5,11 +5,21 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 public class CreateSpaceDto {
     private GenericAuthDto auth;
     private boolean isPrivate;
+    private boolean usersWriteAccess;
+    private boolean usersAuthAccess;
     private String authKey;
     private String referenceFile;
 
     public GenericAuthDto getAuth() {
         return auth;
+    }
+
+    public boolean getUsersWriteAccess() {
+        return usersWriteAccess;
+    }
+
+    public boolean getUsersAuthAccess() {
+        return usersAuthAccess;
     }
 
     @JsonProperty("isPrivate")

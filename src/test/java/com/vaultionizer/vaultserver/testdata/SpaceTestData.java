@@ -38,6 +38,7 @@ public class SpaceTestData {
     public static final SpaceAuthKeyDto[] getAuthKeys = {
             new SpaceAuthKeyDto(new GenericAuthDto(1L, "definitely wrong"), 3L),
             new SpaceAuthKeyDto(new GenericAuthDto(1L, "correctTestSessionKey"), 3L),
-            new SpaceAuthKeyDto(new GenericAuthDto(1L, "correctTestSessionKey"), 4L)
+            new SpaceAuthKeyDto(new GenericAuthDto(1L, "correctTestSessionKey"), 4L),
+            new SpaceAuthKeyDto(new GenericAuthDto(2L, "correctTestSessionKey"), 3L)
     };
 }
