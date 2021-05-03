@@ -16,4 +16,4 @@ All semantic data (like filenames, contents etc.) is stored in a custom (JSON-ba
 The backend can easily be deployed using Docker and then used by the Android application.
 
 ## Swagger-API
-For the current API, see [here](https://v2202006123966120989.bestsrv.de/swagger-ui.html#/).
+For the current API, see [here](https://api.vault.jatsqi/swagger-ui.html#/).
