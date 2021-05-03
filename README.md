@@ -2,6 +2,9 @@
 
 Hey, welcome to the Github repository for the backend for the [Vaultionizer Android application](https://github.com/Vaultionizer/vault-android-app).
 
+[![Lines of Code](https://sonarcloud.io/api/project_badges/measure?project=Vaultionizer_vault-server&metric=ncloc)](https://sonarcloud.io/dashboard?id=Vaultionizer_vault-server)[![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=Vaultionizer_vault-server&metric=alert_status)](https://sonarcloud.io/dashboard?id=Vaultionizer_vault-server)
+[![Coverage](https://sonarcloud.io/api/project_badges/measure?project=Vaultionizer_vault-server&metric=coverage)](https://sonarcloud.io/dashboard?id=Vaultionizer_vault-server)[![Vulnerabilities](https://sonarcloud.io/api/project_badges/measure?project=Vaultionizer_vault-server&metric=vulnerabilities)](https://sonarcloud.io/dashboard?id=Vaultionizer_vault-server)
+
 The application aims at enabling a user to securely store data online without having to fear the data being analyzed, breached or anything similar. Our goal is to put zero trust into server instances and instead rely solely on the user knowing what to do.
 
 Before reading any further, note that this application is explorative and should not be used in practice (since for debugging purposes, the data is not encrypted yet)!
