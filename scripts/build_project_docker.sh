@@ -1,4 +1,3 @@
-bash test.sh
 cd /home/vaultionizer/project
 
 rm target/vaultserver*

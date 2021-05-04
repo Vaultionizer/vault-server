@@ -21,5 +21,10 @@ jobs:
           key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
           restore-keys: | 
             ${{ runner.os }}-maven-
+      - name: Test code
+        run: |
+          cd scripts
+          bash test.sh
+          cd ..
       - name: Run docker
         run: docker-compose build
