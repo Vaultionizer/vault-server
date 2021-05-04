@@ -1,5 +1,6 @@
 package com.vaultionizer.vaultserver.controllers;
 
+
 import com.vaultionizer.vaultserver.helpers.Config;
 import com.vaultionizer.vaultserver.model.dto.WebsocketFileDto;
 import com.vaultionizer.vaultserver.model.dto.wserrors.GenericWSError;
@@ -15,9 +16,7 @@ import org.springframework.messaging.handler.annotation.Payload;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Controller;
 import org.springframework.util.LinkedMultiValueMap;
-import org.springframework.web.bind.annotation.CrossOrigin;
 
-@CrossOrigin(maxAge = 3600)
 @Controller
 public class WebsocketController {
     private final SessionService sessionService;
@@ -73,6 +72,7 @@ public class WebsocketController {
         boolean success;
         if (granted == 1){
             // usual upload
+            fileService.setUploadFile(spaceID, saveIndex);
             success = fileService.writeToFile(content.getContent(), spaceID, saveIndex);
         }
         else{
@@ -84,7 +84,6 @@ public class WebsocketController {
             sendError(wsToken, new GenericWSError(WS_ERROR.UPLOAD_UNSUCCESSFUL,
                     new UploadData(userID, spaceID, saveIndex, sessionKey)));
         }
-        fileService.setUploadFile(spaceID, saveIndex);
     }
 
     public synchronized void download(String websocketToken, Long spaceID, Long saveIndex){
