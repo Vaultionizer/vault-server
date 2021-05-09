@@ -24,4 +24,5 @@ jobs:
       - name: Test code
         run: |
           cd scripts
+          ls
           bash test.sh

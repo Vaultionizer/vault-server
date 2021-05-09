@@ -6,7 +6,7 @@ export VAULT_DB_PASSWORD=password
 export VAULT_DB_DATABASE=mydb
 export VAULT_DB_HOST=localhost:5432
 
-docker-compose up --build -d
+docker-compose up --build
 
 cd ..
 mvn test
