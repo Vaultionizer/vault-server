@@ -40,4 +40,9 @@ public interface SpaceRepository extends JpaRepository<SpaceModel, Long> {
     @Query("SELECT COUNT(it) FROM SpaceModel it WHERE it.spaceID = ?1 " +
             "AND (it.creatorID = ?2 OR it.usersCanGetAuthKey = true)")
     int getUserAuthKeyAccess(Long spaceID, Long userID); // user has access to auth key if creator or normal users have access to auth key
+
+    @Transactional
+    @Modifying
+    @Query("UPDATE SpaceModel it SET it.usersHaveWriteAccess = ?2, it.usersCanGetAuthKey = ?3 WHERE it.spaceID = ?1")
+    void configureSpace(Long spaceID, boolean writeAccess, boolean authKeyAccess);
 }

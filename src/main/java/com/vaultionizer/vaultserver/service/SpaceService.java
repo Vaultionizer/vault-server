@@ -111,4 +111,8 @@ public class SpaceService {
     public boolean userHasAuthKeyAccess(Long spaceID, Long userID){
         return spaceRepository.getUserAuthKeyAccess(spaceID, userID) == 1;
     }
+
+    public void configureSpace(Long spaceID, boolean writeAccess, boolean authKeyAccess) {
+        spaceRepository.configureSpace(spaceID, writeAccess, authKeyAccess);
+    }
 }

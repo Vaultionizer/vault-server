@@ -45,4 +45,8 @@ public class UserAccessService {
         }
         return false;
     }
+
+    public void kickAll(Long spaceID, Long creatorID){
+        userAccessRepository.kickAllUsers(spaceID, creatorID);
+    }
 }

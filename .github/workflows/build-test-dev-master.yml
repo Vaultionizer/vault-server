@@ -25,6 +25,3 @@ jobs:
         run: |
           cd scripts
           bash test.sh
-          cd ..
-      - name: Run docker
-        run: docker-compose build

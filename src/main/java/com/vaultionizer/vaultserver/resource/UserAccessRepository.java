@@ -22,6 +22,11 @@ public interface UserAccessRepository extends JpaRepository<UserAccessModel, Lon
 
     @Transactional
     @Modifying
+    @Query("DELETE FROM UserAccessModel it WHERE it.spaceID = ?1 AND it.userID <> ?2")
+    void kickAllUsers(Long spaceID, Long creatorID);
+
+    @Transactional
+    @Modifying
     @Query("DELETE FROM UserAccessModel it WHERE it.userID = ?1")
     void removeUser(Long userID);
 
