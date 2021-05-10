@@ -156,7 +156,7 @@ public class SpaceController {
     configureSpace(@RequestBody ConfigureSpaceDto req, @PathVariable Long spaceID){
         HttpStatus status = checkPrivilegeLevel(req.getAuth(), spaceID);
         if (status != null) return new ResponseEntity<>(null, status);
-
+        if (req.getSharedSpace() != null) spaceService.changeSharedState(spaceID, req.getAuth().getUserID(), req.getSharedSpace());
         spaceService.configureSpace(spaceID, req.getUsersWriteAccess(), req.getUsersAuthAccess());
         return new ResponseEntity<>(null, HttpStatus.ACCEPTED);
     }
@@ -168,7 +168,7 @@ public class SpaceController {
     @ApiResponses(value = {
             @ApiResponse(code = 200, message = "The auth key is returned."),
             @ApiResponse(code = 401, message = "The user either does not exist or the sessionKey is wrong. User is thus not authorized."),
-            @ApiResponse(code = 403, message = "Either the space with given ID does not exist, it is private or the authorization key is wrong."),
+            @ApiResponse(code = 403, message = "Either the space with given ID does not exist, it is private or the user has no access."),
             @ApiResponse(code = 406, message = "User is not the creator.")
     })
     public @ResponseBody ResponseEntity<?>

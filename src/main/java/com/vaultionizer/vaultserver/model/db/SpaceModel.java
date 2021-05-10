@@ -87,4 +87,8 @@ public class SpaceModel {
     public boolean getUsersCanGetAuthKey() {
         return usersCanGetAuthKey;
     }
+
+    public void setPrivateSpace(boolean privateSpace) {
+        isPrivateSpace = privateSpace;
+    }
 }

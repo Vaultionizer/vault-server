@@ -115,4 +115,16 @@ public class SpaceService {
     public void configureSpace(Long spaceID, boolean writeAccess, boolean authKeyAccess) {
         spaceRepository.configureSpace(spaceID, writeAccess, authKeyAccess);
     }
+
+    public void changeSharedState(Long spaceID, Long creatorID, Boolean shared){
+        var spaceModel = spaceRepository.findById(spaceID);
+        if (spaceModel.isEmpty() || spaceModel.get().isPrivateSpace() == !shared) return;
+        SpaceModel model = spaceModel.get();
+        model.setPrivateSpace(!shared);
+        spaceRepository.save(model);
+        if (!shared){
+            // shared -> private: remove all accesses
+            userAccessService.kickAll(spaceID, creatorID);
+        }
+    }
 }
