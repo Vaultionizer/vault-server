@@ -4,6 +4,7 @@ import com.vaultionizer.vaultserver.controllers.FileController;
 import com.vaultionizer.vaultserver.controllers.SessionController;
 import com.vaultionizer.vaultserver.controllers.SpaceController;
 import com.vaultionizer.vaultserver.controllers.UserController;
+import com.vaultionizer.vaultserver.model.dto.ConfigureSpaceDto;
 import com.vaultionizer.vaultserver.model.dto.GenericAuthDto;
 import com.vaultionizer.vaultserver.service.*;
 import com.vaultionizer.vaultserver.testdata.UserTestData;
@@ -77,6 +78,41 @@ public class ManageSpaceSteps extends Services {
 
     @And("the other user still has access")
     public void theOtherUserStillHasAccess() throws Exception {
-        if (!userAccessService.userHasAccess(otherUserID, spaceID)) throw new Exception("Other user has no more access");
+        if (!userAccessService.userHasAccess(otherUserID, spaceID))
+            throw new Exception("Other user has no more access");
+    }
+
+    @And("the user creates a space that is {string}")
+    public void theUserCreatesASpaceThatIs(String sharedState) {
+        spaceID = spaceService.createSpace(userID, "sd", !parseSharedState(sharedState), true, true, "abc");
+
+    }
+
+    @When("the user sets the space {string}")
+    public void theUserSetsTheSpace(String newSharedState) {
+        var session = sessionService.addSession(userID);
+        res = spaceController.configureSpace(
+                new ConfigureSpaceDto(
+                        new GenericAuthDto(userID, session.getSessionKey()),
+                        true, true, !parseSharedState(newSharedState)), spaceID);
+    }
+
+    @When("the other user configures space")
+    public void theOtherUserConfiguresSpace() {
+        var session = sessionService.addSession(otherUserID);
+        res = spaceController.configureSpace(
+                new ConfigureSpaceDto(new GenericAuthDto(otherUserID, session.getSessionKey()),
+                        true, true, false), spaceID);
+
+    }
+
+    private boolean parseSharedState(String state) {
+        return state.equals("shared");
+    }
+
+    @And("the space is configured as {string}")
+    public void theSpaceIsConfiguredAs(String sharedState) throws Exception {
+        Boolean shared = spaceService.checkShared(spaceID);
+        if (shared == null || shared == parseSharedState(sharedState)) throw new Exception("Configuration failed. State is now "+shared);
     }
 }

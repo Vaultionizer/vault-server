@@ -127,4 +127,14 @@ public class SpaceService {
             userAccessService.kickAll(spaceID, creatorID);
         }
     }
+
+    public Boolean checkShared(Long spaceID){
+        var model = spaceRepository.findById(spaceID);
+        if (model.isEmpty()) return null;
+        return !model.get().isPrivateSpace();
+    }
+
+    public GetSpacesResponseDto getSpaceConfig(Long spaceID){
+        return spaceRepository.getSpaceConfig(spaceID);
+    }
 }

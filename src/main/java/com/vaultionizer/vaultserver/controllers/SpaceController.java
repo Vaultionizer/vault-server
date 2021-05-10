@@ -142,7 +142,7 @@ public class SpaceController {
         return new ResponseEntity<>(spaceService.getSpaceAuthKey(req.getSpaceID()), HttpStatus.OK);
     }
 
-    @RequestMapping(value = "/api/spaces/config/{spaceID}", method = RequestMethod.POST)
+    @RequestMapping(value = "/api/spaces/{spaceID}/config", method = RequestMethod.POST)
     @ApiOperation(  value = "Returns the authentication key of a file.",
             response = ConfigureSpaceDto.class
     )
@@ -180,8 +180,24 @@ public class SpaceController {
         return new ResponseEntity<>(null, HttpStatus.OK);
     }
 
-    // check whether user is logged in, has access and whether user is creator. If so, returns null
-    private HttpStatus checkPrivilegeLevel(GenericAuthDto auth, Long spaceID){
+    @RequestMapping(value = "/api/spaces/{spaceID}/config/get", method = RequestMethod.POST)
+    @ApiOperation(  value = "Returns the authentication key of a file.",
+            response = GenericAuthDto.class
+    )
+    @ApiResponses(value = {
+            @ApiResponse(code = 200, message = "The config is returned."),
+            @ApiResponse(code = 401, message = "The user either does not exist or the sessionKey is wrong. User is thus not authorized."),
+            @ApiResponse(code = 403, message = "Either the space with given ID does not exist, it is private or the user has no access.")
+    })
+    public @ResponseBody ResponseEntity<?>
+    getSpaceConfig(@RequestBody GenericAuthDto req, @PathVariable Long spaceID){
+        HttpStatus status = checkAccess(req, spaceID);
+        if (status != null) return new ResponseEntity<>(null, status);
+
+        return new ResponseEntity<>(spaceService.getSpaceConfig(spaceID), HttpStatus.OK);
+    }
+
+    private HttpStatus checkAccess(GenericAuthDto auth, Long spaceID){
         if (!sessionService.getSession(auth.getUserID(), auth.getSessionKey())){
             return HttpStatus.UNAUTHORIZED;
         }
@@ -189,13 +205,18 @@ public class SpaceController {
                 !userAccessService.userHasAccess(auth.getUserID(), spaceID)){
             return HttpStatus.FORBIDDEN;
         }
+        return null;
+    }
+
+    // check whether user is logged in, has access and whether user is creator. If so, returns null
+    private HttpStatus checkPrivilegeLevel(GenericAuthDto auth, Long spaceID){
+        HttpStatus accessStatus = checkAccess(auth, spaceID);
+        if (accessStatus != null) return accessStatus;
         if (!spaceService.checkCreator(spaceID, auth.getUserID())){
             return HttpStatus.NOT_ACCEPTABLE;
         }
         return null;
     }
-
-
 
     @RequestMapping(value = "/api/spaces/delete/{spaceID}", method = RequestMethod.DELETE)
     @ApiOperation(  value = "Deletes the specified space if permitted.",

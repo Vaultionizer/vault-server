@@ -6,6 +6,13 @@ public class ConfigureSpaceDto {
     private boolean usersAuthAccess;
     private Boolean sharedSpace;
 
+    public ConfigureSpaceDto(GenericAuthDto auth, boolean usersWriteAccess, boolean usersAuthAccess, Boolean sharedSpace) {
+        this.auth = auth;
+        this.usersWriteAccess = usersWriteAccess;
+        this.usersAuthAccess = usersAuthAccess;
+        this.sharedSpace = sharedSpace;
+    }
+
     public GenericAuthDto getAuth() {
         return auth;
     }

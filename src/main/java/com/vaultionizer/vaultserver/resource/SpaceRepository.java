@@ -1,6 +1,7 @@
 package com.vaultionizer.vaultserver.resource;
 
 import com.vaultionizer.vaultserver.model.db.SpaceModel;
+import com.vaultionizer.vaultserver.model.dto.GetSpacesResponseDto;
 import com.vaultionizer.vaultserver.model.dto.SpaceAuthKeyResponseDto;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
@@ -45,4 +46,8 @@ public interface SpaceRepository extends JpaRepository<SpaceModel, Long> {
     @Modifying
     @Query("UPDATE SpaceModel it SET it.usersHaveWriteAccess = ?2, it.usersCanGetAuthKey = ?3 WHERE it.spaceID = ?1")
     void configureSpace(Long spaceID, boolean writeAccess, boolean authKeyAccess);
+
+    @Query("SELECT new com.vaultionizer.vaultserver.model.dto.GetSpaceConfigResponseDto(it.isPrivateSpace, it.usersHaveWriteAccess, it.usersCanGetAuthKey) " +
+            "FROM SpaceModel it WHERE it.spaceID = ?1")
+    GetSpacesResponseDto getSpaceConfig(Long spaceID);
 }
