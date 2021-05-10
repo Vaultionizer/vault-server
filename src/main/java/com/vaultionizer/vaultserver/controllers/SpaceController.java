@@ -1,8 +1,6 @@
 package com.vaultionizer.vaultserver.controllers;
 
-import com.vaultionizer.vaultserver.model.db.SpaceModel;
 import com.vaultionizer.vaultserver.model.dto.*;
-import com.vaultionizer.vaultserver.resource.SpaceRepository;
 import com.vaultionizer.vaultserver.service.*;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -180,9 +178,28 @@ public class SpaceController {
         return new ResponseEntity<>(null, HttpStatus.OK);
     }
 
+    @RequestMapping(value = "/api/spaces/{spaceID}/authkey", method = RequestMethod.POST)
+    @ApiOperation(  value = "Changes the authentication key of a space.",
+            response = ChangeAuthKeyDto.class
+    )
+    @ApiResponses(value = {
+            @ApiResponse(code = 200, message = "The auth key was replaced."),
+            @ApiResponse(code = 401, message = "The user either does not exist or the sessionKey is wrong. User is thus not authorized."),
+            @ApiResponse(code = 403, message = "Either the space with given ID does not exist, it is private or the user has no access."),
+            @ApiResponse(code = 406, message = "User is not the creator.")
+    })
+    public @ResponseBody ResponseEntity<?>
+    changeAuthKey(@RequestBody ChangeAuthKeyDto req, @PathVariable Long spaceID){
+        HttpStatus status = checkPrivilegeLevel(req.getAuth(), spaceID);
+        if (status != null) return new ResponseEntity<>(null, status);
+
+        spaceService.changeAuthKey(spaceID, req.getAuthKey());
+        return new ResponseEntity<>(null, HttpStatus.OK);
+    }
+
     @RequestMapping(value = "/api/spaces/{spaceID}/config/get", method = RequestMethod.POST)
-    @ApiOperation(  value = "Returns the authentication key of a file.",
-            response = GenericAuthDto.class
+    @ApiOperation(  value = "Returns the configuration of a space.",
+            response = GetSpacesResponseDto.class
     )
     @ApiResponses(value = {
             @ApiResponse(code = 200, message = "The config is returned."),

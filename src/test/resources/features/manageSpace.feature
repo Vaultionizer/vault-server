@@ -79,6 +79,42 @@ Feature: Space can be managed
     | private        | test8    | other8     |
     | shared         | test9    | other9     |
 
-  Scenario:
 
+
+  Scenario: User can get config
+    Given the user has created an account with name "test10"
+    When the user queries the config
+    Then the return code is 200
+    And the config is correct.
+    
+  Scenario: User can only get config with access
+    Given the user has created an account with name "test11"
+    And another user has an account with name "other11"
+    When the other user queries the config
+    Then the return code is 403
+    
+  Scenario Outline: User can configure space
+    Given the user has created an account with name "<username>"
+    When the user configures the space to write access "<writeAccess>" and invite "<inviteAllowed>"
+    Then the return code is 202
+    And the config has write access "<writeAccess>" and invite "<inviteAllowed>"
+  Examples:
+    | username | writeAccess | inviteAllowed |
+    | test12   | false       | false         |
+    | test13   | false       | true          |
+    | test14   | true        | false         |
+    | test15   | true        | true          |
+    
+  Scenario: User without access cannot configure
+    Given the user has created an account with name "test16"
+    And another user has an account with name "other16"
+    When the other user configures the space
+    Then the return code is 403
+
+  Scenario: User without access cannot configure
+    Given the user has created an account with name "test17"
+    And another user has an account with name "other17"
+    And the other user has access
+    When the other user configures the space
+    Then the return code is 406
 

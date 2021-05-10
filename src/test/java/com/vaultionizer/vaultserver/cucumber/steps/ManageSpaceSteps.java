@@ -6,6 +6,8 @@ import com.vaultionizer.vaultserver.controllers.SpaceController;
 import com.vaultionizer.vaultserver.controllers.UserController;
 import com.vaultionizer.vaultserver.model.dto.ConfigureSpaceDto;
 import com.vaultionizer.vaultserver.model.dto.GenericAuthDto;
+import com.vaultionizer.vaultserver.model.dto.GetSpaceConfigResponseDto;
+import com.vaultionizer.vaultserver.model.dto.GetSpacesResponseDto;
 import com.vaultionizer.vaultserver.service.*;
 import com.vaultionizer.vaultserver.testdata.UserTestData;
 import io.cucumber.java.en.And;
@@ -56,8 +58,7 @@ public class ManageSpaceSteps extends Services {
 
     @When("the user kicks all users")
     public void theUserKicksAllUsers() {
-        var session = sessionService.addSession(userID);
-        res = spaceController.kickUsers(new GenericAuthDto(userID, session.getSessionKey()), spaceID);
+        res = spaceController.kickUsers(getUserAuth(userID), spaceID);
     }
 
     @And("the other user has no access")
@@ -72,8 +73,7 @@ public class ManageSpaceSteps extends Services {
 
     @When("the other user kicks all users")
     public void theOtherUserKicksAllUsers() {
-        var session = sessionService.addSession(otherUserID);
-        res = spaceController.kickUsers(new GenericAuthDto(otherUserID, session.getSessionKey()), spaceID);
+        res = spaceController.kickUsers(getUserAuth(otherUserID), spaceID);
     }
 
     @And("the other user still has access")
@@ -90,18 +90,15 @@ public class ManageSpaceSteps extends Services {
 
     @When("the user sets the space {string}")
     public void theUserSetsTheSpace(String newSharedState) {
-        var session = sessionService.addSession(userID);
         res = spaceController.configureSpace(
-                new ConfigureSpaceDto(
-                        new GenericAuthDto(userID, session.getSessionKey()),
+                new ConfigureSpaceDto(getUserAuth(userID),
                         true, true, !parseSharedState(newSharedState)), spaceID);
     }
 
     @When("the other user configures space")
     public void theOtherUserConfiguresSpace() {
-        var session = sessionService.addSession(otherUserID);
         res = spaceController.configureSpace(
-                new ConfigureSpaceDto(new GenericAuthDto(otherUserID, session.getSessionKey()),
+                new ConfigureSpaceDto(getUserAuth(otherUserID),
                         true, true, false), spaceID);
 
     }
@@ -113,6 +110,48 @@ public class ManageSpaceSteps extends Services {
     @And("the space is configured as {string}")
     public void theSpaceIsConfiguredAs(String sharedState) throws Exception {
         Boolean shared = spaceService.checkShared(spaceID);
-        if (shared == null || shared == parseSharedState(sharedState)) throw new Exception("Configuration failed. State is now "+shared);
+        if (shared == null || shared == parseSharedState(sharedState))
+            throw new Exception("Configuration failed. State is now " + shared);
+    }
+
+    @When("the user queries the config")
+    public void theUserQueriesTheConfig() {
+        res = spaceController.getSpaceConfig(getUserAuth(userID), spaceID);
+    }
+
+    @And("the config is correct.")
+    public void theConfigIsCorrect() {
+    }
+
+    @When("the other user queries the config")
+    public void theOtherUserQueriesTheConfig() {
+        res = spaceController.getSpaceConfig(getUserAuth(otherUserID), spaceID);
+    }
+
+    @When("the user configures the space to write access {string} and invite {string}")
+    public void theUserConfiguresTheSpaceToWriteAccessAndInvite(String writeAccess, String inviteAccess) {
+        res = spaceController.configureSpace(new ConfigureSpaceDto(
+                getUserAuth(userID), Boolean.parseBoolean(writeAccess), Boolean.parseBoolean(inviteAccess), true),
+                spaceID);
+    }
+
+    @And("the config has write access {string} and invite {string}")
+    public void theConfigHasWriteAccessAndInvite(String writeAccess, String inviteAccess) throws Exception {
+        res = spaceController.getSpaceConfig(getUserAuth(userID), spaceID);
+        if (res == null || !res.hasBody() || res.getBody() == null) throw new Exception("Querying config failed");
+        var body = (GetSpaceConfigResponseDto)res.getBody();
+
+        if (body.isUsersHaveWriteAccess() != Boolean.parseBoolean(writeAccess) || body.isUsersCanInvite() != Boolean.parseBoolean(inviteAccess))
+            throw new Exception("Error. Wrong config. Write access: "+body.isUsersHaveWriteAccess()+"  auth key access: "+body.isUsersCanInvite());
+    }
+
+    @When("the other user configures the space")
+    public void theOtherUserConfiguresTheSpace() {
+        res = spaceController.configureSpace(new ConfigureSpaceDto(getUserAuth(otherUserID), false, false, false), spaceID);
+    }
+
+    private GenericAuthDto getUserAuth(Long _userID){
+        var session = sessionService.addSession(_userID);
+        return new GenericAuthDto(_userID, session.getSessionKey());
     }
 }

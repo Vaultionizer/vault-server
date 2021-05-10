@@ -1,6 +1,7 @@
 package com.vaultionizer.vaultserver.service;
 
 import com.vaultionizer.vaultserver.model.db.SpaceModel;
+import com.vaultionizer.vaultserver.model.dto.GetSpaceConfigResponseDto;
 import com.vaultionizer.vaultserver.model.dto.GetSpacesResponseDto;
 import com.vaultionizer.vaultserver.model.dto.SpaceAuthKeyResponseDto;
 import com.vaultionizer.vaultserver.resource.SpaceRepository;
@@ -134,7 +135,11 @@ public class SpaceService {
         return !model.get().isPrivateSpace();
     }
 
-    public GetSpacesResponseDto getSpaceConfig(Long spaceID){
+    public GetSpaceConfigResponseDto getSpaceConfig(Long spaceID){
         return spaceRepository.getSpaceConfig(spaceID);
+    }
+
+    public void changeAuthKey(Long spaceID, String authKey){
+        spaceRepository.updateAuthKey(spaceID, authKey);
     }
 }
