@@ -122,7 +122,8 @@ public class SpaceController {
             @ApiResponse(code = 200, message = "The auth key is returned."),
             @ApiResponse(code = 401, message = "The user either does not exist or the sessionKey is wrong. User is thus not authorized."),
             @ApiResponse(code = 403, message = "Either the space with given ID does not exist, it is private or the authorization key is wrong."),
-            @ApiResponse(code = 406, message = "User is not allowed to get the auth key.")
+            @ApiResponse(code = 406, message = "User is not allowed to get the auth key."),
+            @ApiResponse(code = 417, message = "Some other error occurred.")
     })
     public @ResponseBody ResponseEntity<?>
     getAuthKey(@RequestBody SpaceAuthKeyDto req){
@@ -136,8 +137,9 @@ public class SpaceController {
         if (!spaceService.userHasAuthKeyAccess(req.getSpaceID(), req.getAuth().getUserID())){
             return new ResponseEntity<>(null, HttpStatus.NOT_ACCEPTABLE);
         }
-
-        return new ResponseEntity<>(spaceService.getSpaceAuthKey(req.getSpaceID()), HttpStatus.OK);
+        var authKey = spaceService.getSpaceAuthKey(req.getSpaceID());
+        if (authKey.isEmpty()) return new ResponseEntity<>(null, HttpStatus.EXPECTATION_FAILED);
+        return new ResponseEntity<>(authKey.get(), HttpStatus.OK);
     }
 
     @RequestMapping(value = "/api/spaces/{spaceID}/config", method = RequestMethod.POST)

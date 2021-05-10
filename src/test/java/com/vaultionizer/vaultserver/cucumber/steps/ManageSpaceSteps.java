@@ -4,10 +4,7 @@ import com.vaultionizer.vaultserver.controllers.FileController;
 import com.vaultionizer.vaultserver.controllers.SessionController;
 import com.vaultionizer.vaultserver.controllers.SpaceController;
 import com.vaultionizer.vaultserver.controllers.UserController;
-import com.vaultionizer.vaultserver.model.dto.ConfigureSpaceDto;
-import com.vaultionizer.vaultserver.model.dto.GenericAuthDto;
-import com.vaultionizer.vaultserver.model.dto.GetSpaceConfigResponseDto;
-import com.vaultionizer.vaultserver.model.dto.GetSpacesResponseDto;
+import com.vaultionizer.vaultserver.model.dto.*;
 import com.vaultionizer.vaultserver.service.*;
 import com.vaultionizer.vaultserver.testdata.UserTestData;
 import io.cucumber.java.en.And;
@@ -22,6 +19,7 @@ public class ManageSpaceSteps extends Services {
     private Long spaceID;
     private Long otherUserID;
     private ResponseEntity<?> res;
+    private String DEFAULT_AUTH = "abc";
 
     @Autowired
     public ManageSpaceSteps(SpaceService spaceService, UserService userService,
@@ -43,7 +41,7 @@ public class ManageSpaceSteps extends Services {
     @Given("the user has created an account with name {string}")
     public void theUserHasCreatedAnAccountWithName(String name) {
         userID = userService.createUser(name, UserTestData.registerData[3].getKey());
-        spaceID = spaceService.createSpace(userID, "sd", false, true, true, "abc");
+        spaceID = spaceService.createSpace(userID, "sd", false, true, true, DEFAULT_AUTH);
     }
 
     @And("another user has an account with name {string}")
@@ -84,7 +82,7 @@ public class ManageSpaceSteps extends Services {
 
     @And("the user creates a space that is {string}")
     public void theUserCreatesASpaceThatIs(String sharedState) {
-        spaceID = spaceService.createSpace(userID, "sd", !parseSharedState(sharedState), true, true, "abc");
+        spaceID = spaceService.createSpace(userID, "sd", !parseSharedState(sharedState), true, true, DEFAULT_AUTH);
 
     }
 
@@ -153,5 +151,34 @@ public class ManageSpaceSteps extends Services {
     private GenericAuthDto getUserAuth(Long _userID){
         var session = sessionService.addSession(_userID);
         return new GenericAuthDto(_userID, session.getSessionKey());
+    }
+
+    @When("the user changes the auth key to {string}")
+    public void theUserChangesTheAuthKeyTo(String authKey) {
+        res = spaceController.changeAuthKey(new ChangeAuthKeyDto(getUserAuth(userID), authKey), spaceID);
+    }
+
+    @And("the auth key is {string}")
+    public void theAuthKeyIs(String authKey) throws Exception {
+        checkAuthKey(authKey);
+    }
+
+    @When("the other user changes the auth key")
+    public void theOtherUserChangesTheAuthKey() {
+        res = spaceController.changeAuthKey(new ChangeAuthKeyDto(getUserAuth(otherUserID), "<Your ads here>"), spaceID);
+    }
+
+    @And("the auth key remains unchanged")
+    public void theAuthKeyRemainsUnchanged() throws Exception {
+        checkAuthKey(DEFAULT_AUTH);
+    }
+
+    public void checkAuthKey(String expected) throws Exception {
+        var result = spaceController.getAuthKey(new SpaceAuthKeyDto(getUserAuth(userID), spaceID));
+        if (!result.hasBody() || result.getBody() == null)
+            throw new Exception("Getting auth key failed. " + result.getStatusCode().value() + " -> "+result.getStatusCode().name());
+        var auth = (SpaceAuthKeyResponseDto)result.getBody();
+        if (auth == null || !auth.getAuthKey().equals(expected))
+            throw new Exception("Auth key expected: "+ expected+ " is not actual: "+auth.getAuthKey());
     }
 }

@@ -118,3 +118,25 @@ Feature: Space can be managed
     When the other user configures the space
     Then the return code is 406
 
+  Scenario: User can change auth key
+    Given the user has created an account with name "test18"
+    When the user changes the auth key to "PizzaPasta"
+    Then the return code is 200
+    And the auth key is "PizzaPasta"
+
+
+  Scenario: Users without access cannot change auth key
+    Given the user has created an account with name "test19"
+    And another user has an account with name "other19"
+    When the other user changes the auth key
+    Then the return code is 403
+    And the auth key remains unchanged
+
+
+  Scenario: Only creator can change auth key
+    Given the user has created an account with name "test20"
+    And another user has an account with name "other20"
+    And the other user has access
+    When the other user changes the auth key
+    Then the return code is 406
+    And the auth key remains unchanged
