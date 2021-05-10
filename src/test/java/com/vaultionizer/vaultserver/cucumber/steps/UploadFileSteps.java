@@ -39,7 +39,7 @@ public class UploadFileSteps extends Services {
     public void theUserHasAnAccountWithName(String username) {
         userID = this.userService.createUser(username, UserTestData.registerData[3].getKey());
         sessionKey = sessionService.addSession(userID).getSessionKey();
-        spaceID = spaceService.createSpace(userID, "NANI", false, "dbz");
+        spaceID = spaceService.createSpace(userID, "NANI", false, false, false, "dbz");
     }
 
     @When("the user requests to upload {int} files")

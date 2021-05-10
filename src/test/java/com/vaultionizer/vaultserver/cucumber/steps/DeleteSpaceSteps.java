@@ -49,7 +49,7 @@ public class DeleteSpaceSteps extends Services {
 
     @And("the user created the space")
     public void theUserCreatedTheSpace() {
-        spaceID = spaceService.createSpace(userID, "", false, "authKey");
+        spaceID = spaceService.createSpace(userID, "", false, false, false, "authKey");
     }
 
     @When("the user wants to delete the space")
@@ -90,7 +90,7 @@ public class DeleteSpaceSteps extends Services {
 
     @And("another user created the space")
     public void anotherUserCreatedTheSpace() {
-        spaceID = spaceService.createSpace(10000000L, "", false, "authKey");
+        spaceID = spaceService.createSpace(10000000L, "", false, false, false, "authKey");
     }
 
     @And("the user has access to the space")

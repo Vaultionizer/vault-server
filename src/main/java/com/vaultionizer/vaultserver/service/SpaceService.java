@@ -1,14 +1,17 @@
 package com.vaultionizer.vaultserver.service;
 
-import com.vaultionizer.vaultserver.model.db.RefFilesModel;
 import com.vaultionizer.vaultserver.model.db.SpaceModel;
+import com.vaultionizer.vaultserver.model.dto.GetSpaceConfigResponseDto;
 import com.vaultionizer.vaultserver.model.dto.GetSpacesResponseDto;
 import com.vaultionizer.vaultserver.model.dto.SpaceAuthKeyResponseDto;
 import com.vaultionizer.vaultserver.resource.SpaceRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.Optional;
+import java.util.Set;
 
 @Service
 public class SpaceService {
@@ -32,12 +35,14 @@ public class SpaceService {
     public GetSpacesResponseDto getSpace(Long spaceID, Long userID){
         Optional<SpaceModel> model = spaceRepository.findById(spaceID);
         if (model.isEmpty()) return null;
-        return new GetSpacesResponseDto(spaceID, model.get().isPrivateSpace(), model.get().getCreatorID().equals(userID));
+        return new GetSpacesResponseDto(spaceID, model.get().isPrivateSpace(), model.get().getCreatorID().equals(userID),
+                model.get().getUsersHaveWriteAccess(), model.get().getUsersCanGetAuthKey());
     }
 
-    public Long createSpace(Long userID, String refFileContent, boolean isPrivate, String authKey){
+    public Long createSpace(Long userID, String refFileContent, boolean isPrivate, boolean usersWriteAccess,
+                            boolean usersCanInvite, String authKey){
         Long refFileID = refFileService.addNewRefFile(refFileContent);
-        SpaceModel model = new SpaceModel(userID, refFileID, isPrivate, authKey);
+        SpaceModel model = new SpaceModel(userID, refFileID, isPrivate, usersWriteAccess, usersCanInvite, authKey);
         model = spaceRepository.save(model);
         userAccessService.addUserAccess(model.getSpaceID(), userID);
         return model.getSpaceID();
@@ -99,5 +104,42 @@ public class SpaceService {
 
     public synchronized boolean checkDeleted(Long spaceID){
         return this.isDeleted.contains(spaceID);
+    }
+
+    public boolean userHasWriteAccess(Long spaceID, Long userID){
+        return spaceRepository.getUserWriteAccess(spaceID, userID) == 1;
+    }
+    public boolean userHasAuthKeyAccess(Long spaceID, Long userID){
+        return spaceRepository.getUserAuthKeyAccess(spaceID, userID) == 1;
+    }
+
+    public void configureSpace(Long spaceID, boolean writeAccess, boolean authKeyAccess) {
+        spaceRepository.configureSpace(spaceID, writeAccess, authKeyAccess);
+    }
+
+    public void changeSharedState(Long spaceID, Long creatorID, Boolean shared){
+        var spaceModel = spaceRepository.findById(spaceID);
+        if (spaceModel.isEmpty() || spaceModel.get().isPrivateSpace() == !shared) return;
+        SpaceModel model = spaceModel.get();
+        model.setPrivateSpace(!shared);
+        spaceRepository.save(model);
+        if (!shared){
+            // shared -> private: remove all accesses
+            userAccessService.kickAll(spaceID, creatorID);
+        }
+    }
+
+    public Boolean checkShared(Long spaceID){
+        var model = spaceRepository.findById(spaceID);
+        if (model.isEmpty()) return null;
+        return !model.get().isPrivateSpace();
+    }
+
+    public GetSpaceConfigResponseDto getSpaceConfig(Long spaceID){
+        return spaceRepository.getSpaceConfig(spaceID);
+    }
+
+    public void changeAuthKey(Long spaceID, String authKey){
+        spaceRepository.updateAuthKey(spaceID, authKey);
     }
 }

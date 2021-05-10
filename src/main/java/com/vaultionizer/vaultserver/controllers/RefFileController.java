@@ -74,6 +74,7 @@ public class RefFileController {
             @ApiResponse(code = 200, message = "The response contains the content of the current ref file."),
             @ApiResponse(code = 401, message = "The user either does not exist or the sessionKey is wrong. User is thus not authorized."),
             @ApiResponse(code = 403, message = "Either the space with given ID does not exist or the user has no access to that space."),
+            @ApiResponse(code = 406, message = "The user has no write access."),
             @ApiResponse(code = 500, message = "Inconsistencies on the server side. Should never be the case.")
     })
     @ResponseBody ResponseEntity<?>
@@ -83,6 +84,10 @@ public class RefFileController {
         }
 
         if (userAccessService.userHasAccess(req.getAuth().getUserID(), req.getSpaceID())){
+            if (!spaceService.userHasWriteAccess(req.getSpaceID(), req.getAuth().getUserID())){
+                return new ResponseEntity<>(null, HttpStatus.NOT_ACCEPTABLE);
+            }
+
             Long refFileID = spaceService.getRefFileID(req.getSpaceID());
             if (refFileID == -1L) {
                 return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);

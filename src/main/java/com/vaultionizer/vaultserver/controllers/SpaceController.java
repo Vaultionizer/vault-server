@@ -1,8 +1,6 @@
 package com.vaultionizer.vaultserver.controllers;
 
-import com.vaultionizer.vaultserver.model.db.SpaceModel;
 import com.vaultionizer.vaultserver.model.dto.*;
-import com.vaultionizer.vaultserver.resource.SpaceRepository;
 import com.vaultionizer.vaultserver.service.*;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -36,7 +34,7 @@ public class SpaceController {
 
 
 
-    @RequestMapping(value = "/api/spaces/getAll", method = RequestMethod.POST)
+    @RequestMapping(value = "/api/spaces/get", method = RequestMethod.POST)
     @ApiOperation(value = "Returns all spaces a user has access to.",
         response = GetSpacesResponseDto.class,
         responseContainer = "List"
@@ -68,7 +66,8 @@ public class SpaceController {
         if (!sessionService.getSession(req.getAuth().getUserID(), req.getAuth().getSessionKey())){
             return new ResponseEntity<>(null, HttpStatus.UNAUTHORIZED);
         }
-        Long spaceID = spaceService.createSpace(req.getAuth().getUserID(), req.getReferenceFile(), req.isPrivate(), req.getAuthKey());
+        Long spaceID = spaceService.createSpace(req.getAuth().getUserID(), req.getReferenceFile(), req.isPrivate(),
+                req.getUsersWriteAccess(), req.getUsersAuthAccess(), req.getAuthKey());
 
         return new ResponseEntity<>(spaceID, HttpStatus.CREATED);
     }
@@ -122,22 +121,121 @@ public class SpaceController {
     @ApiResponses(value = {
             @ApiResponse(code = 200, message = "The auth key is returned."),
             @ApiResponse(code = 401, message = "The user either does not exist or the sessionKey is wrong. User is thus not authorized."),
-            @ApiResponse(code = 403, message = "Either the space with given ID does not exist, it is private or the authorization key is wrong.")
+            @ApiResponse(code = 403, message = "Either the space with given ID does not exist, it is private or the authorization key is wrong."),
+            @ApiResponse(code = 406, message = "User is not allowed to get the auth key."),
+            @ApiResponse(code = 417, message = "Some other error occurred.")
     })
     public @ResponseBody ResponseEntity<?>
     getAuthKey(@RequestBody SpaceAuthKeyDto req){
         if (!sessionService.getSession(req.getAuth().getUserID(), req.getAuth().getSessionKey())){
             return new ResponseEntity<>(null, HttpStatus.UNAUTHORIZED);
         }
-
-        if (spaceService.checkDeleted(req.getSpaceID()) &&
-            userAccessService.userHasAccess(req.getAuth().getUserID(), req.getSpaceID())){
-            return new ResponseEntity<>(spaceService.getSpaceAuthKey(req.getSpaceID()), HttpStatus.OK);
+        if (spaceService.checkDeleted(req.getSpaceID()) ||
+                !userAccessService.userHasAccess(req.getAuth().getUserID(), req.getSpaceID())){
+            return new ResponseEntity<>(null, HttpStatus.FORBIDDEN);
         }
-
-        return new ResponseEntity<>(null, HttpStatus.FORBIDDEN);
+        if (!spaceService.userHasAuthKeyAccess(req.getSpaceID(), req.getAuth().getUserID())){
+            return new ResponseEntity<>(null, HttpStatus.NOT_ACCEPTABLE);
+        }
+        var authKey = spaceService.getSpaceAuthKey(req.getSpaceID());
+        if (authKey.isEmpty()) return new ResponseEntity<>(null, HttpStatus.EXPECTATION_FAILED);
+        return new ResponseEntity<>(authKey.get(), HttpStatus.OK);
     }
 
+    @RequestMapping(value = "/api/spaces/{spaceID}/config", method = RequestMethod.POST)
+    @ApiOperation(  value = "Returns the authentication key of a file.",
+            response = ConfigureSpaceDto.class
+    )
+    @ApiResponses(value = {
+            @ApiResponse(code = 202, message = "The auth key is returned."),
+            @ApiResponse(code = 401, message = "The user either does not exist or the sessionKey is wrong. User is thus not authorized."),
+            @ApiResponse(code = 403, message = "Either the space with given ID does not exist, it is private or the authorization key is wrong."),
+            @ApiResponse(code = 406, message = "User is not the creator.")
+    })
+    public @ResponseBody ResponseEntity<?>
+    configureSpace(@RequestBody ConfigureSpaceDto req, @PathVariable Long spaceID){
+        HttpStatus status = checkPrivilegeLevel(req.getAuth(), spaceID);
+        if (status != null) return new ResponseEntity<>(null, status);
+        if (req.getSharedSpace() != null) spaceService.changeSharedState(spaceID, req.getAuth().getUserID(), req.getSharedSpace());
+        spaceService.configureSpace(spaceID, req.getUsersWriteAccess(), req.getUsersAuthAccess());
+        return new ResponseEntity<>(null, HttpStatus.ACCEPTED);
+    }
+
+    @RequestMapping(value = "/api/spaces/{spaceID}/kickall", method = RequestMethod.POST)
+    @ApiOperation(  value = "Returns the authentication key of a file.",
+            response = GenericAuthDto.class
+    )
+    @ApiResponses(value = {
+            @ApiResponse(code = 200, message = "The auth key is returned."),
+            @ApiResponse(code = 401, message = "The user either does not exist or the sessionKey is wrong. User is thus not authorized."),
+            @ApiResponse(code = 403, message = "Either the space with given ID does not exist, it is private or the user has no access."),
+            @ApiResponse(code = 406, message = "User is not the creator.")
+    })
+    public @ResponseBody ResponseEntity<?>
+    kickUsers(@RequestBody GenericAuthDto req, @PathVariable Long spaceID){
+        HttpStatus status = checkPrivilegeLevel(req, spaceID);
+        if (status != null) return new ResponseEntity<>(null, status);
+
+        userAccessService.kickAll(spaceID, req.getUserID());
+        return new ResponseEntity<>(null, HttpStatus.OK);
+    }
+
+    @RequestMapping(value = "/api/spaces/{spaceID}/authkey", method = RequestMethod.POST)
+    @ApiOperation(  value = "Changes the authentication key of a space.",
+            response = ChangeAuthKeyDto.class
+    )
+    @ApiResponses(value = {
+            @ApiResponse(code = 200, message = "The auth key was replaced."),
+            @ApiResponse(code = 401, message = "The user either does not exist or the sessionKey is wrong. User is thus not authorized."),
+            @ApiResponse(code = 403, message = "Either the space with given ID does not exist, it is private or the user has no access."),
+            @ApiResponse(code = 406, message = "User is not the creator.")
+    })
+    public @ResponseBody ResponseEntity<?>
+    changeAuthKey(@RequestBody ChangeAuthKeyDto req, @PathVariable Long spaceID){
+        HttpStatus status = checkPrivilegeLevel(req.getAuth(), spaceID);
+        if (status != null) return new ResponseEntity<>(null, status);
+
+        spaceService.changeAuthKey(spaceID, req.getAuthKey());
+        return new ResponseEntity<>(null, HttpStatus.OK);
+    }
+
+    @RequestMapping(value = "/api/spaces/{spaceID}/config/get", method = RequestMethod.POST)
+    @ApiOperation(  value = "Returns the configuration of a space.",
+            response = GetSpacesResponseDto.class
+    )
+    @ApiResponses(value = {
+            @ApiResponse(code = 200, message = "The config is returned."),
+            @ApiResponse(code = 401, message = "The user either does not exist or the sessionKey is wrong. User is thus not authorized."),
+            @ApiResponse(code = 403, message = "Either the space with given ID does not exist, it is private or the user has no access.")
+    })
+    public @ResponseBody ResponseEntity<?>
+    getSpaceConfig(@RequestBody GenericAuthDto req, @PathVariable Long spaceID){
+        HttpStatus status = checkAccess(req, spaceID);
+        if (status != null) return new ResponseEntity<>(null, status);
+
+        return new ResponseEntity<>(spaceService.getSpaceConfig(spaceID), HttpStatus.OK);
+    }
+
+    private HttpStatus checkAccess(GenericAuthDto auth, Long spaceID){
+        if (!sessionService.getSession(auth.getUserID(), auth.getSessionKey())){
+            return HttpStatus.UNAUTHORIZED;
+        }
+        if (spaceService.checkDeleted(spaceID) ||
+                !userAccessService.userHasAccess(auth.getUserID(), spaceID)){
+            return HttpStatus.FORBIDDEN;
+        }
+        return null;
+    }
+
+    // check whether user is logged in, has access and whether user is creator. If so, returns null
+    private HttpStatus checkPrivilegeLevel(GenericAuthDto auth, Long spaceID){
+        HttpStatus accessStatus = checkAccess(auth, spaceID);
+        if (accessStatus != null) return accessStatus;
+        if (!spaceService.checkCreator(spaceID, auth.getUserID())){
+            return HttpStatus.NOT_ACCEPTABLE;
+        }
+        return null;
+    }
 
     @RequestMapping(value = "/api/spaces/delete/{spaceID}", method = RequestMethod.DELETE)
     @ApiOperation(  value = "Deletes the specified space if permitted.",

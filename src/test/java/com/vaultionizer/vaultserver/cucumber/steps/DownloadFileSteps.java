@@ -41,7 +41,7 @@ public class DownloadFileSteps extends Services {
     @Given("the user has successfully created an account with username {string}")
     public void theUserHasSuccessfullyCreatedAnAccountWithUsername(String username) {
         userID = this.userService.createUser(username, UserTestData.registerData[3].getKey());
-        spaceID = spaceService.createSpace(userID, "Genki-DAMA", false, "broly");
+        spaceID = spaceService.createSpace(userID, "Genki-DAMA", false, false, false, "broly");
         sessionKey = sessionService.addSession(userID).getSessionKey();
     }
 

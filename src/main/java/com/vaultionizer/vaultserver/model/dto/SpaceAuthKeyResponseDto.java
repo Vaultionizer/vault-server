@@ -8,4 +8,12 @@ public class SpaceAuthKeyResponseDto {
         this.spaceID = spaceID;
         this.authKey = authKey;
     }
+
+    public Long getSpaceID() {
+        return spaceID;
+    }
+
+    public String getAuthKey() {
+        return authKey;
+    }
 }

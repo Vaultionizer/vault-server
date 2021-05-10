@@ -68,6 +68,11 @@ public class SpaceControllerTest {
                 SpaceTestData.joinSpaces[2].getAuthKey())
         ).thenReturn(true);
 
+        Mockito.when(sessionService.getSession(
+                SpaceTestData.getAuthKeys[3].getAuth().getUserID(),
+                SpaceTestData.getAuthKeys[3].getAuth().getSessionKey())
+        ).thenReturn(true);
+
         Mockito.when(spaceService.getSpacesAccessible(SpaceTestData.getAllSpaces[0].getAuth().getUserID()))
                 .thenReturn(null);
 
@@ -80,10 +85,14 @@ public class SpaceControllerTest {
                 SpaceTestData.getAuthKeys[2].getAuth().getUserID(),
                 SpaceTestData.getAuthKeys[2].getSpaceID())
         ).thenReturn(true);
+        Mockito.when(userAccessService.userHasAccess(
+                SpaceTestData.getAuthKeys[3].getAuth().getUserID(),
+                SpaceTestData.getAuthKeys[3].getSpaceID())
+        ).thenReturn(true);
 
         Mockito.when(spaceService.createSpace(SpaceTestData.createSpace[1].getAuth().getUserID(),
                 SpaceTestData.createSpace[1].getReferenceFile(), SpaceTestData.createSpace[1].isPrivate(),
-                SpaceTestData.createSpace[1].getAuthKey())
+                false, false, SpaceTestData.createSpace[1].getAuthKey())
         ).thenReturn(1L);
 
 
@@ -162,8 +171,8 @@ public class SpaceControllerTest {
     @Test
     @DisplayName("Tests getting the authentication key of a space the user access to.")
     public void getAuthKey(){
-        ResponseEntity<?> res = spaceController.getAuthKey(SpaceTestData.getAuthKeys[1]);
-        Assertions.assertEquals(403, res.getStatusCodeValue());
+        ResponseEntity<?> res = spaceController.getAuthKey(SpaceTestData.getAuthKeys[3]);
+        Assertions.assertEquals(406, res.getStatusCodeValue());
         Assertions.assertNull(res.getBody());
     }
 }
