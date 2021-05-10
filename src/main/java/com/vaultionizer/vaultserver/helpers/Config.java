@@ -10,7 +10,7 @@ public class Config {
 
 
     public static final GetVersionResponseDto VERSION = new GetVersionResponseDto(
-            "Vaultionizer v0.1",
+            "Vaultionizer v1.0",
             "No maintainer",
             false
     );
@@ -35,4 +35,9 @@ public class Config {
     public static final int PENDING_UPLOAD_JOB_DELAY = 86400 * 1000;
 
     public static final String RANDOM_ALGO = "SHA1PRNG";
+
+
+    // Realtime stream config
+    public static final boolean REALTIME_DISABLED = false; // disable realtime (default: true to disable)
+    public static final Long MIN_PUSH_DELAY = 5L; // minimal delay between two pushes in ms
 }
