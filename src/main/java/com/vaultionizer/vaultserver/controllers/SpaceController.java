@@ -44,8 +44,7 @@ public class SpaceController {
             @ApiResponse(code = 401, message = "The user either does not exist or the sessionKey is wrong. User is thus not authorized."),
     })
     public @ResponseBody ResponseEntity<?>
-    getAllSpaces(@RequestBody AuthWrapperDto req){
-        GenericAuthDto auth = req.getAuth();
+    getAllSpaces(@RequestHeader("auth") GenericAuthDto auth){
         if (!sessionService.getSession(auth.getUserID(), auth.getSessionKey())){
             return new ResponseEntity<>(null, HttpStatus.UNAUTHORIZED);
         }
@@ -62,11 +61,11 @@ public class SpaceController {
             @ApiResponse(code = 401, message = "The user either does not exist or the sessionKey is wrong."),
     })
     public @ResponseBody ResponseEntity<?>
-    createSpace(@RequestBody CreateSpaceDto req){
-        if (!sessionService.getSession(req.getAuth().getUserID(), req.getAuth().getSessionKey())){
+    createSpace(@RequestBody CreateSpaceDto req, @RequestHeader("auth") GenericAuthDto auth){
+        if (!sessionService.getSession(auth.getUserID(), auth.getSessionKey())){
             return new ResponseEntity<>(null, HttpStatus.UNAUTHORIZED);
         }
-        Long spaceID = spaceService.createSpace(req.getAuth().getUserID(), req.getReferenceFile(), req.isPrivate(),
+        Long spaceID = spaceService.createSpace(auth.getUserID(), req.getReferenceFile(), req.isPrivate(),
                 req.getUsersWriteAccess(), req.getUsersAuthAccess(), req.getAuthKey());
 
         return new ResponseEntity<>(spaceID, HttpStatus.CREATED);
@@ -80,13 +79,13 @@ public class SpaceController {
             @ApiResponse(code = 403, message = "Either the space with given ID does not exist, it is private or the authorization key is wrong.")
     })
     public @ResponseBody ResponseEntity<?>
-    joinSpace(@RequestBody JoinSpaceDto req){
-        if (!sessionService.getSession(req.getAuth().getUserID(), req.getAuth().getSessionKey())){
+    joinSpace(@RequestBody JoinSpaceDto req, @RequestHeader("auth") GenericAuthDto auth){
+        if (!sessionService.getSession(auth.getUserID(), auth.getSessionKey())){
             return new ResponseEntity<>(null, HttpStatus.UNAUTHORIZED);
         }
 
         if (spaceService.checkSpaceCredentials(req.getSpaceID(), req.getAuthKey())){
-            userAccessService.addUserAccess(req.getSpaceID(), req.getAuth().getUserID());
+            userAccessService.addUserAccess(req.getSpaceID(), auth.getUserID());
             return new ResponseEntity<>(null, HttpStatus.OK);
         }
 
@@ -102,14 +101,14 @@ public class SpaceController {
             @ApiResponse(code = 406, message = "The user is the creator of the space and thus must delete the space manually.")
     })
     public @ResponseBody ResponseEntity<?>
-    quitSpace(@RequestBody AuthWrapperDto req, @PathVariable Long spaceID){
-        if (!sessionService.getSession(req.getAuth().getUserID(), req.getAuth().getSessionKey())){
+    quitSpace(@RequestBody AuthWrapperDto req, @PathVariable Long spaceID, @RequestHeader("auth") GenericAuthDto auth){
+        if (!sessionService.getSession(auth.getUserID(), auth.getSessionKey())){
             return new ResponseEntity<>(null, HttpStatus.UNAUTHORIZED);
         }
-        if (spaceService.checkCreator(spaceID, req.getAuth().getUserID())){
+        if (spaceService.checkCreator(spaceID, auth.getUserID())){
             return new ResponseEntity<>(null, HttpStatus.NOT_ACCEPTABLE);
         }
-        return new ResponseEntity<>(null, userAccessService.removeAccess(req.getAuth().getUserID(), spaceID) ?
+        return new ResponseEntity<>(null, userAccessService.removeAccess(auth.getUserID(), spaceID) ?
                 HttpStatus.OK : HttpStatus.NOT_FOUND);
 
     }
@@ -126,15 +125,15 @@ public class SpaceController {
             @ApiResponse(code = 417, message = "Some other error occurred.")
     })
     public @ResponseBody ResponseEntity<?>
-    getAuthKey(@RequestBody SpaceAuthKeyDto req){
-        if (!sessionService.getSession(req.getAuth().getUserID(), req.getAuth().getSessionKey())){
+    getAuthKey(@RequestBody SpaceAuthKeyDto req, @RequestHeader("auth") GenericAuthDto auth){
+        if (!sessionService.getSession(auth.getUserID(), auth.getSessionKey())){
             return new ResponseEntity<>(null, HttpStatus.UNAUTHORIZED);
         }
         if (spaceService.checkDeleted(req.getSpaceID()) ||
-                !userAccessService.userHasAccess(req.getAuth().getUserID(), req.getSpaceID())){
+                !userAccessService.userHasAccess(auth.getUserID(), req.getSpaceID())){
             return new ResponseEntity<>(null, HttpStatus.FORBIDDEN);
         }
-        if (!spaceService.userHasAuthKeyAccess(req.getSpaceID(), req.getAuth().getUserID())){
+        if (!spaceService.userHasAuthKeyAccess(req.getSpaceID(), auth.getUserID())){
             return new ResponseEntity<>(null, HttpStatus.NOT_ACCEPTABLE);
         }
         var authKey = spaceService.getSpaceAuthKey(req.getSpaceID());
@@ -153,10 +152,10 @@ public class SpaceController {
             @ApiResponse(code = 406, message = "User is not the creator.")
     })
     public @ResponseBody ResponseEntity<?>
-    configureSpace(@RequestBody ConfigureSpaceDto req, @PathVariable Long spaceID){
-        HttpStatus status = checkPrivilegeLevel(req.getAuth(), spaceID);
+    configureSpace(@RequestBody ConfigureSpaceDto req, @PathVariable Long spaceID, @RequestHeader("auth") GenericAuthDto auth){
+        HttpStatus status = checkPrivilegeLevel(auth, spaceID);
         if (status != null) return new ResponseEntity<>(null, status);
-        if (req.getSharedSpace() != null) spaceService.changeSharedState(spaceID, req.getAuth().getUserID(), req.getSharedSpace());
+        if (req.getSharedSpace() != null) spaceService.changeSharedState(spaceID, auth.getUserID(), req.getSharedSpace());
         spaceService.configureSpace(spaceID, req.getUsersWriteAccess(), req.getUsersAuthAccess());
         return new ResponseEntity<>(null, HttpStatus.ACCEPTED);
     }
@@ -172,11 +171,11 @@ public class SpaceController {
             @ApiResponse(code = 406, message = "User is not the creator.")
     })
     public @ResponseBody ResponseEntity<?>
-    kickUsers(@RequestBody GenericAuthDto req, @PathVariable Long spaceID){
-        HttpStatus status = checkPrivilegeLevel(req, spaceID);
+    kickUsers(@PathVariable Long spaceID, @RequestHeader("auth") GenericAuthDto auth){
+        HttpStatus status = checkPrivilegeLevel(auth, spaceID);
         if (status != null) return new ResponseEntity<>(null, status);
 
-        userAccessService.kickAll(spaceID, req.getUserID());
+        userAccessService.kickAll(spaceID, auth.getUserID());
         return new ResponseEntity<>(null, HttpStatus.OK);
     }
 
@@ -191,8 +190,8 @@ public class SpaceController {
             @ApiResponse(code = 406, message = "User is not the creator.")
     })
     public @ResponseBody ResponseEntity<?>
-    changeAuthKey(@RequestBody ChangeAuthKeyDto req, @PathVariable Long spaceID){
-        HttpStatus status = checkPrivilegeLevel(req.getAuth(), spaceID);
+    changeAuthKey(@RequestBody ChangeAuthKeyDto req, @PathVariable Long spaceID, @RequestHeader("auth") GenericAuthDto auth){
+        HttpStatus status = checkPrivilegeLevel(auth, spaceID);
         if (status != null) return new ResponseEntity<>(null, status);
 
         spaceService.changeAuthKey(spaceID, req.getAuthKey());
@@ -209,8 +208,8 @@ public class SpaceController {
             @ApiResponse(code = 403, message = "Either the space with given ID does not exist, it is private or the user has no access.")
     })
     public @ResponseBody ResponseEntity<?>
-    getSpaceConfig(@RequestBody GenericAuthDto req, @PathVariable Long spaceID){
-        HttpStatus status = checkAccess(req, spaceID);
+    getSpaceConfig(@PathVariable Long spaceID, @RequestHeader("auth") GenericAuthDto auth){
+        HttpStatus status = checkAccess(auth, spaceID);
         if (status != null) return new ResponseEntity<>(null, status);
 
         return new ResponseEntity<>(spaceService.getSpaceConfig(spaceID), HttpStatus.OK);
@@ -248,8 +247,7 @@ public class SpaceController {
             @ApiResponse(code = 412, message = "Space is probably currently in deletion process.")
     })
     public @ResponseBody ResponseEntity<?>
-    deleteSpace(@RequestBody AuthWrapperDto req, @PathVariable Long spaceID){
-        GenericAuthDto auth = req.getAuth();
+    deleteSpace(@PathVariable Long spaceID, @RequestHeader("auth") GenericAuthDto auth){
         if (!sessionService.getSession(auth.getUserID(), auth.getSessionKey())){
             return new ResponseEntity<>(null, HttpStatus.UNAUTHORIZED);
         }

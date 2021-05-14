@@ -44,7 +44,7 @@ public class UploadFileSteps extends Services {
 
     @When("the user requests to upload {int} files")
     public void theUserRequestsToUploadFiles(int amount) {
-        res = fileController.uploadFiles(new FileUploadDto(new GenericAuthDto(userID, sessionKey), spaceID, amount));
+        res = fileController.uploadFiles(new FileUploadDto(spaceID, amount), new GenericAuthDto(userID, sessionKey));
     }
 
     @Then("the status code of upload is {int}")

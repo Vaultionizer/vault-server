@@ -109,8 +109,7 @@ public class UserController {
             @ApiResponse(code = 401, message = "The user authorization failed.")
     })
     public @ResponseBody ResponseEntity<?>
-    deleteUser(@RequestBody AuthWrapperDto req){
-        GenericAuthDto auth = req.getAuth();
+    deleteUser(@RequestHeader("auth") GenericAuthDto auth){
         if (!sessionService.getSession(auth.getUserID(), auth.getSessionKey())){
             return new ResponseEntity<>(null, HttpStatus.UNAUTHORIZED);
         }

@@ -1,6 +1,7 @@
 package com.vaultionizer.vaultserver.controllers;
 
 
+import com.vaultionizer.vaultserver.model.dto.GenericAuthDto;
 import com.vaultionizer.vaultserver.model.dto.ReadRefFileDto;
 import com.vaultionizer.vaultserver.model.dto.UpdateRefFileDto;
 import com.vaultionizer.vaultserver.service.RefFileService;
@@ -43,12 +44,12 @@ public class RefFileController {
             @ApiResponse(code = 500, message = "Inconsistencies on the server side. Should never be the case.")
     })
     @ResponseBody ResponseEntity<?>
-    readRefFile(@RequestBody ReadRefFileDto req){
-        if (!sessionService.getSession(req.getAuth().getUserID(), req.getAuth().getSessionKey())){
+    readRefFile(@RequestBody ReadRefFileDto req, @RequestHeader("auth") GenericAuthDto auth){
+        if (!sessionService.getSession(auth.getUserID(), auth.getSessionKey())){
             return new ResponseEntity<>(null, HttpStatus.UNAUTHORIZED);
         }
 
-        if (userAccessService.userHasAccess(req.getAuth().getUserID(), req.getSpaceID())){
+        if (userAccessService.userHasAccess(auth.getUserID(), req.getSpaceID())){
             Long refFileID = spaceService.getRefFileID(req.getSpaceID());
             if (refFileID == -1L) {
                 return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
@@ -78,13 +79,13 @@ public class RefFileController {
             @ApiResponse(code = 500, message = "Inconsistencies on the server side. Should never be the case.")
     })
     @ResponseBody ResponseEntity<?>
-    updateRefFile(@RequestBody UpdateRefFileDto req){
-        if (!sessionService.getSession(req.getAuth().getUserID(), req.getAuth().getSessionKey())){
+    updateRefFile(@RequestBody UpdateRefFileDto req, @RequestHeader("auth") GenericAuthDto auth){
+        if (!sessionService.getSession(auth.getUserID(), auth.getSessionKey())){
             return new ResponseEntity<>(null, HttpStatus.UNAUTHORIZED);
         }
 
-        if (userAccessService.userHasAccess(req.getAuth().getUserID(), req.getSpaceID())){
-            if (!spaceService.userHasWriteAccess(req.getSpaceID(), req.getAuth().getUserID())){
+        if (userAccessService.userHasAccess(auth.getUserID(), req.getSpaceID())){
+            if (!spaceService.userHasWriteAccess(req.getSpaceID(), auth.getUserID())){
                 return new ResponseEntity<>(null, HttpStatus.NOT_ACCEPTABLE);
             }
 

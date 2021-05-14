@@ -50,7 +50,7 @@ public class CreateSpaceSteps extends Services {
 
     @When("the user wants to create a space")
     public void theUserWantsToCreateASpace() {
-        res = spaceController.createSpace(new CreateSpaceDto(new GenericAuthDto(userID, sessionKey), isPrivate, authKey, ""));
+        res = spaceController.createSpace(new CreateSpaceDto(isPrivate, authKey, ""), new GenericAuthDto(userID, sessionKey));
     }
 
     @Then("the status code of create space is {int}")

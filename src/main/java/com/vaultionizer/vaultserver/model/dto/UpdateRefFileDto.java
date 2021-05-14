@@ -1,18 +1,12 @@
 package com.vaultionizer.vaultserver.model.dto;
 
 public class UpdateRefFileDto {
-    private GenericAuthDto auth;
     private Long spaceID;
     private String content;
 
-    public UpdateRefFileDto(GenericAuthDto auth, Long spaceID, String content) {
-        this.auth = auth;
+    public UpdateRefFileDto(Long spaceID, String content) {
         this.spaceID = spaceID;
         this.content = content;
-    }
-
-    public GenericAuthDto getAuth() {
-        return auth;
     }
 
     public Long getSpaceID() {

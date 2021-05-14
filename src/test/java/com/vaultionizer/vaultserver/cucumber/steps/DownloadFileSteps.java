@@ -56,7 +56,7 @@ public class DownloadFileSteps extends Services {
 
     @When("the user requests to download the file with saveIndex {long}")
     public void theUserRequestsToDownloadTheFileWithSaveIndex(Long saveIndex) {
-        res = fileController.downloadFile(new FileDownloadDto(new GenericAuthDto(userID, sessionKey), spaceID, saveIndex));
+        res = fileController.downloadFile(new FileDownloadDto(spaceID, saveIndex), new GenericAuthDto(userID, sessionKey));
     }
 
     @Then("the status code of download is {int}")

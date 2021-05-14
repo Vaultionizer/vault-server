@@ -55,7 +55,7 @@ public class DeleteSpaceSteps extends Services {
     @When("the user wants to delete the space")
     public void theUserWantsToDeleteTheSpace() {
         refFileID = spaceService.getRefFileID(spaceID);
-        res = spaceController.deleteSpace(new AuthWrapperDto(new GenericAuthDto(userID, sessionKey)), spaceID);
+        res = spaceController.deleteSpace(spaceID, new GenericAuthDto(userID, sessionKey));
     }
 
     @Then("the response is {int}")

@@ -1,18 +1,12 @@
 package com.vaultionizer.vaultserver.model.dto;
 
 public class FileUploadDto {
-    private GenericAuthDto auth;
     private Long spaceID;
     private int amountFiles;
 
-    public FileUploadDto(GenericAuthDto auth, Long spaceID, int amountFiles) {
-        this.auth = auth;
+    public FileUploadDto(Long spaceID, int amountFiles) {
         this.spaceID = spaceID;
         this.amountFiles = amountFiles;
-    }
-
-    public GenericAuthDto getAuth() {
-        return auth;
     }
 
     public Long getSpaceID() {

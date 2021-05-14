@@ -47,7 +47,7 @@ public class DeleteUserStep extends Services {
 
     @When("the user requests to delete the user")
     public void theUserRequestsToDeleteTheUser() {
-        res = userController.deleteUser(new AuthWrapperDto(new GenericAuthDto(userID, sessionKey)));
+        res = userController.deleteUser(new GenericAuthDto(userID, sessionKey));
     }
 
     @Then("the status code delete user is {int}")

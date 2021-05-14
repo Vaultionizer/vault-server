@@ -1,6 +1,7 @@
 package com.vaultionizer.vaultserver.controllers;
 
 import com.vaultionizer.vaultserver.model.dto.AuthWrapperDto;
+import com.vaultionizer.vaultserver.model.dto.GenericAuthDto;
 import com.vaultionizer.vaultserver.service.SessionService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -29,8 +30,8 @@ public class SessionController {
     })
     @ResponseBody
     ResponseEntity<?>
-    renewSession(@RequestBody AuthWrapperDto req){
-        if (!sessionService.getSession(req.getAuth().getUserID(), req.getAuth().getSessionKey())){
+    renewSession(@RequestHeader("auth") GenericAuthDto auth){
+        if (!sessionService.getSession(auth.getUserID(), auth.getSessionKey())){
             return new ResponseEntity<>(null, HttpStatus.FORBIDDEN);
         } // if the session exists, the session has just indirectly been renewed.
         return new ResponseEntity<>(null, HttpStatus.OK);

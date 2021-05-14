@@ -58,8 +58,8 @@ public class FileController {
             @ApiResponse(code = 404, message = "A consistency error occurred.")
     })
     public @ResponseBody ResponseEntity<?>
-    uploadFiles(@RequestBody FileUploadDto req){
-        Long sessionID = sessionService.getSessionID(req.getAuth().getUserID(), req.getAuth().getSessionKey());
+    uploadFiles(@RequestBody FileUploadDto req, @RequestHeader("auth") GenericAuthDto auth){
+        Long sessionID = sessionService.getSessionID(auth.getUserID(), auth.getSessionKey());
         if (sessionID == -1){
             return new ResponseEntity<>(null, HttpStatus.UNAUTHORIZED);
         }
@@ -67,8 +67,8 @@ public class FileController {
             return new ResponseEntity<>(null, HttpStatus.BAD_REQUEST);
         }
 
-        if (userAccessService.userHasAccess(req.getAuth().getUserID(), req.getSpaceID())){
-            if (!spaceService.userHasWriteAccess(req.getSpaceID(), req.getAuth().getUserID())){
+        if (userAccessService.userHasAccess(auth.getUserID(), req.getSpaceID())){
+            if (!spaceService.userHasWriteAccess(req.getSpaceID(), auth.getUserID())){
                 return new ResponseEntity<>(null, HttpStatus.NOT_ACCEPTABLE);
             }
             Long refFileID = spaceService.getRefFileID(req.getSpaceID());
@@ -103,17 +103,17 @@ public class FileController {
             @ApiResponse(code = 500, message = "A consistency error occurred. Should never be the case. Bug the developer!")
     })
     public @ResponseBody ResponseEntity<?>
-    downloadFile(@RequestBody FileDownloadDto req){
+    downloadFile(@RequestBody FileDownloadDto req, @RequestHeader("auth") GenericAuthDto auth){
         String websocketToken = sessionService.
-                getSessionWebsocketToken(req.getAuth().getUserID(), req.getAuth().getSessionKey());
+                getSessionWebsocketToken(auth.getUserID(), auth.getSessionKey());
         if (websocketToken == null){
             return new ResponseEntity<>(null, HttpStatus.UNAUTHORIZED);
         }
 
-        if (!userAccessService.userHasAccess(req.getAuth().getUserID(), req.getSpaceID())){
+        if (!userAccessService.userHasAccess(auth.getUserID(), req.getSpaceID())){
             return new ResponseEntity<>(null, HttpStatus.FORBIDDEN);
         }
-        if (!spaceService.userHasWriteAccess(req.getSpaceID(), req.getAuth().getUserID())){
+        if (!spaceService.userHasWriteAccess(req.getSpaceID(), auth.getUserID())){
             return new ResponseEntity<>(null, HttpStatus.NOT_ACCEPTABLE);
         }
 
@@ -150,16 +150,16 @@ public class FileController {
             @ApiResponse(code = 423, message = "The requested file is currently either being uploaded or modified. Thus, the file is locked."),
     })
     public @ResponseBody ResponseEntity<?>
-    deleteFile(@RequestBody DeleteFileDto req){
-        if (!sessionService.getSession(req.getAuth().getUserID(), req.getAuth().getSessionKey())){
+    deleteFile(@RequestBody DeleteFileDto req, @RequestHeader("auth") GenericAuthDto auth){
+        if (!sessionService.getSession(auth.getUserID(), auth.getSessionKey())){
             return new ResponseEntity<>(null, HttpStatus.UNAUTHORIZED);
         }
 
-        if (!userAccessService.userHasAccess(req.getAuth().getUserID(), req.getSpaceID())){
+        if (!userAccessService.userHasAccess(auth.getUserID(), req.getSpaceID())){
             return new ResponseEntity<>(null, HttpStatus.FORBIDDEN);
         }
 
-        if (!spaceService.userHasWriteAccess(req.getSpaceID(), req.getAuth().getUserID()))
+        if (!spaceService.userHasWriteAccess(req.getSpaceID(), auth.getUserID()))
             return new ResponseEntity<>(null, HttpStatus.NOT_ACCEPTABLE);
 
         boolean success = fileService.deleteFile(req.getSpaceID(), req.getSaveIndex());
@@ -180,17 +180,17 @@ public class FileController {
             @ApiResponse(code = 409, message = "Some conflict occurred."),
     })
     public @ResponseBody ResponseEntity<?>
-    updateFile(@RequestBody GenericAuthDto req, @PathVariable Long spaceID, @PathVariable Long saveIndex){
-        if (!sessionService.getSession(req.getUserID(), req.getSessionKey())){
+    updateFile(@RequestHeader("auth") GenericAuthDto auth, @PathVariable Long spaceID, @PathVariable Long saveIndex){
+        if (!sessionService.getSession(auth.getUserID(), auth.getSessionKey())){
             return new ResponseEntity<>(null, HttpStatus.UNAUTHORIZED);
         }
-        if (!userAccessService.userHasAccess(req.getUserID(), spaceID)){
+        if (!userAccessService.userHasAccess(auth.getUserID(), spaceID)){
             return new ResponseEntity<>(null, HttpStatus.FORBIDDEN);
         }
 
         boolean granted = pendingUploadService.updateFile(spaceID,
-                sessionService.getSessionID(req.getUserID(),
-                req.getSessionKey()), saveIndex);
+                sessionService.getSessionID(auth.getUserID(),
+                        auth.getSessionKey()), saveIndex);
 
         if (!granted){
             return new ResponseEntity<>(null, HttpStatus.CONFLICT);
