@@ -4,38 +4,39 @@ import com.vaultionizer.vaultserver.model.dto.*;
 
 public class SpaceTestData {
     public static final CreateSpaceDto[] createSpace = {
-            new CreateSpaceDto(new GenericAuthDto(
+            new CreateSpaceDto(true, "", ""),
+            new CreateSpaceDto(true, "0", "000")
+    };
+    public static final GenericAuthDto[] createSpaceAuths = {
+            new GenericAuthDto(
                     1L,
                     "testSessionKey"
-            ), true, "", ""),
-            new CreateSpaceDto(new GenericAuthDto(
-                    1L,
-                    "correctTestSessionKey"
-            ), true, "0", "000")
-    };
+            ), new GenericAuthDto(
+            1L,
+            "correctTestSessionKey"
+    )};
 
 
     public static final JoinSpaceDto[] joinSpaces = {
-            new JoinSpaceDto(new GenericAuthDto(
-                    1L,
-                    "testSessionKey"
-            ), 2L, "definitely wrong"),
-            new JoinSpaceDto(new GenericAuthDto(
-                    1L,
-                    "correctTestSessionKey"
-            ), 2L, "definitely wrong"),
-            new JoinSpaceDto(new GenericAuthDto(
-                    1L,
-                    "correctTestSessionKey"
-            ), 2L, "thatWasTheAuthKey!")
+            new JoinSpaceDto("definitely wrong"),
+            new JoinSpaceDto("definitely wrong"),
+            new JoinSpaceDto( "thatWasTheAuthKey!")
     };
 
-    public static final AuthWrapperDto[] getAllSpaces = {
-        new AuthWrapperDto(new GenericAuthDto(1L, "definitely wrong")),
-        new AuthWrapperDto(new GenericAuthDto(1L, "correctTestSessionKey"))
+    public static final GenericAuthDto[] joinSpacesAuth = {
+            new GenericAuthDto(1L, "testSessionKey"),
+            new GenericAuthDto(1L, "correctTestSessionKey"),
+            new GenericAuthDto(1L, "correctTestSessionKey")
     };
 
-    public static final Long[] getAuthKeys = {
+    public static final Long[] joinSpacesSpaceIDs = { 2L, 2L, 2L };
+
+    public static final GenericAuthDto[] getAllSpaces = {
+            new GenericAuthDto(1L, "definitely wrong"),
+            new GenericAuthDto(1L, "correctTestSessionKey")
+    };
+
+    public static final Long[] getAuthKeysSpaceIds = {
             3L, 3L, 4L, 3L
     };
 

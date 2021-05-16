@@ -172,7 +172,7 @@ public class ManageSpaceSteps extends Services {
     }
 
     public void checkAuthKey(String expected) throws Exception {
-        var result = spaceController.getAuthKey(new SpaceAuthKeyDto(spaceID), getUserAuth(userID));
+        var result = spaceController.getAuthKey(getUserAuth(userID), spaceID);
         if (!result.hasBody() || result.getBody() == null)
             throw new Exception("Getting auth key failed. " + result.getStatusCode().value() + " -> "+result.getStatusCode().name());
         var auth = (SpaceAuthKeyResponseDto)result.getBody();
