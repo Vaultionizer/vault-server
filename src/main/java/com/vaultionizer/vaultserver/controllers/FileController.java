@@ -1,6 +1,7 @@
 package com.vaultionizer.vaultserver.controllers;
 
 
+import com.vaultionizer.vaultserver.helpers.AccessCheckerUtil;
 import com.vaultionizer.vaultserver.helpers.FileStatus;
 import com.vaultionizer.vaultserver.model.dto.DeleteFileDto;
 import com.vaultionizer.vaultserver.model.dto.FileDownloadDto;
@@ -26,6 +27,7 @@ public class FileController {
     private final PendingUploadService pendingUploadService;
     private final FileService fileService;
     private final WebsocketController websocketController;
+    private final AccessCheckerUtil accessCheckerUtil;
 
 
     @Autowired
@@ -40,12 +42,10 @@ public class FileController {
         this.pendingUploadService = pendingUploadService;
         this.fileService = fileService;
         this.websocketController = websocketController;
+        accessCheckerUtil = new AccessCheckerUtil(sessionService, userAccessService, spaceService);
     }
 
-
-
-
-    @RequestMapping(value = "/api/file/upload", method = RequestMethod.POST)
+    @RequestMapping(value = "/api/file/{spaceID}/upload", method = RequestMethod.POST)
     @ApiOperation(value = "Requests to upload a variable amount of files.",
             response = Long.class
     )
@@ -58,20 +58,20 @@ public class FileController {
             @ApiResponse(code = 404, message = "A consistency error occurred.")
     })
     public @ResponseBody ResponseEntity<?>
-    uploadFiles(@RequestBody FileUploadDto req, @RequestHeader("auth") GenericAuthDto auth){
+    uploadFiles(@RequestBody FileUploadDto req, @RequestHeader("auth") GenericAuthDto auth, @PathVariable("spaceID") Long spaceID){
         Long sessionID = sessionService.getSessionID(auth.getUserID(), auth.getSessionKey());
         if (sessionID == -1){
             return new ResponseEntity<>(null, HttpStatus.UNAUTHORIZED);
         }
-        if (req.getAmountFiles() <= 0 || req.getSpaceID() < 0){
+        if (req.getAmountFiles() <= 0 || spaceID < 0){
             return new ResponseEntity<>(null, HttpStatus.BAD_REQUEST);
         }
 
-        if (userAccessService.userHasAccess(auth.getUserID(), req.getSpaceID())){
-            if (!spaceService.userHasWriteAccess(req.getSpaceID(), auth.getUserID())){
+        if (userAccessService.userHasAccess(auth.getUserID(), spaceID)){
+            if (!spaceService.userHasWriteAccess(spaceID, auth.getUserID())){
                 return new ResponseEntity<>(null, HttpStatus.NOT_ACCEPTABLE);
             }
-            Long refFileID = spaceService.getRefFileID(req.getSpaceID());
+            Long refFileID = spaceService.getRefFileID(spaceID);
             if (refFileID == -1){
                 return new ResponseEntity<>(null, HttpStatus.NOT_FOUND);
             }
@@ -84,7 +84,7 @@ public class FileController {
             }
 
             // add files to pending upload table (with appropriate sessionID)
-            pendingUploadService.addFilesToUpload(req.getSpaceID(), sessionID, (long) req.getAmountFiles(), saveIndex);
+            pendingUploadService.addFilesToUpload(spaceID, sessionID, (long) req.getAmountFiles(), saveIndex);
 
             return new ResponseEntity<>(saveIndex, HttpStatus.ACCEPTED);
         }
@@ -92,7 +92,7 @@ public class FileController {
     }
 
 
-    @RequestMapping(value = "/api/file/download", method = RequestMethod.PUT)
+    @RequestMapping(value = "/api/file/{spaceID}/{saveIndex}/download", method = RequestMethod.PUT)
     @ApiOperation(value = "Requests to download a specific file.")
     @ApiResponses(value = {
             @ApiResponse(code = 200, message = "The file will be send via websocket to respective location (taking the websocketToken into account)."),
@@ -103,44 +103,34 @@ public class FileController {
             @ApiResponse(code = 500, message = "A consistency error occurred. Should never be the case. Bug the developer!")
     })
     public @ResponseBody ResponseEntity<?>
-    downloadFile(@RequestBody FileDownloadDto req, @RequestHeader("auth") GenericAuthDto auth){
+    downloadFile(@RequestHeader("auth") GenericAuthDto auth, @PathVariable Long spaceID, @PathVariable Long saveIndex){
         String websocketToken = sessionService.
                 getSessionWebsocketToken(auth.getUserID(), auth.getSessionKey());
         if (websocketToken == null){
             return new ResponseEntity<>(null, HttpStatus.UNAUTHORIZED);
         }
 
-        if (!userAccessService.userHasAccess(auth.getUserID(), req.getSpaceID())){
-            return new ResponseEntity<>(null, HttpStatus.FORBIDDEN);
-        }
-        if (!spaceService.userHasWriteAccess(req.getSpaceID(), auth.getUserID())){
-            return new ResponseEntity<>(null, HttpStatus.NOT_ACCEPTABLE);
-        }
+        HttpStatus httpStatus = accessCheckerUtil.checkAccess(auth, spaceID);
+        if (httpStatus != null) return new ResponseEntity<>(null, httpStatus);
 
-        FileStatus status = fileService.setDownloadFile(req.getSpaceID(), req.getSaveIndex());
+        FileStatus status = fileService.setDownloadFile(spaceID, saveIndex);
         if (status == null){
             return new ResponseEntity<>(null, HttpStatus.NOT_FOUND);
         }
         switch (status){
             case READ_FROM:
                 // read file and send to websocket endpoint
-                Runnable runnable = new Runnable() {
-                    @Override
-                    public void run() {
-                        websocketController.download(websocketToken, req.getSpaceID(), req.getSaveIndex());
-                    }
-                };
+                Runnable runnable = () -> websocketController.download(websocketToken, spaceID, saveIndex);
                 (new Thread(runnable)).start();
                 return new ResponseEntity<>(null, HttpStatus.OK);
-            case MODIFYING:
-            case UPLOADING:
+            case MODIFYING, UPLOADING:
                 return new ResponseEntity<>(null, HttpStatus.LOCKED);
             default:
                 return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 
-    @RequestMapping(value = "/api/file/delete", method = RequestMethod.DELETE)
+    @RequestMapping(value = "/api/file/{spaceID}/{saveIndex}/delete", method = RequestMethod.DELETE)
     @ApiOperation(value = "Requests to delete a specific file.")
     @ApiResponses(value = {
             @ApiResponse(code = 200, message = "File has successfully been deleted."),
@@ -150,19 +140,11 @@ public class FileController {
             @ApiResponse(code = 423, message = "The requested file is currently either being uploaded or modified. Thus, the file is locked."),
     })
     public @ResponseBody ResponseEntity<?>
-    deleteFile(@RequestBody DeleteFileDto req, @RequestHeader("auth") GenericAuthDto auth){
-        if (!sessionService.getSession(auth.getUserID(), auth.getSessionKey())){
-            return new ResponseEntity<>(null, HttpStatus.UNAUTHORIZED);
-        }
+    deleteFile(@RequestHeader("auth") GenericAuthDto auth, @PathVariable Long spaceID, @PathVariable Long saveIndex){
+        HttpStatus status = accessCheckerUtil.checkWriteAccess(auth, spaceID);
+        if (status != null) return new ResponseEntity<>(null, status);
 
-        if (!userAccessService.userHasAccess(auth.getUserID(), req.getSpaceID())){
-            return new ResponseEntity<>(null, HttpStatus.FORBIDDEN);
-        }
-
-        if (!spaceService.userHasWriteAccess(req.getSpaceID(), auth.getUserID()))
-            return new ResponseEntity<>(null, HttpStatus.NOT_ACCEPTABLE);
-
-        boolean success = fileService.deleteFile(req.getSpaceID(), req.getSaveIndex());
+        boolean success = fileService.deleteFile(spaceID, saveIndex);
         if (!success){
             return new ResponseEntity<>(null, HttpStatus.LOCKED);
         }
@@ -170,7 +152,7 @@ public class FileController {
     }
 
 
-    @RequestMapping(value = "/api/file/update/{spaceID}/{saveIndex}", method = RequestMethod.POST)
+    @RequestMapping(value = "/api/file/{spaceID}/{saveIndex}/update", method = RequestMethod.POST)
     @ApiOperation(value = "Requests to update a specific file.")
     @ApiResponses(value = {
             @ApiResponse(code = 200, message = "File has successfully been marked for updating."),
@@ -181,12 +163,8 @@ public class FileController {
     })
     public @ResponseBody ResponseEntity<?>
     updateFile(@RequestHeader("auth") GenericAuthDto auth, @PathVariable Long spaceID, @PathVariable Long saveIndex){
-        if (!sessionService.getSession(auth.getUserID(), auth.getSessionKey())){
-            return new ResponseEntity<>(null, HttpStatus.UNAUTHORIZED);
-        }
-        if (!userAccessService.userHasAccess(auth.getUserID(), spaceID)){
-            return new ResponseEntity<>(null, HttpStatus.FORBIDDEN);
-        }
+        HttpStatus status = accessCheckerUtil.checkWriteAccess(auth, spaceID);
+        if (status != null) return new ResponseEntity<>(null, status);
 
         boolean granted = pendingUploadService.updateFile(spaceID,
                 sessionService.getSessionID(auth.getUserID(),

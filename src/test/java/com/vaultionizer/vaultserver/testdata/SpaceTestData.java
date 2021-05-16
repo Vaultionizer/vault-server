@@ -35,10 +35,14 @@ public class SpaceTestData {
         new AuthWrapperDto(new GenericAuthDto(1L, "correctTestSessionKey"))
     };
 
-    public static final SpaceAuthKeyDto[] getAuthKeys = {
-            new SpaceAuthKeyDto(new GenericAuthDto(1L, "definitely wrong"), 3L),
-            new SpaceAuthKeyDto(new GenericAuthDto(1L, "correctTestSessionKey"), 3L),
-            new SpaceAuthKeyDto(new GenericAuthDto(1L, "correctTestSessionKey"), 4L),
-            new SpaceAuthKeyDto(new GenericAuthDto(2L, "correctTestSessionKey"), 3L)
+    public static final Long[] getAuthKeys = {
+            3L, 3L, 4L, 3L
+    };
+
+    public static final GenericAuthDto[] getAuthKeyCredentials = {
+            new GenericAuthDto(1L, "definitely wrong"),
+            new GenericAuthDto(1L, "correctTestSessionKey"),
+            new GenericAuthDto(1L, "correctTestSessionKey"),
+            new GenericAuthDto(2L, "correctTestSessionKey")
     };
 }

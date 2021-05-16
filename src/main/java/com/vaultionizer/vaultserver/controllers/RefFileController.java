@@ -34,7 +34,7 @@ public class RefFileController {
         this.refFileService = refFileService;
     }
 
-    @RequestMapping(value = "/api/refFile/read", method = RequestMethod.POST)
+    @RequestMapping(value = "/api/refFile/{spaceID}/read", method = RequestMethod.POST)
     @ApiOperation(value = "Read the reference file of the specified space or if lastRead is older than last update on reference file, NOT_MODIFIED is sent as status.")
     @ApiResponses(value = {
             @ApiResponse(code = 200, message = "The response contains the content of the current ref file."),
@@ -44,13 +44,13 @@ public class RefFileController {
             @ApiResponse(code = 500, message = "Inconsistencies on the server side. Should never be the case.")
     })
     @ResponseBody ResponseEntity<?>
-    readRefFile(@RequestBody ReadRefFileDto req, @RequestHeader("auth") GenericAuthDto auth){
+    readRefFile(@RequestBody ReadRefFileDto req, @RequestHeader("auth") GenericAuthDto auth, @PathVariable Long spaceID){
         if (!sessionService.getSession(auth.getUserID(), auth.getSessionKey())){
             return new ResponseEntity<>(null, HttpStatus.UNAUTHORIZED);
         }
 
-        if (userAccessService.userHasAccess(auth.getUserID(), req.getSpaceID())){
-            Long refFileID = spaceService.getRefFileID(req.getSpaceID());
+        if (userAccessService.userHasAccess(auth.getUserID(), spaceID)){
+            Long refFileID = spaceService.getRefFileID(spaceID);
             if (refFileID == -1L) {
                 return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
             }
@@ -69,7 +69,7 @@ public class RefFileController {
         return new ResponseEntity<>(null, HttpStatus.FORBIDDEN);
     }
 
-    @RequestMapping(value = "/api/refFile/update", method = RequestMethod.POST)
+    @RequestMapping(value = "/api/refFile/{spaceID}/update", method = RequestMethod.POST)
     @ApiOperation(value = "Update the reference file of the specified space.")
     @ApiResponses(value = {
             @ApiResponse(code = 200, message = "The response contains the content of the current ref file."),
@@ -79,17 +79,17 @@ public class RefFileController {
             @ApiResponse(code = 500, message = "Inconsistencies on the server side. Should never be the case.")
     })
     @ResponseBody ResponseEntity<?>
-    updateRefFile(@RequestBody UpdateRefFileDto req, @RequestHeader("auth") GenericAuthDto auth){
+    updateRefFile(@RequestBody UpdateRefFileDto req, @RequestHeader("auth") GenericAuthDto auth, @PathVariable Long spaceID){
         if (!sessionService.getSession(auth.getUserID(), auth.getSessionKey())){
             return new ResponseEntity<>(null, HttpStatus.UNAUTHORIZED);
         }
 
-        if (userAccessService.userHasAccess(auth.getUserID(), req.getSpaceID())){
-            if (!spaceService.userHasWriteAccess(req.getSpaceID(), auth.getUserID())){
+        if (userAccessService.userHasAccess(auth.getUserID(), spaceID)){
+            if (!spaceService.userHasWriteAccess(spaceID, auth.getUserID())){
                 return new ResponseEntity<>(null, HttpStatus.NOT_ACCEPTABLE);
             }
 
-            Long refFileID = spaceService.getRefFileID(req.getSpaceID());
+            Long refFileID = spaceService.getRefFileID(spaceID);
             if (refFileID == -1L) {
                 return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
             }
