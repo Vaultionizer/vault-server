@@ -32,7 +32,7 @@ public class SessionController {
     })
     public @ResponseBody
     ResponseEntity<?>
-    renewSession(@RequestHeader("auth") GenericAuthDto auth) {
+    renewSession(@RequestHeader("xAuth") GenericAuthDto auth) {
         if (!sessionService.getSession(auth.getUserID(), auth.getSessionKey())) {
             return new ResponseEntity<>(null, HttpStatus.FORBIDDEN);
         } // if the session exists, the session has just indirectly been renewed.

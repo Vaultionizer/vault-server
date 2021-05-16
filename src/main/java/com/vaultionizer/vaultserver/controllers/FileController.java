@@ -57,7 +57,7 @@ public class FileController {
     })
     public @ResponseBody
     ResponseEntity<?>
-    uploadFiles(@RequestBody FileUploadDto req, @RequestHeader("auth") GenericAuthDto auth, @PathVariable("spaceID") Long spaceID) {
+    uploadFiles(@RequestBody FileUploadDto req, @RequestHeader("xAuth") GenericAuthDto auth, @PathVariable("spaceID") Long spaceID) {
         Long sessionID = sessionService.getSessionID(auth.getUserID(), auth.getSessionKey());
         if (sessionID == -1) {
             return new ResponseEntity<>(null, HttpStatus.UNAUTHORIZED);
@@ -103,7 +103,7 @@ public class FileController {
     })
     public @ResponseBody
     ResponseEntity<?>
-    downloadFile(@RequestHeader("auth") GenericAuthDto auth, @PathVariable Long spaceID, @PathVariable Long saveIndex) {
+    downloadFile(@RequestHeader("xAuth") GenericAuthDto auth, @PathVariable Long spaceID, @PathVariable Long saveIndex) {
         String websocketToken = sessionService.
                 getSessionWebsocketToken(auth.getUserID(), auth.getSessionKey());
         if (websocketToken == null) {
@@ -141,7 +141,7 @@ public class FileController {
     })
     public @ResponseBody
     ResponseEntity<?>
-    deleteFile(@RequestHeader("auth") GenericAuthDto auth, @PathVariable Long spaceID, @PathVariable Long saveIndex) {
+    deleteFile(@RequestHeader("xAuth") GenericAuthDto auth, @PathVariable Long spaceID, @PathVariable Long saveIndex) {
         HttpStatus status = accessCheckerUtil.checkWriteAccess(auth, spaceID);
         if (status != null) return new ResponseEntity<>(null, status);
 
@@ -164,7 +164,7 @@ public class FileController {
     })
     public @ResponseBody
     ResponseEntity<?>
-    updateFile(@RequestHeader("auth") GenericAuthDto auth, @PathVariable Long spaceID, @PathVariable Long saveIndex) {
+    updateFile(@RequestHeader("xAuth") GenericAuthDto auth, @PathVariable Long spaceID, @PathVariable Long saveIndex) {
         HttpStatus status = accessCheckerUtil.checkWriteAccess(auth, spaceID);
         if (status != null) return new ResponseEntity<>(null, status);
 

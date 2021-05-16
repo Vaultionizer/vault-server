@@ -47,7 +47,7 @@ public class SpaceController {
     })
     public @ResponseBody
     ResponseEntity<?>
-    getAllSpaces(@RequestHeader("auth") GenericAuthDto auth) {
+    getAllSpaces(@RequestHeader("xAuth") GenericAuthDto auth) {
         if (!sessionService.getSession(auth.getUserID(), auth.getSessionKey())) {
             return new ResponseEntity<>(null, HttpStatus.UNAUTHORIZED);
         }
@@ -65,7 +65,7 @@ public class SpaceController {
     })
     public @ResponseBody
     ResponseEntity<?>
-    createSpace(@RequestBody CreateSpaceDto req, @RequestHeader("auth") GenericAuthDto auth) {
+    createSpace(@RequestBody CreateSpaceDto req, @RequestHeader("xAuth") GenericAuthDto auth) {
         if (!sessionService.getSession(auth.getUserID(), auth.getSessionKey())) {
             return new ResponseEntity<>(null, HttpStatus.UNAUTHORIZED);
         }
@@ -84,7 +84,7 @@ public class SpaceController {
     })
     public @ResponseBody
     ResponseEntity<?>
-    joinSpace(@RequestBody JoinSpaceDto req, @RequestHeader("auth") GenericAuthDto auth, @PathVariable Long spaceID) {
+    joinSpace(@RequestBody JoinSpaceDto req, @RequestHeader("xAuth") GenericAuthDto auth, @PathVariable Long spaceID) {
         if (!sessionService.getSession(auth.getUserID(), auth.getSessionKey())) {
             return new ResponseEntity<>(null, HttpStatus.UNAUTHORIZED);
         }
@@ -107,7 +107,7 @@ public class SpaceController {
     })
     public @ResponseBody
     ResponseEntity<?>
-    quitSpace(@PathVariable Long spaceID, @RequestHeader("auth") GenericAuthDto auth) {
+    quitSpace(@PathVariable Long spaceID, @RequestHeader("xAuth") GenericAuthDto auth) {
         if (!sessionService.getSession(auth.getUserID(), auth.getSessionKey())) {
             return new ResponseEntity<>(null, HttpStatus.UNAUTHORIZED);
         }
@@ -132,7 +132,7 @@ public class SpaceController {
     })
     public @ResponseBody
     ResponseEntity<?>
-    getAuthKey(@RequestHeader("auth") GenericAuthDto auth, @PathVariable Long spaceID) {
+    getAuthKey(@RequestHeader("xAuth") GenericAuthDto auth, @PathVariable Long spaceID) {
         HttpStatus status = accessCheckerUtil.checkAuthKeyAccess(auth, spaceID);
         if (status != null) return new ResponseEntity<>(null, status);
 
@@ -153,7 +153,7 @@ public class SpaceController {
     })
     public @ResponseBody
     ResponseEntity<?>
-    configureSpace(@RequestBody ConfigureSpaceDto req, @PathVariable Long spaceID, @RequestHeader("auth") GenericAuthDto auth) {
+    configureSpace(@RequestBody ConfigureSpaceDto req, @PathVariable Long spaceID, @RequestHeader("xAuth") GenericAuthDto auth) {
         HttpStatus status = accessCheckerUtil.checkPrivilegeLevel(auth, spaceID);
         if (status != null) return new ResponseEntity<>(null, status);
         if (req.getSharedSpace() != null)
@@ -174,7 +174,7 @@ public class SpaceController {
     })
     public @ResponseBody
     ResponseEntity<?>
-    kickUsers(@PathVariable Long spaceID, @RequestHeader("auth") GenericAuthDto auth) {
+    kickUsers(@PathVariable Long spaceID, @RequestHeader("xAuth") GenericAuthDto auth) {
         HttpStatus status = accessCheckerUtil.checkPrivilegeLevel(auth, spaceID);
         if (status != null) return new ResponseEntity<>(null, status);
 
@@ -194,7 +194,7 @@ public class SpaceController {
     })
     public @ResponseBody
     ResponseEntity<?>
-    changeAuthKey(@RequestBody ChangeAuthKeyDto req, @PathVariable Long spaceID, @RequestHeader("auth") GenericAuthDto auth) {
+    changeAuthKey(@RequestBody ChangeAuthKeyDto req, @PathVariable Long spaceID, @RequestHeader("xAuth") GenericAuthDto auth) {
         HttpStatus status = accessCheckerUtil.checkPrivilegeLevel(auth, spaceID);
         if (status != null) return new ResponseEntity<>(null, status);
 
@@ -213,7 +213,7 @@ public class SpaceController {
     })
     public @ResponseBody
     ResponseEntity<?>
-    getSpaceConfig(@PathVariable Long spaceID, @RequestHeader("auth") GenericAuthDto auth) {
+    getSpaceConfig(@PathVariable Long spaceID, @RequestHeader("xAuth") GenericAuthDto auth) {
         HttpStatus status = accessCheckerUtil.checkAccess(auth, spaceID);
         if (status != null) return new ResponseEntity<>(null, status);
 
@@ -232,7 +232,7 @@ public class SpaceController {
     })
     public @ResponseBody
     ResponseEntity<?>
-    deleteSpace(@PathVariable Long spaceID, @RequestHeader("auth") GenericAuthDto auth) {
+    deleteSpace(@PathVariable Long spaceID, @RequestHeader("xAuth") GenericAuthDto auth) {
         if (!sessionService.getSession(auth.getUserID(), auth.getSessionKey())) {
             return new ResponseEntity<>(null, HttpStatus.UNAUTHORIZED);
         }

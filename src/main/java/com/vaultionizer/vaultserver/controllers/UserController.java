@@ -111,7 +111,7 @@ public class UserController {
     })
     public @ResponseBody
     ResponseEntity<?>
-    deleteUser(@RequestHeader("auth") GenericAuthDto auth) {
+    deleteUser(@RequestHeader("xAuth") GenericAuthDto auth) {
         if (!sessionService.getSession(auth.getUserID(), auth.getSessionKey())) {
             return new ResponseEntity<>(null, HttpStatus.UNAUTHORIZED);
         }

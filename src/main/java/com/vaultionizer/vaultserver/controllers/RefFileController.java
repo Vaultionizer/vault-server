@@ -45,7 +45,7 @@ public class RefFileController {
     })
     public @ResponseBody
     ResponseEntity<?>
-    readRefFile(@RequestBody ReadRefFileDto req, @RequestHeader("auth") GenericAuthDto auth, @PathVariable Long spaceID) {
+    readRefFile(@RequestBody ReadRefFileDto req, @RequestHeader("xAuth") GenericAuthDto auth, @PathVariable Long spaceID) {
         if (!sessionService.getSession(auth.getUserID(), auth.getSessionKey())) {
             return new ResponseEntity<>(null, HttpStatus.UNAUTHORIZED);
         }
@@ -81,7 +81,7 @@ public class RefFileController {
     })
     public @ResponseBody
     ResponseEntity<?>
-    updateRefFile(@RequestBody UpdateRefFileDto req, @RequestHeader("auth") GenericAuthDto auth, @PathVariable Long spaceID) {
+    updateRefFile(@RequestBody UpdateRefFileDto req, @RequestHeader("xAuth") GenericAuthDto auth, @PathVariable Long spaceID) {
         if (!sessionService.getSession(auth.getUserID(), auth.getSessionKey())) {
             return new ResponseEntity<>(null, HttpStatus.UNAUTHORIZED);
         }
