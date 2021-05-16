@@ -39,7 +39,7 @@ public class UserController {
 
 
 
-    @RequestMapping(value = "/api/users/create", method = RequestMethod.POST)
+    @RequestMapping(value = "/api/user/create", method = RequestMethod.POST)
     @ApiOperation(value = "Creates a new user, a new private space and adds a session.",
             response = LoginUserResponseDto.class)
     @ApiResponses(value = {
@@ -72,7 +72,7 @@ public class UserController {
         return new ResponseEntity<>(sessionService.addSession(userID), HttpStatus.CREATED);
     }
 
-    @RequestMapping(value = "/api/users/login", method = RequestMethod.POST)
+    @RequestMapping(value = "/api/user/login", method = RequestMethod.POST)
     @ApiOperation(value = "Logs the user in and returns a session.",
             response = LoginUserResponseDto.class)
     @ApiResponses(value = {
@@ -90,7 +90,7 @@ public class UserController {
         return new ResponseEntity<>(sessionService.addSession(userID), HttpStatus.OK);
     }
 
-    @RequestMapping(value = "/api/users/logout", method = RequestMethod.PUT)
+    @RequestMapping(value = "/api/user/logout", method = RequestMethod.PUT)
     @ApiOperation(value = "Logs the user out.")
     @ApiResponses(value = {
             @ApiResponse(code = 200, message = "The user was logged out successfully.")
@@ -102,7 +102,7 @@ public class UserController {
         return new ResponseEntity<>(null, HttpStatus.OK);
     }
 
-    @RequestMapping(value = "/api/users/delete", method = RequestMethod.DELETE)
+    @RequestMapping(value = "/api/user", method = RequestMethod.DELETE)
     @ApiOperation(value = "Deletes the specified user and all spaces the user created.")
     @ApiResponses(value = {
             @ApiResponse(code = 200, message = "The deletion process was successful."),

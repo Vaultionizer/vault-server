@@ -37,7 +37,7 @@ public class SpaceController {
 
 
 
-    @RequestMapping(value = "/api/space/get", method = RequestMethod.POST)
+    @RequestMapping(value = "/api/space", method = RequestMethod.GET)
     @ApiOperation(value = "Returns all spaces a user has access to.",
         response = GetSpacesResponseDto.class,
         responseContainer = "List"
@@ -95,7 +95,7 @@ public class SpaceController {
         return new ResponseEntity<>(null, HttpStatus.FORBIDDEN);
     }
 
-    @RequestMapping(value = "/api/space/{spaceID}/quit/{spaceID}", method = RequestMethod.DELETE)
+    @RequestMapping(value = "/api/space/{spaceID}/quit", method = RequestMethod.DELETE)
     @ApiOperation(value = "Removes the user from the space.")
     @ApiResponses(value = {
             @ApiResponse(code = 200, message = "The user successfully quit the space."),
@@ -116,7 +116,7 @@ public class SpaceController {
 
     }
 
-    @RequestMapping(value = "/api/space/{spaceID}/authkey/get", method = RequestMethod.POST)
+    @RequestMapping(value = "/api/space/{spaceID}/authkey", method = RequestMethod.GET)
     @ApiOperation(  value = "Returns the authentication key of a file.",
                     response = SpaceAuthKeyResponseDto.class
     )
@@ -137,7 +137,7 @@ public class SpaceController {
         return new ResponseEntity<>(authKey.get(), HttpStatus.OK);
     }
 
-    @RequestMapping(value = "/api/space/{spaceID}/config/set", method = RequestMethod.POST)
+    @RequestMapping(value = "/api/space/{spaceID}/config", method = RequestMethod.PUT)
     @ApiOperation(  value = "Returns the authentication key of a file.",
             response = ConfigureSpaceDto.class
     )
@@ -156,7 +156,7 @@ public class SpaceController {
         return new ResponseEntity<>(null, HttpStatus.ACCEPTED);
     }
 
-    @RequestMapping(value = "/api/space/{spaceID}/kickall", method = RequestMethod.POST)
+    @RequestMapping(value = "/api/space/{spaceID}/kickall", method = RequestMethod.DELETE)
     @ApiOperation(  value = "Returns the authentication key of a file.",
             response = GenericAuthDto.class
     )
@@ -175,7 +175,7 @@ public class SpaceController {
         return new ResponseEntity<>(null, HttpStatus.OK);
     }
 
-    @RequestMapping(value = "/api/space/{spaceID}/authkey/set", method = RequestMethod.POST)
+    @RequestMapping(value = "/api/space/{spaceID}/authkey", method = RequestMethod.PUT)
     @ApiOperation(  value = "Changes the authentication key of a space.",
             response = ChangeAuthKeyDto.class
     )
@@ -194,7 +194,7 @@ public class SpaceController {
         return new ResponseEntity<>(null, HttpStatus.OK);
     }
 
-    @RequestMapping(value = "/api/space/{spaceID}/config/get", method = RequestMethod.POST)
+    @RequestMapping(value = "/api/space/{spaceID}/config", method = RequestMethod.GET)
     @ApiOperation(  value = "Returns the configuration of a space.",
             response = GetSpacesResponseDto.class
     )
@@ -211,7 +211,7 @@ public class SpaceController {
         return new ResponseEntity<>(spaceService.getSpaceConfig(spaceID), HttpStatus.OK);
     }
 
-    @RequestMapping(value = "/api/space/{spaceID}/delete", method = RequestMethod.DELETE)
+    @RequestMapping(value = "/api/space/{spaceID}", method = RequestMethod.DELETE)
     @ApiOperation(  value = "Deletes the specified space if permitted.",
             response = SpaceAuthKeyResponseDto.class
     )

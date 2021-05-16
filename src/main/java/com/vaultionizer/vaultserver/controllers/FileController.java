@@ -130,7 +130,7 @@ public class FileController {
         }
     }
 
-    @RequestMapping(value = "/api/file/{spaceID}/{saveIndex}/delete", method = RequestMethod.DELETE)
+    @RequestMapping(value = "/api/file/{spaceID}/{saveIndex}", method = RequestMethod.DELETE)
     @ApiOperation(value = "Requests to delete a specific file.")
     @ApiResponses(value = {
             @ApiResponse(code = 200, message = "File has successfully been deleted."),
@@ -152,7 +152,7 @@ public class FileController {
     }
 
 
-    @RequestMapping(value = "/api/file/{spaceID}/{saveIndex}/update", method = RequestMethod.POST)
+    @RequestMapping(value = "/api/file/{spaceID}/{saveIndex}/update", method = RequestMethod.PUT)
     @ApiOperation(value = "Requests to update a specific file.")
     @ApiResponses(value = {
             @ApiResponse(code = 200, message = "File has successfully been marked for updating."),
