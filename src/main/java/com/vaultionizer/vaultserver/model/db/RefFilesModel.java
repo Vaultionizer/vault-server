@@ -26,7 +26,6 @@ public class RefFilesModel {
     private String content;
 
 
-
     public RefFilesModel() {
     }
 

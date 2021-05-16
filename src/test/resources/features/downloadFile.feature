@@ -1,4 +1,5 @@
 Feature: A file can be downloaded
+
   Scenario: The file can be downloaded successfully
     Given the user has successfully created an account with username "cell"
     And the file with saveIndex 420 was uploaded

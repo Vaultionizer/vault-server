@@ -12,7 +12,7 @@ public class WebSocketConfigTomcat implements WebSocketConfigurer {
 
     @Bean
     public ServletServerContainerFactoryBean createWebSocketContainer() {
-        ServletServerContainerFactoryBean container = new ServletServerContainerFactoryBean();
+        var container = new ServletServerContainerFactoryBean();
         container.setMaxTextMessageBufferSize(Config.MSG_SIZE_LIMITS);
         container.setMaxBinaryMessageBufferSize(Config.MSG_SIZE_LIMITS);
         return container;

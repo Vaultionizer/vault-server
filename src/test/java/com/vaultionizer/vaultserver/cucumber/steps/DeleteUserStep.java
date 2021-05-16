@@ -4,7 +4,6 @@ import com.vaultionizer.vaultserver.controllers.FileController;
 import com.vaultionizer.vaultserver.controllers.SessionController;
 import com.vaultionizer.vaultserver.controllers.SpaceController;
 import com.vaultionizer.vaultserver.controllers.UserController;
-import com.vaultionizer.vaultserver.model.dto.AuthWrapperDto;
 import com.vaultionizer.vaultserver.model.dto.GenericAuthDto;
 import com.vaultionizer.vaultserver.service.*;
 import com.vaultionizer.vaultserver.testdata.UserTestData;
@@ -29,11 +28,11 @@ public class DeleteUserStep extends Services {
 
     @Autowired
     public DeleteUserStep(SpaceService spaceService, UserService userService,
-                            UserAccessService userAccessService, SessionService sessionService,
-                            RefFileService refFileService, PendingUploadService pendingUploadService,
-                            FileService fileService, UserController userController,
-                            SpaceController spaceController, SessionController sessionController,
-                            FileController fileController) {
+                          UserAccessService userAccessService, SessionService sessionService,
+                          RefFileService refFileService, PendingUploadService pendingUploadService,
+                          FileService fileService, UserController userController,
+                          SpaceController spaceController, SessionController sessionController,
+                          FileController fileController) {
 
         super(spaceService, userService, userAccessService, sessionService, refFileService,
                 pendingUploadService, fileService, userController, spaceController, sessionController, fileController);
@@ -51,19 +50,21 @@ public class DeleteUserStep extends Services {
     }
 
     @Then("the status code delete user is {int}")
-    public void theStatusCodeDeleteUserIs(int status) throws Throwable{
-        if (res.getStatusCodeValue() != status) throw new Throwable("Status code wrong: "+res.getStatusCodeValue());
+    public void theStatusCodeDeleteUserIs(int status) throws Throwable {
+        if (res.getStatusCodeValue() != status) throw new Throwable("Status code wrong: " + res.getStatusCodeValue());
     }
 
     @And("the user's spaces are deleted")
-    public void theUserSSpacesAreDeleted() throws Throwable{
+    public void theUserSSpacesAreDeleted() throws Throwable {
         var spaces = spaceService.getAllOwnedSpaces(userID);
-        if (spaces.size() != 0) throw new Throwable("Not all own spaces deleted!: "+ Arrays.toString(spaces.toArray()));
+        if (spaces.size() != 0)
+            throw new Throwable("Not all own spaces deleted!: " + Arrays.toString(spaces.toArray()));
     }
 
     @And("the user has no access to any spaces")
-    public void theUserHasNoAccessToAnySpaces() throws Throwable{
+    public void theUserHasNoAccessToAnySpaces() throws Throwable {
         Set<Long> accessible = userAccessService.getAllWithUser(userID);
-        if (accessible.size() != 0) throw new Throwable("Not all accesses deleted!: "+ Arrays.toString(accessible.toArray()));
+        if (accessible.size() != 0)
+            throw new Throwable("Not all accesses deleted!: " + Arrays.toString(accessible.toArray()));
     }
 }

@@ -32,7 +32,7 @@ public class SpaceService {
         deleteLock = new Object();
     }
 
-    public GetSpacesResponseDto getSpace(Long spaceID, Long userID){
+    public GetSpacesResponseDto getSpace(Long spaceID, Long userID) {
         Optional<SpaceModel> model = spaceRepository.findById(spaceID);
         if (model.isEmpty()) return null;
         return new GetSpacesResponseDto(spaceID, model.get().isPrivateSpace(), model.get().getCreatorID().equals(userID),
@@ -40,20 +40,20 @@ public class SpaceService {
     }
 
     public Long createSpace(Long userID, String refFileContent, boolean isPrivate, boolean usersWriteAccess,
-                            boolean usersCanInvite, String authKey){
+                            boolean usersCanInvite, String authKey) {
         Long refFileID = refFileService.addNewRefFile(refFileContent);
-        SpaceModel model = new SpaceModel(userID, refFileID, isPrivate, usersWriteAccess, usersCanInvite, authKey);
+        var model = new SpaceModel(userID, refFileID, isPrivate, usersWriteAccess, usersCanInvite, authKey);
         model = spaceRepository.save(model);
         userAccessService.addUserAccess(model.getSpaceID(), userID);
         return model.getSpaceID();
     }
 
-    public Optional<SpaceAuthKeyResponseDto> getSpaceAuthKey(Long spaceID){
+    public Optional<SpaceAuthKeyResponseDto> getSpaceAuthKey(Long spaceID) {
         return spaceRepository.getSpaceAuthKey(spaceID);
     }
 
     // returns the spaces a user has access to
-    public ArrayList<GetSpacesResponseDto> getSpacesAccessible(Long userID){
+    public ArrayList<GetSpacesResponseDto> getSpacesAccessible(Long userID) {
         ArrayList<GetSpacesResponseDto> spaces = new ArrayList<>();
         Set<Long> spaceIDs = userAccessService.getAllWithUser(userID);
         spaceIDs.forEach(spaceID -> {
@@ -66,25 +66,25 @@ public class SpaceService {
     }
 
     // checks whether a space's credentials equal the given ones.
-    public boolean checkSpaceCredentials(Long spaceID, String authKey){
+    public boolean checkSpaceCredentials(Long spaceID, String authKey) {
         return spaceRepository.checkJoinableWithCredentials(spaceID, authKey) == 1;
     }
 
-    public Long getRefFileID(Long spaceID){
+    public Long getRefFileID(Long spaceID) {
         var id = this.spaceRepository.getRefFileID(spaceID);
         if (id.isEmpty()) return -1L;
         return id.get();
     }
 
-    public Set<Long> getAllOwnedSpaces(Long userID){
+    public Set<Long> getAllOwnedSpaces(Long userID) {
         return spaceRepository.getAllOwnedSpaces(userID);
     }
 
-    public boolean checkCreator(Long spaceID, Long userID){
+    public boolean checkCreator(Long spaceID, Long userID) {
         return spaceRepository.checkIsCreator(spaceID, userID) == 1;
     }
 
-    public boolean markSpaceDeleted(Long spaceID){
+    public boolean markSpaceDeleted(Long spaceID) {
         synchronized (deleteLock) {
             if (this.isDeleted.contains(spaceID)) {
                 return false;
@@ -95,21 +95,22 @@ public class SpaceService {
         return true;
     }
 
-    public void deleteSpace(Long spaceID){
+    public void deleteSpace(Long spaceID) {
         spaceRepository.deleteSpace(spaceID);
-        synchronized (deleteLock){
+        synchronized (deleteLock) {
             this.isDeleted.remove(spaceID);
         }
     }
 
-    public synchronized boolean checkDeleted(Long spaceID){
+    public synchronized boolean checkDeleted(Long spaceID) {
         return this.isDeleted.contains(spaceID);
     }
 
-    public boolean userHasWriteAccess(Long spaceID, Long userID){
+    public boolean userHasWriteAccess(Long spaceID, Long userID) {
         return spaceRepository.getUserWriteAccess(spaceID, userID) == 1;
     }
-    public boolean userHasAuthKeyAccess(Long spaceID, Long userID){
+
+    public boolean userHasAuthKeyAccess(Long spaceID, Long userID) {
         return spaceRepository.getUserAuthKeyAccess(spaceID, userID) == 1;
     }
 
@@ -117,29 +118,29 @@ public class SpaceService {
         spaceRepository.configureSpace(spaceID, writeAccess, authKeyAccess);
     }
 
-    public void changeSharedState(Long spaceID, Long creatorID, Boolean shared){
+    public void changeSharedState(Long spaceID, Long creatorID, boolean shared) {
         var spaceModel = spaceRepository.findById(spaceID);
         if (spaceModel.isEmpty() || spaceModel.get().isPrivateSpace() == !shared) return;
-        SpaceModel model = spaceModel.get();
+        var model = spaceModel.get();
         model.setPrivateSpace(!shared);
         spaceRepository.save(model);
-        if (!shared){
+        if (!shared) {
             // shared -> private: remove all accesses
             userAccessService.kickAll(spaceID, creatorID);
         }
     }
 
-    public Boolean checkShared(Long spaceID){
+    public Boolean checkShared(Long spaceID) {
         var model = spaceRepository.findById(spaceID);
         if (model.isEmpty()) return null;
         return !model.get().isPrivateSpace();
     }
 
-    public GetSpaceConfigResponseDto getSpaceConfig(Long spaceID){
+    public GetSpaceConfigResponseDto getSpaceConfig(Long spaceID) {
         return spaceRepository.getSpaceConfig(spaceID);
     }
 
-    public void changeAuthKey(Long spaceID, String authKey){
+    public void changeAuthKey(Long spaceID, String authKey) {
         spaceRepository.updateAuthKey(spaceID, authKey);
     }
 }

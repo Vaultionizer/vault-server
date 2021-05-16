@@ -20,11 +20,11 @@ public class WebSocketChannelFilter implements ChannelInterceptor {
     @Override
     public Message<?> preSend(Message<?> message, MessageChannel channel) {
         StompHeaderAccessor accessor = MessageHeaderAccessor.getAccessor(message, StompHeaderAccessor.class);
-        if (StompCommand.SUBSCRIBE.equals(accessor.getCommand())){
+        if (StompCommand.SUBSCRIBE.equals(accessor.getCommand())) {
             // TODO: check whether user has rights to subscribe
             String dest = accessor.getDestination();
             if (dest == null) return null;
-            if (!dest.startsWith(WEBSOCKET_DOWNLOAD) && !dest.startsWith(WEBSOCKET_ERROR)){
+            if (!dest.startsWith(WEBSOCKET_DOWNLOAD) && !dest.startsWith(WEBSOCKET_ERROR)) {
                 return null;
             }
 
@@ -34,18 +34,17 @@ public class WebSocketChannelFilter implements ChannelInterceptor {
             String websocketToken = token[token.length - 1];
             String sessionKey = accessor.getFirstNativeHeader("sessionKey");
             String userID = accessor.getFirstNativeHeader("userID");
-            if (userID == null || sessionKey == null || websocketToken.length() == 0 || userID.length() == 0) return null;
+            if (userID == null || sessionKey == null || websocketToken.length() == 0 || userID.length() == 0)
+                return null;
             if (!sessionService.checkValidWebsocketToken(Long.parseLong(userID), websocketToken, sessionKey)) {
                 return null;
             }
             // subscription is valid
-        }
-
-        else if (StompCommand.SEND.equals(accessor.getCommand())){
+        } else if (StompCommand.SEND.equals(accessor.getCommand())) {
             // check whether to upload endpoint (only one that is legitimate)
             String dest = accessor.getDestination();
             if (dest == null) return null;
-            if (!dest.startsWith(WEBSOCKET_UPLOAD)){
+            if (!dest.startsWith(WEBSOCKET_UPLOAD)) {
                 return null; // TODO: send error
             }
         }

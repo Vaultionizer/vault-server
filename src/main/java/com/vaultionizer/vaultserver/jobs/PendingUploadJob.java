@@ -16,7 +16,7 @@ public class PendingUploadJob {
     }
 
     @Scheduled(fixedDelay = Config.PENDING_UPLOAD_JOB_DELAY)
-    public void cleanOldPendingUploads(){
+    public void cleanOldPendingUploads() {
         pendingUploadService.deleteOldPendingUploads();
     }
 }

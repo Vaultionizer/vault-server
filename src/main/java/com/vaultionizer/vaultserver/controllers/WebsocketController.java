@@ -34,16 +34,15 @@ public class WebsocketController {
     }
 
     @MessageMapping("/upload")
-    public void upload(@Payload WebsocketFileDto content, Message<?> file){
-        // TODO: check how to send errors
+    public void upload(@Payload WebsocketFileDto content, Message<?> file) {
         if (content == null || content.getContent() == null) return;
         LinkedMultiValueMap<String, String> nativeHeaders = parseNativeHeaders(file.getHeaders().get("nativeHeaders"));
         if (nativeHeaders == null) return;
 
         // parse headers
-        Long userID = parseLongFromHeader(nativeHeaders, "userID");
-        Long spaceID = parseLongFromHeader(nativeHeaders, "spaceID");
-        Long saveIndex = parseLongFromHeader(nativeHeaders, "saveIndex");
+        var userID = parseLongFromHeader(nativeHeaders, "userID");
+        var spaceID = parseLongFromHeader(nativeHeaders, "spaceID");
+        var saveIndex = parseLongFromHeader(nativeHeaders, "saveIndex");
         String sessionKey = nativeHeaders.getFirst("sessionKey");
         String wsToken = nativeHeaders.getFirst("websocketToken");
 
@@ -70,12 +69,11 @@ public class WebsocketController {
         }
 
         boolean success;
-        if (granted == 1){
+        if (granted == 1) {
             // usual upload
             fileService.setUploadFile(spaceID, saveIndex);
             success = fileService.writeToFile(content.getContent(), spaceID, saveIndex);
-        }
-        else{
+        } else {
             // updating requested
             success = fileService.tryUpdating(content.getContent(), spaceID, saveIndex);
         }
@@ -86,25 +84,25 @@ public class WebsocketController {
         }
     }
 
-    public synchronized void download(String websocketToken, Long spaceID, Long saveIndex){
+    public synchronized void download(String websocketToken, Long spaceID, Long saveIndex) {
         // TODO: check how to set headers (namely: spaceID and saveIndex)
-        simpMessagingTemplate.convertAndSend( Config.WEBSOCKET_DOWNLOAD + websocketToken,
+        simpMessagingTemplate.convertAndSend(Config.WEBSOCKET_DOWNLOAD + websocketToken,
                 fileService.makeDownload(spaceID, saveIndex));
     }
 
-    public void sendError(String websocketToken, GenericWSError error){
-        simpMessagingTemplate.convertAndSend( Config.WEBSOCKET_ERROR + websocketToken, error);
+    public void sendError(String websocketToken, GenericWSError error) {
+        simpMessagingTemplate.convertAndSend(Config.WEBSOCKET_ERROR + websocketToken, error);
     }
 
-    private Long parseLongFromHeader(LinkedMultiValueMap<String, String> map, String key){
+    private Long parseLongFromHeader(LinkedMultiValueMap<String, String> map, String key) {
         if (map.getFirst(key) == null) return null;
         return Long.parseLong(map.getFirst(key));
     }
 
-    private LinkedMultiValueMap<String, String> parseNativeHeaders(Object o){
+    private LinkedMultiValueMap<String, String> parseNativeHeaders(Object o) {
         if (o == null) return null;
-        if (o instanceof LinkedMultiValueMap){
-            return (LinkedMultiValueMap)o;
+        if (o instanceof LinkedMultiValueMap) {
+            return (LinkedMultiValueMap) o;
         }
         return null;
     }

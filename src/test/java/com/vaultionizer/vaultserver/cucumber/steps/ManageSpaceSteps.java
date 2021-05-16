@@ -127,7 +127,7 @@ public class ManageSpaceSteps extends Services {
     @When("the user configures the space to write access {string} and invite {string}")
     public void theUserConfiguresTheSpaceToWriteAccessAndInvite(String writeAccess, String inviteAccess) {
         res = spaceController.configureSpace(new ConfigureSpaceDto(
-                Boolean.parseBoolean(writeAccess), Boolean.parseBoolean(inviteAccess), true),
+                        Boolean.parseBoolean(writeAccess), Boolean.parseBoolean(inviteAccess), true),
                 spaceID, getUserAuth(userID));
     }
 
@@ -135,10 +135,10 @@ public class ManageSpaceSteps extends Services {
     public void theConfigHasWriteAccessAndInvite(String writeAccess, String inviteAccess) throws Exception {
         res = spaceController.getSpaceConfig(spaceID, getUserAuth(userID));
         if (res == null || !res.hasBody() || res.getBody() == null) throw new Exception("Querying config failed");
-        var body = (GetSpaceConfigResponseDto)res.getBody();
+        var body = (GetSpaceConfigResponseDto) res.getBody();
 
         if (body.isUsersHaveWriteAccess() != Boolean.parseBoolean(writeAccess) || body.isUsersCanInvite() != Boolean.parseBoolean(inviteAccess))
-            throw new Exception("Error. Wrong config. Write access: "+body.isUsersHaveWriteAccess()+"  auth key access: "+body.isUsersCanInvite());
+            throw new Exception("Error. Wrong config. Write access: " + body.isUsersHaveWriteAccess() + "  auth key access: " + body.isUsersCanInvite());
     }
 
     @When("the other user configures the space")
@@ -146,7 +146,7 @@ public class ManageSpaceSteps extends Services {
         res = spaceController.configureSpace(new ConfigureSpaceDto(false, false, false), spaceID, getUserAuth(otherUserID));
     }
 
-    private GenericAuthDto getUserAuth(Long _userID){
+    private GenericAuthDto getUserAuth(Long _userID) {
         var session = sessionService.addSession(_userID);
         return new GenericAuthDto(_userID, session.getSessionKey());
     }
@@ -174,9 +174,9 @@ public class ManageSpaceSteps extends Services {
     public void checkAuthKey(String expected) throws Exception {
         var result = spaceController.getAuthKey(getUserAuth(userID), spaceID);
         if (!result.hasBody() || result.getBody() == null)
-            throw new Exception("Getting auth key failed. " + result.getStatusCode().value() + " -> "+result.getStatusCode().name());
-        var auth = (SpaceAuthKeyResponseDto)result.getBody();
+            throw new Exception("Getting auth key failed. " + result.getStatusCode().value() + " -> " + result.getStatusCode().name());
+        var auth = (SpaceAuthKeyResponseDto) result.getBody();
         if (auth == null || !auth.getAuthKey().equals(expected))
-            throw new Exception("Auth key expected: "+ expected+ " is not actual: "+auth.getAuthKey());
+            throw new Exception("Auth key expected: " + expected + " is not actual: " + auth.getAuthKey());
     }
 }

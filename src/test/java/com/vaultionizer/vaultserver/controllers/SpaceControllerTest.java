@@ -1,21 +1,15 @@
 package com.vaultionizer.vaultserver.controllers;
 
-import com.vaultionizer.vaultserver.model.db.RefFilesModel;
-import com.vaultionizer.vaultserver.model.db.SpaceModel;
-import com.vaultionizer.vaultserver.resource.SpaceRepository;
 import com.vaultionizer.vaultserver.service.*;
 import com.vaultionizer.vaultserver.testdata.SpaceTestData;
 import org.junit.jupiter.api.*;
-import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.ResponseEntity;
 
-import static org.mockito.ArgumentMatchers.any;
-
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 @DisplayName("Space Controller")
-public class SpaceControllerTest {
+class SpaceControllerTest {
     @MockBean
     private SessionService sessionService;
 
@@ -102,14 +96,14 @@ public class SpaceControllerTest {
     // Tests create space api
     @Test
     @DisplayName("Tests creating a new space using a wrong session key.")
-    public void createSpaceWrongSessionKey() {
+    void createSpaceWrongSessionKey() {
         ResponseEntity<?> res = spaceController.createSpace(SpaceTestData.createSpace[0], SpaceTestData.createSpaceAuths[0]);
         Assertions.assertEquals(401, res.getStatusCodeValue());
     }
 
     @Test
     @DisplayName("Tests creating a new space using a correct session key.")
-    public void createSpace() {
+    void createSpace() {
         ResponseEntity<?> res = spaceController.createSpace(SpaceTestData.createSpace[1], SpaceTestData.createSpaceAuths[1]);
         Assertions.assertEquals(201, res.getStatusCodeValue());
         Assertions.assertEquals(1L, ((Long) (res.getBody())));
@@ -118,7 +112,7 @@ public class SpaceControllerTest {
     // Tests join space api
     @Test
     @DisplayName("Tests joining a space using a wrong session key.")
-    public void joinSpaceWrongSessionKey() {
+    void joinSpaceWrongSessionKey() {
         ResponseEntity<?> res = spaceController.joinSpace(SpaceTestData.joinSpaces[0],
                 SpaceTestData.joinSpacesAuth[0], SpaceTestData.joinSpacesSpaceIDs[0]);
         Assertions.assertEquals(401, res.getStatusCodeValue());
@@ -126,7 +120,7 @@ public class SpaceControllerTest {
 
     @Test
     @DisplayName("Tests joining a space using a correct session key but wrong authkey.")
-    public void joinSpaceWrongAuthKey() {
+    void joinSpaceWrongAuthKey() {
         ResponseEntity<?> res = spaceController.joinSpace(SpaceTestData.joinSpaces[1],
                 SpaceTestData.joinSpacesAuth[1], SpaceTestData.joinSpacesSpaceIDs[1]);
         Assertions.assertEquals(403, res.getStatusCodeValue());
@@ -134,7 +128,7 @@ public class SpaceControllerTest {
 
     @Test
     @DisplayName("Tests joining a space using a correct session key with correct authkey.")
-    public void joinSpace() {
+    void joinSpace() {
         ResponseEntity<?> res = spaceController.joinSpace(SpaceTestData.joinSpaces[2],
                 SpaceTestData.joinSpacesAuth[2], SpaceTestData.joinSpacesSpaceIDs[2]);
         Assertions.assertEquals(200, res.getStatusCodeValue());
@@ -143,14 +137,14 @@ public class SpaceControllerTest {
     // Tests get all spaces
     @Test
     @DisplayName("Tests getting all space a user is part of using a wrong session key.")
-    public void getAllSpacesWrongSessionKey() {
+    void getAllSpacesWrongSessionKey() {
         ResponseEntity<?> res = spaceController.getAllSpaces(SpaceTestData.getAllSpaces[0]);
         Assertions.assertEquals(401, res.getStatusCodeValue());
     }
 
     @Test
     @DisplayName("Tests getting all space a user is part of using a wrong session key.")
-    public void getAllSpaces() {
+    void getAllSpaces() {
         ResponseEntity<?> res = spaceController.getAllSpaces(SpaceTestData.getAllSpaces[1]);
         Assertions.assertEquals(200, res.getStatusCodeValue());
         Assertions.assertNull(res.getBody());
@@ -159,21 +153,21 @@ public class SpaceControllerTest {
     // Tests get authentication key of a specified space
     @Test
     @DisplayName("Tests getting the authentication key of a space using a wrong session key.")
-    public void getAuthKeyWrongSessionKey() {
+    void getAuthKeyWrongSessionKey() {
         ResponseEntity<?> res = spaceController.getAuthKey(SpaceTestData.getAuthKeyCredentials[0], SpaceTestData.getAuthKeysSpaceIds[0]);
         Assertions.assertEquals(401, res.getStatusCodeValue());
     }
 
     @Test
     @DisplayName("Tests getting the authentication key of a space the user has no permission for.")
-    public void getAuthKeyWithoutPermission() {
+    void getAuthKeyWithoutPermission() {
         ResponseEntity<?> res = spaceController.getAuthKey(SpaceTestData.getAuthKeyCredentials[1], SpaceTestData.getAuthKeysSpaceIds[1]);
         Assertions.assertEquals(403, res.getStatusCodeValue());
     }
 
     @Test
     @DisplayName("Tests getting the authentication key of a space the user access to.")
-    public void getAuthKey() {
+    void getAuthKey() {
         ResponseEntity<?> res = spaceController.getAuthKey(SpaceTestData.getAuthKeyCredentials[3], SpaceTestData.getAuthKeysSpaceIds[3]);
         Assertions.assertEquals(406, res.getStatusCodeValue());
         Assertions.assertNull(res.getBody());

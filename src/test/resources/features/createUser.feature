@@ -1,4 +1,5 @@
 Feature: One can create a user
+
   Scenario: Key too short creation
     Given the username is "mario"
     And the key is "luigiIdiotta!"

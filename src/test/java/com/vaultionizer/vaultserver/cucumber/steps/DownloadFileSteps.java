@@ -5,7 +5,6 @@ import com.vaultionizer.vaultserver.controllers.SessionController;
 import com.vaultionizer.vaultserver.controllers.SpaceController;
 import com.vaultionizer.vaultserver.controllers.UserController;
 import com.vaultionizer.vaultserver.helpers.Config;
-import com.vaultionizer.vaultserver.model.dto.FileDownloadDto;
 import com.vaultionizer.vaultserver.model.dto.GenericAuthDto;
 import com.vaultionizer.vaultserver.service.*;
 import com.vaultionizer.vaultserver.testdata.UserTestData;
@@ -28,11 +27,11 @@ public class DownloadFileSteps extends Services {
 
     @Autowired
     public DownloadFileSteps(SpaceService spaceService, UserService userService,
-                            UserAccessService userAccessService, SessionService sessionService,
-                            RefFileService refFileService, PendingUploadService pendingUploadService,
-                            FileService fileService, UserController userController,
-                            SpaceController spaceController, SessionController sessionController,
-                            FileController fileController) {
+                             UserAccessService userAccessService, SessionService sessionService,
+                             RefFileService refFileService, PendingUploadService pendingUploadService,
+                             FileService fileService, UserController userController,
+                             SpaceController spaceController, SessionController sessionController,
+                             FileController fileController) {
 
         super(spaceService, userService, userAccessService, sessionService, refFileService,
                 pendingUploadService, fileService, userController, spaceController, sessionController, fileController);
@@ -49,7 +48,7 @@ public class DownloadFileSteps extends Services {
     public void theFileWithSaveIndexWasUploaded(Long saveIndex) {
         File dir = new File("trash/cucumberTestAssets/");
         dir.mkdirs();
-        Config.SPACE_PATH = (dir.getAbsolutePath()+"/");
+        Config.SPACE_PATH = (dir.getAbsolutePath() + "/");
         fileService.setUploadFile(spaceID, saveIndex);
         fileService.writeToFile("Kame-hame-HAAAA", spaceID, saveIndex);
     }
@@ -60,8 +59,8 @@ public class DownloadFileSteps extends Services {
     }
 
     @Then("the status code of download is {int}")
-    public void theStatusCodeOfDownloadIs(int status) throws Throwable{
-        if (res.getStatusCodeValue() != status) throw new Throwable("Wrong status code: "+res.getStatusCodeValue());
+    public void theStatusCodeOfDownloadIs(int status) throws Throwable {
+        if (res.getStatusCodeValue() != status) throw new Throwable("Wrong status code: " + res.getStatusCodeValue());
     }
 
     @And("the space id is set inappropriately")
