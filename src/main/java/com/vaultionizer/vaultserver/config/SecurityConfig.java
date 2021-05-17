@@ -25,7 +25,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         var configuration = new CorsConfiguration();
-        configuration.setAllowedOrigins(Arrays.asList("https://www.vault.gottwuerfeltnicht.de"));
+        configuration.setAllowedOrigins(Arrays.asList("https://www.api.vault.jatsqi.com"));
         // for testing:
         // configuration.setAllowedOrigins(Arrays.asList("http://localhost:63342"));
         configuration.setAllowedMethods(Arrays.asList("POST", "PUT", "GET", "OPTIONS", "DELETE"));

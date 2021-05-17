@@ -1,7 +1,10 @@
 package com.vaultionizer.vaultserver.model.dto;
 
 public class ChangeAuthKeyDto {
-    private final String authKey;
+    private String authKey;
+
+    public ChangeAuthKeyDto() {
+    }
 
     public ChangeAuthKeyDto(String authKey) {
         this.authKey = authKey;

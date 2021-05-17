@@ -5,6 +5,9 @@ public class ConfigureSpaceDto {
     private boolean usersAuthAccess;
     private Boolean sharedSpace;
 
+    public ConfigureSpaceDto() {
+    }
+
     public ConfigureSpaceDto(boolean usersWriteAccess, boolean usersAuthAccess, Boolean sharedSpace) {
         this.usersWriteAccess = usersWriteAccess;
         this.usersAuthAccess = usersAuthAccess;
