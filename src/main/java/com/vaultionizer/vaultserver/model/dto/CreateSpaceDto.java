@@ -9,6 +9,9 @@ public class CreateSpaceDto {
     private String authKey;
     private String referenceFile;
 
+    public CreateSpaceDto() {
+    }
+
     public boolean getUsersWriteAccess() {
         return usersWriteAccess;
     }

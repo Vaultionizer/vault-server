@@ -18,6 +18,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.Instant;
+
 @Api(value = "/api/refFile/", description = "Controller that handles the ref file CRUD requests.")
 @RestController
 public class RefFileController {
@@ -58,7 +60,7 @@ public class RefFileController {
         }
 
         // if the last fetched version is latest, just tell user not modified
-        if (req.getLastRead() != null && !refFileService.hasNewVersion(refFileID, req.getLastRead())) {
+        if (req.getLastRead() != null && !refFileService.hasNewVersion(refFileID, Instant.ofEpochMilli(req.getLastRead()))) {
             return new ResponseEntity<>(null, HttpStatus.NOT_MODIFIED);
         }
         String content = refFileService.readRefFile(refFileID);
