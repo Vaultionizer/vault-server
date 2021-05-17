@@ -18,6 +18,11 @@ jobs:
     steps:
       - uses: actions/checkout@v2
 
+      - name: Run tests
+        run: |
+          cd scripts
+          bash test.sh
+
       - name: Build image
         run: docker build . --file Dockerfile --tag $IMAGE_NAME
 

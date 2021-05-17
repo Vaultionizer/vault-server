@@ -1,4 +1,5 @@
 Feature: A space can be created
+
   Scenario: Private space can be created
     Given the user is logged in with name "shiggy"
     And the space should be private: "true"

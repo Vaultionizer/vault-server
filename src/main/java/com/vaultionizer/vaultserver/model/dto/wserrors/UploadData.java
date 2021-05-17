@@ -1,6 +1,6 @@
 package com.vaultionizer.vaultserver.model.dto.wserrors;
 
-public class UploadData extends WSErrorData{
+public class UploadData extends WSErrorData {
     private final Long userID;
     private final Long spaceID;
     private final Long saveIndex;

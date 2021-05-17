@@ -16,7 +16,7 @@ public class SessionJob {
     }
 
     @Scheduled(fixedDelay = Config.SESSION_JOB_DELAY)
-    public void cleanSessionsExpired(){
+    public void cleanSessionsExpired() {
         sessionService.cleanAllSessionsExpired();
     }
 }

@@ -41,14 +41,14 @@ public class SwaggerConfig {
     }
 
     private static final ApiInfo apiInfo = new ApiInfo( // TODO: work on that
-                "Vaultionizer API",
-                "A safe space for everybody that seeks after privacy.",
-                "1.0.0",
-                "https://www.vault.gottwuerfeltnicht.de",
-                new Contact("Team Vaultionizer", "https://vaultionizer.com/", "contact@vaultionizer.com"),
-                "ODC DbCL v1.0 License",
-                "https://opendatacommons.org/licenses/dbcl/1.0/",
-                new ArrayList<>()
+            "Vaultionizer API",
+            "A safe space for everybody that seeks after privacy.",
+            "1.0.0",
+            "https://www.vault.gottwuerfeltnicht.de",
+            new Contact("Team Vaultionizer", "https://vaultionizer.com/", "contact@vaultionizer.com"),
+            "ODC DbCL v1.0 License",
+            "https://opendatacommons.org/licenses/dbcl/1.0/",
+            new ArrayList<>()
     );
 
 }

@@ -4,10 +4,10 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.springframework.http.ResponseEntity;
 
-public class MiscControllerTest {
+class MiscControllerTest {
 
     @Test
-    public void testGetVersion(){
+    void testGetVersion() {
         ResponseEntity<?> res = (new MiscController()).getVersion();
         Assertions.assertEquals(200, res.getStatusCodeValue());
         Assertions.assertTrue(res.hasBody());

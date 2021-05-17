@@ -2,11 +2,9 @@ package com.vaultionizer.vaultserver.model.db;
 
 import com.vaultionizer.vaultserver.helpers.Config;
 import org.hibernate.validator.constraints.Length;
-import org.hibernate.validator.constraints.UniqueElements;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
-import java.util.Objects;
 
 @Entity(name = "users")
 public class UserModel {
@@ -20,9 +18,9 @@ public class UserModel {
     private String username;
 
     @NotNull(message = "Key cannot be null!")
-    @Length(min = Config.MIN_USER_KEY_LENGTH, message = "Hashed key must be at least "+Config.MIN_USER_KEY_LENGTH+" characters long!")
+    @Length(min = Config.MIN_USER_KEY_LENGTH, message = "Hashed key must be at least " + Config.MIN_USER_KEY_LENGTH + " characters long!")
     private String key; // Note: key can be blank because a cryptographic key is randomly distributed.
-                        //       The length must have a minimum size.
+    //       The length must have a minimum size.
 
     public UserModel() {
     }

@@ -56,7 +56,7 @@ public class ManageSpaceSteps extends Services {
 
     @When("the user kicks all users")
     public void theUserKicksAllUsers() {
-        res = spaceController.kickUsers(getUserAuth(userID), spaceID);
+        res = spaceController.kickUsers(spaceID, getUserAuth(userID));
     }
 
     @And("the other user has no access")
@@ -71,7 +71,7 @@ public class ManageSpaceSteps extends Services {
 
     @When("the other user kicks all users")
     public void theOtherUserKicksAllUsers() {
-        res = spaceController.kickUsers(getUserAuth(otherUserID), spaceID);
+        res = spaceController.kickUsers(spaceID, getUserAuth(otherUserID));
     }
 
     @And("the other user still has access")
@@ -89,15 +89,13 @@ public class ManageSpaceSteps extends Services {
     @When("the user sets the space {string}")
     public void theUserSetsTheSpace(String newSharedState) {
         res = spaceController.configureSpace(
-                new ConfigureSpaceDto(getUserAuth(userID),
-                        true, true, !parseSharedState(newSharedState)), spaceID);
+                new ConfigureSpaceDto(true, true, !parseSharedState(newSharedState)), spaceID, getUserAuth(userID));
     }
 
     @When("the other user configures space")
     public void theOtherUserConfiguresSpace() {
         res = spaceController.configureSpace(
-                new ConfigureSpaceDto(getUserAuth(otherUserID),
-                        true, true, false), spaceID);
+                new ConfigureSpaceDto(true, true, false), spaceID, getUserAuth(otherUserID));
 
     }
 
@@ -114,7 +112,7 @@ public class ManageSpaceSteps extends Services {
 
     @When("the user queries the config")
     public void theUserQueriesTheConfig() {
-        res = spaceController.getSpaceConfig(getUserAuth(userID), spaceID);
+        res = spaceController.getSpaceConfig(spaceID, getUserAuth(userID));
     }
 
     @And("the config is correct.")
@@ -123,39 +121,39 @@ public class ManageSpaceSteps extends Services {
 
     @When("the other user queries the config")
     public void theOtherUserQueriesTheConfig() {
-        res = spaceController.getSpaceConfig(getUserAuth(otherUserID), spaceID);
+        res = spaceController.getSpaceConfig(spaceID, getUserAuth(otherUserID));
     }
 
     @When("the user configures the space to write access {string} and invite {string}")
     public void theUserConfiguresTheSpaceToWriteAccessAndInvite(String writeAccess, String inviteAccess) {
         res = spaceController.configureSpace(new ConfigureSpaceDto(
-                getUserAuth(userID), Boolean.parseBoolean(writeAccess), Boolean.parseBoolean(inviteAccess), true),
-                spaceID);
+                        Boolean.parseBoolean(writeAccess), Boolean.parseBoolean(inviteAccess), true),
+                spaceID, getUserAuth(userID));
     }
 
     @And("the config has write access {string} and invite {string}")
     public void theConfigHasWriteAccessAndInvite(String writeAccess, String inviteAccess) throws Exception {
-        res = spaceController.getSpaceConfig(getUserAuth(userID), spaceID);
+        res = spaceController.getSpaceConfig(spaceID, getUserAuth(userID));
         if (res == null || !res.hasBody() || res.getBody() == null) throw new Exception("Querying config failed");
-        var body = (GetSpaceConfigResponseDto)res.getBody();
+        var body = (GetSpaceConfigResponseDto) res.getBody();
 
         if (body.isUsersHaveWriteAccess() != Boolean.parseBoolean(writeAccess) || body.isUsersCanInvite() != Boolean.parseBoolean(inviteAccess))
-            throw new Exception("Error. Wrong config. Write access: "+body.isUsersHaveWriteAccess()+"  auth key access: "+body.isUsersCanInvite());
+            throw new Exception("Error. Wrong config. Write access: " + body.isUsersHaveWriteAccess() + "  auth key access: " + body.isUsersCanInvite());
     }
 
     @When("the other user configures the space")
     public void theOtherUserConfiguresTheSpace() {
-        res = spaceController.configureSpace(new ConfigureSpaceDto(getUserAuth(otherUserID), false, false, false), spaceID);
+        res = spaceController.configureSpace(new ConfigureSpaceDto(false, false, false), spaceID, getUserAuth(otherUserID));
     }
 
-    private GenericAuthDto getUserAuth(Long _userID){
+    private GenericAuthDto getUserAuth(Long _userID) {
         var session = sessionService.addSession(_userID);
         return new GenericAuthDto(_userID, session.getSessionKey());
     }
 
     @When("the user changes the auth key to {string}")
     public void theUserChangesTheAuthKeyTo(String authKey) {
-        res = spaceController.changeAuthKey(new ChangeAuthKeyDto(getUserAuth(userID), authKey), spaceID);
+        res = spaceController.changeAuthKey(new ChangeAuthKeyDto(authKey), spaceID, getUserAuth(userID));
     }
 
     @And("the auth key is {string}")
@@ -165,7 +163,7 @@ public class ManageSpaceSteps extends Services {
 
     @When("the other user changes the auth key")
     public void theOtherUserChangesTheAuthKey() {
-        res = spaceController.changeAuthKey(new ChangeAuthKeyDto(getUserAuth(otherUserID), "<Your ads here>"), spaceID);
+        res = spaceController.changeAuthKey(new ChangeAuthKeyDto("<Your ads here>"), spaceID, getUserAuth(otherUserID));
     }
 
     @And("the auth key remains unchanged")
@@ -174,11 +172,11 @@ public class ManageSpaceSteps extends Services {
     }
 
     public void checkAuthKey(String expected) throws Exception {
-        var result = spaceController.getAuthKey(new SpaceAuthKeyDto(getUserAuth(userID), spaceID));
+        var result = spaceController.getAuthKey(getUserAuth(userID), spaceID);
         if (!result.hasBody() || result.getBody() == null)
-            throw new Exception("Getting auth key failed. " + result.getStatusCode().value() + " -> "+result.getStatusCode().name());
-        var auth = (SpaceAuthKeyResponseDto)result.getBody();
+            throw new Exception("Getting auth key failed. " + result.getStatusCode().value() + " -> " + result.getStatusCode().name());
+        var auth = (SpaceAuthKeyResponseDto) result.getBody();
         if (auth == null || !auth.getAuthKey().equals(expected))
-            throw new Exception("Auth key expected: "+ expected+ " is not actual: "+auth.getAuthKey());
+            throw new Exception("Auth key expected: " + expected + " is not actual: " + auth.getAuthKey());
     }
 }

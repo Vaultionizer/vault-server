@@ -2,7 +2,6 @@ package com.vaultionizer.vaultserver.resource;
 
 import com.vaultionizer.vaultserver.model.db.SpaceModel;
 import com.vaultionizer.vaultserver.model.dto.GetSpaceConfigResponseDto;
-import com.vaultionizer.vaultserver.model.dto.GetSpacesResponseDto;
 import com.vaultionizer.vaultserver.model.dto.SpaceAuthKeyResponseDto;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;

@@ -1,6 +1,8 @@
 package com.vaultionizer.vaultserver.controllers;
 
 
+import com.vaultionizer.vaultserver.helpers.AccessCheckerUtil;
+import com.vaultionizer.vaultserver.model.dto.GenericAuthDto;
 import com.vaultionizer.vaultserver.model.dto.ReadRefFileDto;
 import com.vaultionizer.vaultserver.model.dto.UpdateRefFileDto;
 import com.vaultionizer.vaultserver.service.RefFileService;
@@ -23,6 +25,7 @@ public class RefFileController {
     private final UserAccessService userAccessService;
     private final SpaceService spaceService;
     private final RefFileService refFileService;
+    private final AccessCheckerUtil accessCheckerUtil;
 
     @Autowired
     public RefFileController(SessionService sessionService, UserAccessService userAccessService,
@@ -31,9 +34,10 @@ public class RefFileController {
         this.userAccessService = userAccessService;
         this.spaceService = spaceService;
         this.refFileService = refFileService;
+        accessCheckerUtil = new AccessCheckerUtil(sessionService, userAccessService, spaceService);
     }
 
-    @RequestMapping(value = "/api/refFile/read", method = RequestMethod.POST)
+    @PostMapping(value = "/api/refFile/{spaceID}/read")
     @ApiOperation(value = "Read the reference file of the specified space or if lastRead is older than last update on reference file, NOT_MODIFIED is sent as status.")
     @ApiResponses(value = {
             @ApiResponse(code = 200, message = "The response contains the content of the current ref file."),
@@ -42,33 +46,31 @@ public class RefFileController {
             @ApiResponse(code = 403, message = "Either the space with given ID does not exist or the user has no access to that space."),
             @ApiResponse(code = 500, message = "Inconsistencies on the server side. Should never be the case.")
     })
-    @ResponseBody ResponseEntity<?>
-    readRefFile(@RequestBody ReadRefFileDto req){
-        if (!sessionService.getSession(req.getAuth().getUserID(), req.getAuth().getSessionKey())){
-            return new ResponseEntity<>(null, HttpStatus.UNAUTHORIZED);
+    public @ResponseBody
+    ResponseEntity<?> // TODO
+    readRefFile(@RequestBody ReadRefFileDto req, @RequestHeader("xAuth") GenericAuthDto auth, @PathVariable Long spaceID) {
+        var status = accessCheckerUtil.checkPrivilegeLevel(auth, spaceID);
+        if (status != null) return new ResponseEntity<>(null, status);
+
+        Long refFileID = spaceService.getRefFileID(spaceID);
+        if (refFileID == -1L) {
+            return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
         }
 
-        if (userAccessService.userHasAccess(req.getAuth().getUserID(), req.getSpaceID())){
-            Long refFileID = spaceService.getRefFileID(req.getSpaceID());
-            if (refFileID == -1L) {
-                return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
-            }
-
-            // if the last fetched version is latest, just tell user not modified
-            if (req.getLastRead() != null && !refFileService.hasNewVersion(refFileID, req.getLastRead())){
-                return new ResponseEntity<>(null, HttpStatus.NOT_MODIFIED);
-            }
-            String content = refFileService.readRefFile(refFileID);
-            if (content == null){
-                return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
-            }
-            return new ResponseEntity<>(content, HttpStatus.OK);
+        // if the last fetched version is latest, just tell user not modified
+        if (req.getLastRead() != null && !refFileService.hasNewVersion(refFileID, req.getLastRead())) {
+            return new ResponseEntity<>(null, HttpStatus.NOT_MODIFIED);
         }
+        String content = refFileService.readRefFile(refFileID);
+        if (content == null) {
+            return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+        return new ResponseEntity<>(content, HttpStatus.OK);
 
-        return new ResponseEntity<>(null, HttpStatus.FORBIDDEN);
+
     }
 
-    @RequestMapping(value = "/api/refFile/update", method = RequestMethod.POST)
+    @PutMapping(value = "/api/refFile/{spaceID}/update")
     @ApiOperation(value = "Update the reference file of the specified space.")
     @ApiResponses(value = {
             @ApiResponse(code = 200, message = "The response contains the content of the current ref file."),
@@ -77,28 +79,22 @@ public class RefFileController {
             @ApiResponse(code = 406, message = "The user has no write access."),
             @ApiResponse(code = 500, message = "Inconsistencies on the server side. Should never be the case.")
     })
-    @ResponseBody ResponseEntity<?>
-    updateRefFile(@RequestBody UpdateRefFileDto req){
-        if (!sessionService.getSession(req.getAuth().getUserID(), req.getAuth().getSessionKey())){
-            return new ResponseEntity<>(null, HttpStatus.UNAUTHORIZED);
+    public @ResponseBody
+    ResponseEntity<?> // TODO
+    updateRefFile(@RequestBody UpdateRefFileDto req, @RequestHeader("xAuth") GenericAuthDto auth, @PathVariable Long spaceID) {
+        var status = accessCheckerUtil.checkWriteAccess(auth, spaceID);
+        if (status != null) return new ResponseEntity<>(null, status);
+
+        Long refFileID = spaceService.getRefFileID(spaceID);
+        if (refFileID == -1L) {
+            return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
         }
-
-        if (userAccessService.userHasAccess(req.getAuth().getUserID(), req.getSpaceID())){
-            if (!spaceService.userHasWriteAccess(req.getSpaceID(), req.getAuth().getUserID())){
-                return new ResponseEntity<>(null, HttpStatus.NOT_ACCEPTABLE);
-            }
-
-            Long refFileID = spaceService.getRefFileID(req.getSpaceID());
-            if (refFileID == -1L) {
-                return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
-            }
-            boolean success = refFileService.updateRefFile(refFileID, req.getContent());
-            if (!success){
-                return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
-            }
-            return new ResponseEntity<>(null, HttpStatus.OK);
+        boolean success = refFileService.updateRefFile(refFileID, req.getContent());
+        if (!success) {
+            return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
         }
+        return new ResponseEntity<>(null, HttpStatus.OK);
 
-        return new ResponseEntity<>(null, HttpStatus.FORBIDDEN);
+
     }
 }
