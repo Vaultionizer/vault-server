@@ -17,10 +17,17 @@ public class AccessCheckerUtil {
         this.spaceService = spaceService;
     }
 
-    public HttpStatus checkAccess(GenericAuthDto auth, Long spaceID) {
+    public HttpStatus checkAuthenticated(GenericAuthDto auth) {
+        if (auth == null) return HttpStatus.BAD_REQUEST;
         if (!sessionService.getSession(auth.getUserID(), auth.getSessionKey())) {
             return HttpStatus.UNAUTHORIZED;
         }
+        return null;
+    }
+
+    public HttpStatus checkAccess(GenericAuthDto auth, Long spaceID) {
+        var status = checkAuthenticated(auth);
+        if (status != null) return status;
         if (spaceService.checkDeleted(spaceID) ||
                 !userAccessService.userHasAccess(auth.getUserID(), spaceID)) {
             return HttpStatus.FORBIDDEN;

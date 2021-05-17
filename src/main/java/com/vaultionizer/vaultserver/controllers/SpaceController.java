@@ -48,9 +48,8 @@ public class SpaceController {
     public @ResponseBody
     ResponseEntity<?>
     getAllSpaces(@RequestHeader("xAuth") GenericAuthDto auth) {
-        if (!sessionService.getSession(auth.getUserID(), auth.getSessionKey())) {
-            return new ResponseEntity<>(null, HttpStatus.UNAUTHORIZED);
-        }
+        var status = accessCheckerUtil.checkAuthenticated(auth);
+        if (status != null) return new ResponseEntity<>(null, status);
         return new ResponseEntity<>(
                 spaceService.getSpacesAccessible(auth.getUserID()), HttpStatus.OK);
     }
@@ -66,9 +65,9 @@ public class SpaceController {
     public @ResponseBody
     ResponseEntity<?>
     createSpace(@RequestBody CreateSpaceDto req, @RequestHeader("xAuth") GenericAuthDto auth) {
-        if (!sessionService.getSession(auth.getUserID(), auth.getSessionKey())) {
-            return new ResponseEntity<>(null, HttpStatus.UNAUTHORIZED);
-        }
+        var status = accessCheckerUtil.checkAuthenticated(auth);
+        if (status != null) return new ResponseEntity<>(null, status);
+
         Long spaceID = spaceService.createSpace(auth.getUserID(), req.getReferenceFile(), req.isPrivate(),
                 req.getUsersWriteAccess(), req.getUsersAuthAccess(), req.getAuthKey());
 
@@ -85,9 +84,8 @@ public class SpaceController {
     public @ResponseBody
     ResponseEntity<?>
     joinSpace(@RequestBody JoinSpaceDto req, @RequestHeader("xAuth") GenericAuthDto auth, @PathVariable Long spaceID) {
-        if (!sessionService.getSession(auth.getUserID(), auth.getSessionKey())) {
-            return new ResponseEntity<>(null, HttpStatus.UNAUTHORIZED);
-        }
+        var status = accessCheckerUtil.checkAuthenticated(auth);
+        if (status != null) return new ResponseEntity<>(null, status);
 
         if (spaceService.checkSpaceCredentials(spaceID, req.getAuthKey())) {
             userAccessService.addUserAccess(spaceID, auth.getUserID());
@@ -108,9 +106,8 @@ public class SpaceController {
     public @ResponseBody
     ResponseEntity<?>
     quitSpace(@PathVariable Long spaceID, @RequestHeader("xAuth") GenericAuthDto auth) {
-        if (!sessionService.getSession(auth.getUserID(), auth.getSessionKey())) {
-            return new ResponseEntity<>(null, HttpStatus.UNAUTHORIZED);
-        }
+        var status = accessCheckerUtil.checkAuthenticated(auth);
+        if (status != null) return new ResponseEntity<>(null, status);
         if (spaceService.checkCreator(spaceID, auth.getUserID())) {
             return new ResponseEntity<>(null, HttpStatus.NOT_ACCEPTABLE);
         }
@@ -133,7 +130,7 @@ public class SpaceController {
     public @ResponseBody
     ResponseEntity<?>
     getAuthKey(@RequestHeader("xAuth") GenericAuthDto auth, @PathVariable Long spaceID) {
-        HttpStatus status = accessCheckerUtil.checkAuthKeyAccess(auth, spaceID);
+        var status = accessCheckerUtil.checkAuthKeyAccess(auth, spaceID);
         if (status != null) return new ResponseEntity<>(null, status);
 
         var authKey = spaceService.getSpaceAuthKey(spaceID);
@@ -154,7 +151,7 @@ public class SpaceController {
     public @ResponseBody
     ResponseEntity<?>
     configureSpace(@RequestBody ConfigureSpaceDto req, @PathVariable Long spaceID, @RequestHeader("xAuth") GenericAuthDto auth) {
-        HttpStatus status = accessCheckerUtil.checkPrivilegeLevel(auth, spaceID);
+        var status = accessCheckerUtil.checkPrivilegeLevel(auth, spaceID);
         if (status != null) return new ResponseEntity<>(null, status);
         if (req.getSharedSpace() != null)
             spaceService.changeSharedState(spaceID, auth.getUserID(), req.getSharedSpace());
@@ -175,7 +172,7 @@ public class SpaceController {
     public @ResponseBody
     ResponseEntity<?>
     kickUsers(@PathVariable Long spaceID, @RequestHeader("xAuth") GenericAuthDto auth) {
-        HttpStatus status = accessCheckerUtil.checkPrivilegeLevel(auth, spaceID);
+        var status = accessCheckerUtil.checkPrivilegeLevel(auth, spaceID);
         if (status != null) return new ResponseEntity<>(null, status);
 
         userAccessService.kickAll(spaceID, auth.getUserID());
@@ -195,7 +192,7 @@ public class SpaceController {
     public @ResponseBody
     ResponseEntity<?>
     changeAuthKey(@RequestBody ChangeAuthKeyDto req, @PathVariable Long spaceID, @RequestHeader("xAuth") GenericAuthDto auth) {
-        HttpStatus status = accessCheckerUtil.checkPrivilegeLevel(auth, spaceID);
+        var status = accessCheckerUtil.checkPrivilegeLevel(auth, spaceID);
         if (status != null) return new ResponseEntity<>(null, status);
 
         spaceService.changeAuthKey(spaceID, req.getAuthKey());
@@ -214,7 +211,7 @@ public class SpaceController {
     public @ResponseBody
     ResponseEntity<?>
     getSpaceConfig(@PathVariable Long spaceID, @RequestHeader("xAuth") GenericAuthDto auth) {
-        HttpStatus status = accessCheckerUtil.checkAccess(auth, spaceID);
+        var status = accessCheckerUtil.checkAccess(auth, spaceID);
         if (status != null) return new ResponseEntity<>(null, status);
 
         return new ResponseEntity<>(spaceService.getSpaceConfig(spaceID), HttpStatus.OK);
@@ -233,9 +230,8 @@ public class SpaceController {
     public @ResponseBody
     ResponseEntity<?>
     deleteSpace(@PathVariable Long spaceID, @RequestHeader("xAuth") GenericAuthDto auth) {
-        if (!sessionService.getSession(auth.getUserID(), auth.getSessionKey())) {
-            return new ResponseEntity<>(null, HttpStatus.UNAUTHORIZED);
-        }
+        var status = accessCheckerUtil.checkAuthenticated(auth);
+        if (status != null) return new ResponseEntity<>(null, status);
 
         if (!userAccessService.userHasAccess(auth.getUserID(), spaceID) ||
                 !spaceService.checkCreator(spaceID, auth.getUserID())) {

@@ -1,6 +1,7 @@
 package com.vaultionizer.vaultserver.controllers;
 
 
+import com.vaultionizer.vaultserver.helpers.AccessCheckerUtil;
 import com.vaultionizer.vaultserver.model.dto.GenericAuthDto;
 import com.vaultionizer.vaultserver.model.dto.ReadRefFileDto;
 import com.vaultionizer.vaultserver.model.dto.UpdateRefFileDto;
@@ -24,6 +25,7 @@ public class RefFileController {
     private final UserAccessService userAccessService;
     private final SpaceService spaceService;
     private final RefFileService refFileService;
+    private final AccessCheckerUtil accessCheckerUtil;
 
     @Autowired
     public RefFileController(SessionService sessionService, UserAccessService userAccessService,
@@ -32,6 +34,7 @@ public class RefFileController {
         this.userAccessService = userAccessService;
         this.spaceService = spaceService;
         this.refFileService = refFileService;
+        accessCheckerUtil = new AccessCheckerUtil(sessionService, userAccessService, spaceService);
     }
 
     @PostMapping(value = "/api/refFile/{spaceID}/read")
@@ -44,30 +47,27 @@ public class RefFileController {
             @ApiResponse(code = 500, message = "Inconsistencies on the server side. Should never be the case.")
     })
     public @ResponseBody
-    ResponseEntity<?>
+    ResponseEntity<?> // TODO
     readRefFile(@RequestBody ReadRefFileDto req, @RequestHeader("xAuth") GenericAuthDto auth, @PathVariable Long spaceID) {
-        if (!sessionService.getSession(auth.getUserID(), auth.getSessionKey())) {
-            return new ResponseEntity<>(null, HttpStatus.UNAUTHORIZED);
+        var status = accessCheckerUtil.checkPrivilegeLevel(auth, spaceID);
+        if (status != null) return new ResponseEntity<>(null, status);
+
+        Long refFileID = spaceService.getRefFileID(spaceID);
+        if (refFileID == -1L) {
+            return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
         }
 
-        if (userAccessService.userHasAccess(auth.getUserID(), spaceID)) {
-            Long refFileID = spaceService.getRefFileID(spaceID);
-            if (refFileID == -1L) {
-                return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
-            }
-
-            // if the last fetched version is latest, just tell user not modified
-            if (req.getLastRead() != null && !refFileService.hasNewVersion(refFileID, req.getLastRead())) {
-                return new ResponseEntity<>(null, HttpStatus.NOT_MODIFIED);
-            }
-            String content = refFileService.readRefFile(refFileID);
-            if (content == null) {
-                return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
-            }
-            return new ResponseEntity<>(content, HttpStatus.OK);
+        // if the last fetched version is latest, just tell user not modified
+        if (req.getLastRead() != null && !refFileService.hasNewVersion(refFileID, req.getLastRead())) {
+            return new ResponseEntity<>(null, HttpStatus.NOT_MODIFIED);
         }
+        String content = refFileService.readRefFile(refFileID);
+        if (content == null) {
+            return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+        return new ResponseEntity<>(content, HttpStatus.OK);
 
-        return new ResponseEntity<>(null, HttpStatus.FORBIDDEN);
+
     }
 
     @PutMapping(value = "/api/refFile/{spaceID}/update")
@@ -80,28 +80,21 @@ public class RefFileController {
             @ApiResponse(code = 500, message = "Inconsistencies on the server side. Should never be the case.")
     })
     public @ResponseBody
-    ResponseEntity<?>
+    ResponseEntity<?> // TODO
     updateRefFile(@RequestBody UpdateRefFileDto req, @RequestHeader("xAuth") GenericAuthDto auth, @PathVariable Long spaceID) {
-        if (!sessionService.getSession(auth.getUserID(), auth.getSessionKey())) {
-            return new ResponseEntity<>(null, HttpStatus.UNAUTHORIZED);
+        var status = accessCheckerUtil.checkWriteAccess(auth, spaceID);
+        if (status != null) return new ResponseEntity<>(null, status);
+
+        Long refFileID = spaceService.getRefFileID(spaceID);
+        if (refFileID == -1L) {
+            return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
         }
-
-        if (userAccessService.userHasAccess(auth.getUserID(), spaceID)) {
-            if (!spaceService.userHasWriteAccess(spaceID, auth.getUserID())) {
-                return new ResponseEntity<>(null, HttpStatus.NOT_ACCEPTABLE);
-            }
-
-            Long refFileID = spaceService.getRefFileID(spaceID);
-            if (refFileID == -1L) {
-                return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
-            }
-            boolean success = refFileService.updateRefFile(refFileID, req.getContent());
-            if (!success) {
-                return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
-            }
-            return new ResponseEntity<>(null, HttpStatus.OK);
+        boolean success = refFileService.updateRefFile(refFileID, req.getContent());
+        if (!success) {
+            return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
         }
+        return new ResponseEntity<>(null, HttpStatus.OK);
 
-        return new ResponseEntity<>(null, HttpStatus.FORBIDDEN);
+
     }
 }

@@ -1,5 +1,6 @@
 package com.vaultionizer.vaultserver.controllers;
 
+import com.vaultionizer.vaultserver.helpers.AccessCheckerUtil;
 import com.vaultionizer.vaultserver.model.dto.GenericAuthDto;
 import com.vaultionizer.vaultserver.service.SessionService;
 import io.swagger.annotations.Api;
@@ -18,10 +19,12 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 public class SessionController {
     private final SessionService sessionService;
+    private final AccessCheckerUtil accessCheckerUtil;
 
     @Autowired
     public SessionController(SessionService sessionService) {
         this.sessionService = sessionService;
+        accessCheckerUtil = new AccessCheckerUtil(sessionService, null, null);
     }
 
     @PutMapping(value = "/api/session/renew")
@@ -33,9 +36,8 @@ public class SessionController {
     public @ResponseBody
     ResponseEntity<?>
     renewSession(@RequestHeader("xAuth") GenericAuthDto auth) {
-        if (!sessionService.getSession(auth.getUserID(), auth.getSessionKey())) {
-            return new ResponseEntity<>(null, HttpStatus.FORBIDDEN);
-        } // if the session exists, the session has just indirectly been renewed.
+        var status = accessCheckerUtil.checkAuthenticated(auth);
+        if (status != null) return new ResponseEntity<>(null, status);
         return new ResponseEntity<>(null, HttpStatus.OK);
     }
 }

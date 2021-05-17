@@ -58,6 +58,7 @@ public class FileController {
     public @ResponseBody
     ResponseEntity<?>
     uploadFiles(@RequestBody FileUploadDto req, @RequestHeader("xAuth") GenericAuthDto auth, @PathVariable("spaceID") Long spaceID) {
+        if (auth == null) return new ResponseEntity<>(null, HttpStatus.BAD_REQUEST);
         Long sessionID = sessionService.getSessionID(auth.getUserID(), auth.getSessionKey());
         if (sessionID == -1) {
             return new ResponseEntity<>(null, HttpStatus.UNAUTHORIZED);
@@ -104,6 +105,7 @@ public class FileController {
     public @ResponseBody
     ResponseEntity<?>
     downloadFile(@RequestHeader("xAuth") GenericAuthDto auth, @PathVariable Long spaceID, @PathVariable Long saveIndex) {
+        if (auth == null) return new ResponseEntity<>(null, HttpStatus.BAD_REQUEST);
         String websocketToken = sessionService.
                 getSessionWebsocketToken(auth.getUserID(), auth.getSessionKey());
         if (websocketToken == null) {
@@ -142,7 +144,7 @@ public class FileController {
     public @ResponseBody
     ResponseEntity<?>
     deleteFile(@RequestHeader("xAuth") GenericAuthDto auth, @PathVariable Long spaceID, @PathVariable Long saveIndex) {
-        HttpStatus status = accessCheckerUtil.checkWriteAccess(auth, spaceID);
+        var status = accessCheckerUtil.checkWriteAccess(auth, spaceID);
         if (status != null) return new ResponseEntity<>(null, status);
 
         boolean success = fileService.deleteFile(spaceID, saveIndex);
@@ -165,7 +167,7 @@ public class FileController {
     public @ResponseBody
     ResponseEntity<?>
     updateFile(@RequestHeader("xAuth") GenericAuthDto auth, @PathVariable Long spaceID, @PathVariable Long saveIndex) {
-        HttpStatus status = accessCheckerUtil.checkWriteAccess(auth, spaceID);
+        var status = accessCheckerUtil.checkWriteAccess(auth, spaceID);
         if (status != null) return new ResponseEntity<>(null, status);
 
         boolean granted = pendingUploadService.updateFile(spaceID,

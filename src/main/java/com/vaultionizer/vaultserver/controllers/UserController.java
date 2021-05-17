@@ -1,5 +1,6 @@
 package com.vaultionizer.vaultserver.controllers;
 
+import com.vaultionizer.vaultserver.helpers.AccessCheckerUtil;
 import com.vaultionizer.vaultserver.helpers.Config;
 import com.vaultionizer.vaultserver.model.dto.*;
 import com.vaultionizer.vaultserver.service.*;
@@ -24,6 +25,7 @@ public class UserController {
     private final SpaceController spaceController;
     private final UserAccessService userAccessService;
     private final PendingUploadService pendingUploadService;
+    private final AccessCheckerUtil accessCheckerUtil;
 
     @Autowired
     public UserController(UserService userService, SessionService sessionService,
@@ -35,6 +37,7 @@ public class UserController {
         this.spaceController = spaceController;
         this.userAccessService = userAccessService;
         this.pendingUploadService = pendingUploadService;
+        accessCheckerUtil = new AccessCheckerUtil(sessionService, userAccessService, spaceService);
     }
 
 
@@ -97,8 +100,9 @@ public class UserController {
     })
     public @ResponseBody
     ResponseEntity<?>
-    logoutUser(@RequestBody AuthWrapperDto req) {
-        GenericAuthDto auth = req.getAuth();
+    logoutUser(@RequestHeader("xAuth") GenericAuthDto auth) {
+        var status = accessCheckerUtil.checkAuthenticated(auth);
+        if (status != null) return new ResponseEntity<>(null, status);
         sessionService.deleteSession(auth.getUserID(), auth.getSessionKey());
         return new ResponseEntity<>(null, HttpStatus.OK);
     }
@@ -112,9 +116,8 @@ public class UserController {
     public @ResponseBody
     ResponseEntity<?>
     deleteUser(@RequestHeader("xAuth") GenericAuthDto auth) {
-        if (!sessionService.getSession(auth.getUserID(), auth.getSessionKey())) {
-            return new ResponseEntity<>(null, HttpStatus.UNAUTHORIZED);
-        }
+        var status = accessCheckerUtil.checkAuthenticated(auth);
+        if (status != null) return new ResponseEntity<>(null, status);
         userService.setDeleted(auth.getUserID());
         pendingUploadService.deletePendingUploadsByUser(auth.getUserID());
         sessionService.deleteAllSessionsWithUser(auth.getUserID());
