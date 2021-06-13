@@ -51,7 +51,7 @@ public class RefFileController {
     public @ResponseBody
     ResponseEntity<?> // TODO
     readRefFile(@RequestBody ReadRefFileDto req, @RequestHeader("xAuth") GenericAuthDto auth, @PathVariable Long spaceID) {
-        var status = accessCheckerUtil.checkPrivilegeLevel(auth, spaceID);
+        var status = accessCheckerUtil.checkAccess(auth, spaceID);
         if (status != null) return new ResponseEntity<>(null, status);
 
         Long refFileID = spaceService.getRefFileID(spaceID);
