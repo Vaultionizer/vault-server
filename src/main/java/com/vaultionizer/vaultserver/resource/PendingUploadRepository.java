@@ -17,6 +17,10 @@ public interface PendingUploadRepository extends JpaRepository<PendingUploadMode
     @Query("SELECT COUNT(it) FROM PendingUploadModel it WHERE it.spaceID = ?1")
     long countBySpace(Long spaceID);
 
+
+    @Query("SELECT COUNT(it) FROM PendingUploadModel it WHERE it.spaceID = ?1 AND it.saveIndex = ?2")
+    int isPending(Long spaceID, Long saveIndex);
+
     @Transactional
     @Modifying
     @Query("DELETE FROM PendingUploadModel it WHERE it.spaceID = ?1")

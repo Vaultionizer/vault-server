@@ -5,6 +5,9 @@ public class LoginUserResponseDto {
     private String sessionKey;
     private String websocketToken;
 
+    public LoginUserResponseDto() {
+    }
+
     public LoginUserResponseDto(Long userID, String sessionKey, String websocketToken) {
         this.userID = userID;
         this.sessionKey = sessionKey;

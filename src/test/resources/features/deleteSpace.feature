@@ -1,4 +1,5 @@
 Feature: A space can be deleted
+
   Scenario: Successful deletion
     Given the user is logged in properly
     And the user created the space

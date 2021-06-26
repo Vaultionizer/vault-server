@@ -1,6 +1,7 @@
 package com.vaultionizer.vaultserver.resource;
 
 import com.vaultionizer.vaultserver.model.db.SpaceModel;
+import com.vaultionizer.vaultserver.model.dto.GetSpaceConfigResponseDto;
 import com.vaultionizer.vaultserver.model.dto.SpaceAuthKeyResponseDto;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
@@ -32,4 +33,27 @@ public interface SpaceRepository extends JpaRepository<SpaceModel, Long> {
     @Modifying
     @Query("DELETE FROM SpaceModel it WHERE it.spaceID = ?1")
     void deleteSpace(Long spaceID);
+
+    @Query("SELECT COUNT(it) FROM SpaceModel it WHERE it.spaceID = ?1 " +
+            "AND (it.creatorID = ?2 OR it.usersHaveWriteAccess = true)")
+    int getUserWriteAccess(Long spaceID, Long userID); // user has write access if creator or normal users have write access
+
+    @Query("SELECT COUNT(it) FROM SpaceModel it WHERE it.spaceID = ?1 " +
+            "AND (it.creatorID = ?2 OR it.usersCanGetAuthKey = true)")
+    int getUserAuthKeyAccess(Long spaceID, Long userID); // user has access to auth key if creator or normal users have access to auth key
+
+    @Transactional
+    @Modifying
+    @Query("UPDATE SpaceModel it SET it.usersHaveWriteAccess = ?2, it.usersCanGetAuthKey = ?3 WHERE it.spaceID = ?1")
+    void configureSpace(Long spaceID, boolean writeAccess, boolean authKeyAccess);
+
+    @Query("SELECT new com.vaultionizer.vaultserver.model.dto.GetSpaceConfigResponseDto(it.isPrivateSpace, it.usersHaveWriteAccess, it.usersCanGetAuthKey) " +
+            "FROM SpaceModel it WHERE it.spaceID = ?1")
+    GetSpaceConfigResponseDto getSpaceConfig(Long spaceID);
+
+
+    @Transactional
+    @Modifying
+    @Query("UPDATE SpaceModel it SET it.authKey = ?2 WHERE it.spaceID = ?1")
+    void updateAuthKey(Long spaceID, String authKey);
 }

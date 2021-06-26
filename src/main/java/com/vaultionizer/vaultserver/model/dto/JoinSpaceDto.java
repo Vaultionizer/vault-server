@@ -1,22 +1,13 @@
 package com.vaultionizer.vaultserver.model.dto;
 
 public class JoinSpaceDto {
-    private GenericAuthDto auth;
-    private Long spaceID;
     private String authKey;
 
-    public GenericAuthDto getAuth() {
-        return auth;
+    public JoinSpaceDto() {
     }
 
-    public JoinSpaceDto(GenericAuthDto auth, Long spaceID, String authKey) {
-        this.auth = auth;
-        this.spaceID = spaceID;
+    public JoinSpaceDto(String authKey) {
         this.authKey = authKey;
-    }
-
-    public Long getSpaceID() {
-        return spaceID;
     }
 
     public String getAuthKey() {

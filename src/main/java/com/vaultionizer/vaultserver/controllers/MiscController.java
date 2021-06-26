@@ -21,22 +21,24 @@ public class MiscController {
     @ApiResponses(value = {
             @ApiResponse(code = 200, message = "The server's version is returned.")
     })
-    @ResponseBody ResponseEntity<?>
-    getVersion(){
+    public @ResponseBody
+    ResponseEntity<?>
+    getVersion() {
         return new ResponseEntity<>(Config.VERSION,
                 HttpStatus.OK);
     }
 
-    @RequestMapping(value = "/api/misc/checkAuthenticated", method = RequestMethod.POST)
+    @PostMapping(value = "/api/misc/checkAuthenticated")
     @ApiOperation(value = "Returns whether the authentication for the server is correct.")
     @ApiResponses(value = {
             @ApiResponse(code = 202, message = "The authentication is correct."),
             @ApiResponse(code = 403, message = "The authentication failed.")
     })
-    @ResponseBody ResponseEntity<?>
-    checkAuthenticated(@RequestBody CheckAuthenticatedDto req){
+    public @ResponseBody
+    ResponseEntity<?>
+    checkAuthenticated(@RequestBody CheckAuthenticatedDto req) {
         return new ResponseEntity<>((!Config.VERSION.isHasAuthKey() ||
                 (Config.SERVER_USER.equals(req.getServerUser()) && Config.SERVER_AUTH.equals(req.getServerAuthKey())))
-            ? HttpStatus.ACCEPTED : HttpStatus.FORBIDDEN);
+                ? HttpStatus.ACCEPTED : HttpStatus.FORBIDDEN);
     }
 }

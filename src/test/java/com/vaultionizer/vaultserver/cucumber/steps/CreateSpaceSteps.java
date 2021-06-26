@@ -4,10 +4,8 @@ import com.vaultionizer.vaultserver.controllers.FileController;
 import com.vaultionizer.vaultserver.controllers.SessionController;
 import com.vaultionizer.vaultserver.controllers.SpaceController;
 import com.vaultionizer.vaultserver.controllers.UserController;
-import com.vaultionizer.vaultserver.cucumber.steps.Services;
 import com.vaultionizer.vaultserver.model.dto.CreateSpaceDto;
 import com.vaultionizer.vaultserver.model.dto.GenericAuthDto;
-import com.vaultionizer.vaultserver.model.dto.LoginUserResponseDto;
 import com.vaultionizer.vaultserver.service.*;
 import com.vaultionizer.vaultserver.testdata.UserTestData;
 import io.cucumber.java.en.And;
@@ -50,28 +48,28 @@ public class CreateSpaceSteps extends Services {
 
     @When("the user wants to create a space")
     public void theUserWantsToCreateASpace() {
-        res = spaceController.createSpace(new CreateSpaceDto(new GenericAuthDto(userID, sessionKey), isPrivate, authKey, ""));
+        res = spaceController.createSpace(new CreateSpaceDto(isPrivate, authKey, ""), new GenericAuthDto(userID, sessionKey));
     }
 
     @Then("the status code of create space is {int}")
-    public void theStatusCodeOfCreateSpaceIs(int status) throws Throwable{
+    public void theStatusCodeOfCreateSpaceIs(int status) throws Throwable {
         if (res.getStatusCode().value() != status) throw new Throwable(String.valueOf(res.getStatusCodeValue()));
     }
 
     @And("the returned ID is legitimate")
-    public void theReturnedIDIsLegitimate() throws Throwable{
-        spaceID = (Long)res.getBody();
+    public void theReturnedIDIsLegitimate() throws Throwable {
+        spaceID = (Long) res.getBody();
         if (spaceID == null) throw new Throwable("No space created");
     }
 
     @And("the space is private")
-    public void theSpaceIsPrivate() throws Throwable{
+    public void theSpaceIsPrivate() throws Throwable {
         if (!spaceService.getSpace(spaceID, userID).isPrivate()) throw new Throwable("Not private");
     }
 
     @And("the user has access")
-    public void theUserHasAccess() throws Throwable{
-        if(!userAccessService.userHasAccess(userID, spaceID)) throw new Throwable("Has no access");
+    public void theUserHasAccess() throws Throwable {
+        if (!userAccessService.userHasAccess(userID, spaceID)) throw new Throwable("Has no access");
     }
 
     @And("the space is shared")

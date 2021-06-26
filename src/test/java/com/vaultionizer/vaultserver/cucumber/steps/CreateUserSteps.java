@@ -4,7 +4,6 @@ import com.vaultionizer.vaultserver.controllers.FileController;
 import com.vaultionizer.vaultserver.controllers.SessionController;
 import com.vaultionizer.vaultserver.controllers.SpaceController;
 import com.vaultionizer.vaultserver.controllers.UserController;
-import com.vaultionizer.vaultserver.cucumber.steps.Services;
 import com.vaultionizer.vaultserver.model.dto.LoginUserResponseDto;
 import com.vaultionizer.vaultserver.model.dto.RegisterUserDto;
 import com.vaultionizer.vaultserver.service.*;
@@ -48,12 +47,12 @@ public class CreateUserSteps extends Services {
 
 
     @And("the user has a sessionKey")
-    public void theUserHasASessionKey() throws Throwable{
+    public void theUserHasASessionKey() throws Throwable {
         if (responseDto.getSessionKey() == null) throw new Throwable("No sessionKey");
     }
 
     @And("the user has a websocketToken")
-    public void theUserHasAWebsocketToken() throws Throwable{
+    public void theUserHasAWebsocketToken() throws Throwable {
         if (responseDto.getWebsocketToken() == null) throw new Throwable("No webSocketToken...");
     }
 
@@ -61,11 +60,11 @@ public class CreateUserSteps extends Services {
     @Then("the status code of register is {int}")
     public void theStatusCodeOfRegisterIs(int status) throws Throwable {
         if (res.getStatusCode().value() != status) throw new Throwable(String.valueOf(res.getStatusCode().value()));
-        responseDto = (LoginUserResponseDto)res.getBody();
+        responseDto = (LoginUserResponseDto) res.getBody();
     }
 
     @And("the user has a userID")
-    public void theUserHasAUserID() throws Throwable{
+    public void theUserHasAUserID() throws Throwable {
         if (responseDto.getUserID() == null) throw new Throwable("No userID");
     }
 
@@ -82,8 +81,8 @@ public class CreateUserSteps extends Services {
     @And("the key is long enough")
     public void theKeyIsLongEnough() {
         this.key = "------------------------------------" +
-                "------------------------------------------------------------"+
-                "------------------------------------------------------------"+
+                "------------------------------------------------------------" +
+                "------------------------------------------------------------" +
                 "------------------------------------------------------------";
     }
 

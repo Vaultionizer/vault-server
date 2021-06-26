@@ -2,8 +2,11 @@ package com.vaultionizer.vaultserver.model.dto;
 
 // A lot of requests need a sessionKey and the user's id
 public class GenericAuthDto {
-    private final Long userID;
-    private final String sessionKey;
+    private Long userID;
+    private String sessionKey;
+
+    public GenericAuthDto() {
+    }
 
     public GenericAuthDto(Long userID, String sessionKey) {
         this.userID = userID;

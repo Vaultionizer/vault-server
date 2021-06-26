@@ -22,24 +22,36 @@ public class SpaceModel {
     @NotNull(message = "Boolean whether it is a private space cannot be null!")
     private boolean isPrivateSpace;
 
+    @NotNull(message = "Boolean whether normal users have write access cannot be null!")
+    private boolean usersHaveWriteAccess;
+
+    @NotNull(message = "Boolean whether normal users can obtain auth key cannot be null!")
+    private boolean usersCanGetAuthKey;
+
     private String authKey;
 
     public SpaceModel() {
     }
 
-    public SpaceModel(Long spaceID, Long creatorID, Long refFileID, boolean isPrivateSpace, String authKey) {
+    public SpaceModel(Long spaceID, Long creatorID, Long refFileID, boolean isPrivateSpace, boolean usersHaveWriteAccess,
+                      boolean usersCanGetAuthKey, String authKey) {
         this.spaceID = spaceID;
         this.creatorID = creatorID;
         this.refFileID = refFileID;
         this.isPrivateSpace = isPrivateSpace;
         this.authKey = authKey;
+        this.usersHaveWriteAccess = usersHaveWriteAccess;
+        this.usersCanGetAuthKey = usersCanGetAuthKey;
     }
 
-    public SpaceModel(Long creatorID, Long refFileID, boolean isPrivateSpace, String authKey) {
+    public SpaceModel(Long creatorID, Long refFileID, boolean isPrivateSpace, boolean usersHaveWriteAccess,
+                      boolean usersCanGetAuthKey, String authKey) {
         this.creatorID = creatorID;
         this.refFileID = refFileID;
         this.isPrivateSpace = isPrivateSpace;
         this.authKey = authKey;
+        this.usersHaveWriteAccess = usersHaveWriteAccess;
+        this.usersCanGetAuthKey = usersCanGetAuthKey;
     }
 
     public SpaceModel(Long creatorID, Long refFileID) {
@@ -66,5 +78,17 @@ public class SpaceModel {
 
     public String getAuthKey() {
         return authKey;
+    }
+
+    public boolean getUsersHaveWriteAccess() {
+        return usersHaveWriteAccess;
+    }
+
+    public boolean getUsersCanGetAuthKey() {
+        return usersCanGetAuthKey;
+    }
+
+    public void setPrivateSpace(boolean privateSpace) {
+        isPrivateSpace = privateSpace;
     }
 }

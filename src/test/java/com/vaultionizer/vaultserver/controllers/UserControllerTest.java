@@ -10,12 +10,10 @@ import org.springframework.http.ResponseEntity;
 
 import java.util.Objects;
 
-import static org.mockito.ArgumentMatchers.any;
-
 
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 @DisplayName("User Controller")
-public class UserControllerTest {
+class UserControllerTest {
 
     @MockBean
     private UserService userService;
@@ -39,7 +37,7 @@ public class UserControllerTest {
     private UserController userController;
 
     @BeforeEach
-    private void initialize(){
+    private void initialize() {
         userService = Mockito.mock(UserService.class);
         spaceService = Mockito.mock(SpaceService.class);
         sessionService = Mockito.mock(SessionService.class);
@@ -68,51 +66,51 @@ public class UserControllerTest {
     // testing register controller
     @Test
     @DisplayName("Tests create user with key and ref file being null.")
-    public void createUserKeyRefFileNull(){
+    void createUserKeyRefFileNull() {
         ResponseEntity<?> res = userController.createUser(UserTestData.registerData[0]);
-        Assertions.assertEquals(res.getStatusCodeValue(), 400);
+        Assertions.assertEquals(400, res.getStatusCodeValue());
     }
 
     @Test
     @DisplayName("Tests create user with key and ref file being empty.")
-    public void createUserKeyRefFileEmpty(){
+    void createUserKeyRefFileEmpty() {
         ResponseEntity<?> res = userController.createUser(UserTestData.registerData[1]);
-        Assertions.assertEquals(res.getStatusCodeValue(), 400);
+        Assertions.assertEquals(400, res.getStatusCodeValue());
     }
 
     @Test
     @DisplayName("Tests create user with key and ref file being empty.")
-    public void createUserKeyTooShort(){
+    void createUserKeyTooShort() {
         ResponseEntity<?> res = userController.createUser(UserTestData.registerData[2]);
-        Assertions.assertEquals(res.getStatusCodeValue(), 400);
+        Assertions.assertEquals(400, res.getStatusCodeValue());
     }
 
     @Test
     @DisplayName("Tests create user with key matching the constraints.")
-    public void createUser(){
+    void createUser() {
         ResponseEntity<?> res = userController.createUser(UserTestData.registerData[3]);
-        Assertions.assertEquals(res.getStatusCodeValue(), 201);
+        Assertions.assertEquals(201, res.getStatusCodeValue());
         Assertions.assertTrue(res.hasBody());
-        Assertions.assertEquals(((LoginUserResponseDto)(Objects.requireNonNull(res.getBody()))).getUserID(), 0);
-        Assertions.assertEquals(((LoginUserResponseDto)(Objects.requireNonNull(res.getBody()))).getSessionKey(), "testSessionKey");
+        Assertions.assertEquals(0, ((LoginUserResponseDto) (Objects.requireNonNull(res.getBody()))).getUserID());
+        Assertions.assertEquals("testSessionKey", ((LoginUserResponseDto) (Objects.requireNonNull(res.getBody()))).getSessionKey());
     }
 
     // testing login method
     @Test
     @DisplayName("Tests login with wrong key")
-    public void loginUserWrongKey(){
+    void loginUserWrongKey() {
         ResponseEntity<?> res = userController.loginUser(UserTestData.loginUser[0]);
         System.out.println(res);
-        Assertions.assertEquals(res.getStatusCodeValue(), 401);
+        Assertions.assertEquals(401, res.getStatusCodeValue());
     }
 
     @Test
     @DisplayName("Tests login with correct key")
-    public void loginUser(){
+    void loginUser() {
         ResponseEntity<?> res = userController.loginUser(UserTestData.loginUser[1]);
-        Assertions.assertEquals(res.getStatusCodeValue(), 200);
+        Assertions.assertEquals(200, res.getStatusCodeValue());
         Assertions.assertTrue(res.hasBody());
-        Assertions.assertEquals(((LoginUserResponseDto)(Objects.requireNonNull(res.getBody()))).getSessionKey(), "testSession");
+        Assertions.assertEquals("testSession", ((LoginUserResponseDto) (Objects.requireNonNull(res.getBody()))).getSessionKey());
     }
 
 }

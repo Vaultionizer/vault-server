@@ -27,17 +27,21 @@ public class PendingUploadModel {
     @Min(value = 0, message = "PermittedSessionID cannot be below zero...")
     private Long permittedSessionID; // not the token but the id of the session
 
+    @NotNull(message = "IsUpdate must either be true or false!")
+    private Boolean isUpdate; // not the token but the id of the session
+
     @PastOrPresent(message = "The upload cannot possibly have been requested in the future!")
     private Instant requested;
 
     public PendingUploadModel() {
     }
 
-    public PendingUploadModel(Long spaceID, Long saveIndex, Long permittedSessionID) {
+    public PendingUploadModel(Long spaceID, Long saveIndex, Long permittedSessionID, boolean isUpdate) {
         this.spaceID = spaceID;
         this.saveIndex = saveIndex;
         this.permittedSessionID = permittedSessionID;
         this.requested = Instant.now();
+        this.isUpdate = isUpdate;
     }
 
     public Long getUploadID() {
@@ -58,5 +62,9 @@ public class PendingUploadModel {
 
     public Instant getRequested() {
         return requested;
+    }
+
+    public Boolean getUpdate() {
+        return isUpdate;
     }
 }

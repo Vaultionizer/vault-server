@@ -4,6 +4,7 @@ import com.vaultionizer.vaultserver.model.db.RefFilesModel;
 import com.vaultionizer.vaultserver.resource.RefFileRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+
 import java.time.Instant;
 import java.util.Optional;
 import java.util.Set;
@@ -17,11 +18,11 @@ public class RefFileService {
         this.refFileRepository = refFileRepository;
     }
 
-    public Long addNewRefFile(String content){
+    public Long addNewRefFile(String content) {
         return refFileRepository.save(new RefFilesModel(content)).getRefFileId();
     }
 
-    public Long requestUploadFiles(Long refFileID, Long amountValues){
+    public Long requestUploadFiles(Long refFileID, Long amountValues) {
         Optional<RefFilesModel> model = this.refFileRepository.findById(refFileID);
         if (model.isEmpty()) return -1L;
         RefFilesModel m = model.get();
@@ -31,17 +32,17 @@ public class RefFileService {
         return saveIndex;
     }
 
-    public String readRefFile(Long refFileID){
+    public String readRefFile(Long refFileID) {
         Set<String> refFileContents = refFileRepository.getRefFileContent(refFileID);
-        if (refFileContents == null || refFileContents.size() != 1){
+        if (refFileContents == null || refFileContents.size() != 1) {
             return null;
         }
         return refFileContents.stream().findFirst().get();
     }
 
-    public boolean updateRefFile(Long refFileID, String content){
+    public boolean updateRefFile(Long refFileID, String content) {
         Set<RefFilesModel> models = refFileRepository.getRefFile(refFileID);
-        if (models == null || models.size() != 1){
+        if (models == null || models.size() != 1) {
             return false;
         }
         RefFilesModel model = models.stream().findFirst().get();
@@ -50,11 +51,11 @@ public class RefFileService {
         return true;
     }
 
-    public boolean hasNewVersion(Long refFileID, Instant lastFetched){
+    public boolean hasNewVersion(Long refFileID, Instant lastFetched) {
         return refFileRepository.checkNewVersion(refFileID, lastFetched) == 1;
     }
 
-    public void deleteRefFile(Long refFileID){
+    public void deleteRefFile(Long refFileID) {
         this.refFileRepository.deleteRefFile(refFileID);
     }
 }

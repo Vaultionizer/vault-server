@@ -45,7 +45,7 @@ public class FileModel {
     }
 
 
-    public void setStatus(FileStatus status){
+    public void setStatus(FileStatus status) {
         this.status = status;
     }
 

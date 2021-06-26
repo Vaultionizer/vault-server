@@ -11,6 +11,9 @@ public class GetVersionResponseDto {
         this.hasAuthKey = hasAuthKey;
     }
 
+    public GetVersionResponseDto() {
+    }
+
     public String getVersion() {
         return version;
     }

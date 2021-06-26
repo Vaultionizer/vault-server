@@ -1,4 +1,5 @@
 Feature: A file can be uploaded
+
   Scenario: The file can be uploaded successfully
     Given the user has an account with name "goku"
     When the user requests to upload 10 files
