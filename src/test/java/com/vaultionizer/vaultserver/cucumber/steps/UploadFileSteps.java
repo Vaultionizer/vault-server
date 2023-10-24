@@ -6,7 +6,6 @@ import com.vaultionizer.vaultserver.controllers.SpaceController;
 import com.vaultionizer.vaultserver.controllers.UserController;
 import com.vaultionizer.vaultserver.model.dto.FileUploadDto;
 import com.vaultionizer.vaultserver.model.dto.GenericAuthDto;
-import com.vaultionizer.vaultserver.model.dto.LoginUserResponseDto;
 import com.vaultionizer.vaultserver.service.*;
 import com.vaultionizer.vaultserver.testdata.UserTestData;
 import io.cucumber.java.en.And;
@@ -39,22 +38,22 @@ public class UploadFileSteps extends Services {
     public void theUserHasAnAccountWithName(String username) {
         userID = this.userService.createUser(username, UserTestData.registerData[3].getKey());
         sessionKey = sessionService.addSession(userID).getSessionKey();
-        spaceID = spaceService.createSpace(userID, "NANI", false, "dbz");
+        spaceID = spaceService.createSpace(userID, "NANI", false, false, false, "dbz");
     }
 
     @When("the user requests to upload {int} files")
     public void theUserRequestsToUploadFiles(int amount) {
-        res = fileController.uploadFiles(new FileUploadDto(new GenericAuthDto(userID, sessionKey), spaceID, amount));
+        res = fileController.uploadFiles(new FileUploadDto(amount), new GenericAuthDto(userID, sessionKey), spaceID);
     }
 
     @Then("the status code of upload is {int}")
-    public void theStatusCodeOfUploadIs(int status) throws Throwable{
-        if (res.getStatusCodeValue() != status) throw new Throwable("Status code wrong: "+ res.getStatusCodeValue());
+    public void theStatusCodeOfUploadIs(int status) throws Throwable {
+        if (res.getStatusCodeValue() != status) throw new Throwable("Status code wrong: " + res.getStatusCodeValue());
     }
 
     @And("the saveIndex is {long}")
-    public void theSaveIndexIs(Long saveIndex) throws Throwable{
-        if (res.getBody() != saveIndex) throw new Throwable("Wrong body (saveIndex): "+ res.getBody());
+    public void theSaveIndexIs(Long saveIndex) throws Throwable {
+        if (res.getBody() != saveIndex) throw new Throwable("Wrong body (saveIndex): " + res.getBody());
     }
 
     @And("the spaceID is {long}")

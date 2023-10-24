@@ -8,7 +8,8 @@ import org.springframework.boot.test.context.SpringBootTest;
 
 @RunWith(Cucumber.class)
 @CucumberOptions(
-        features = "src/test/resources/features")
+        features = "src/test/resources/features",
+        publish = true)
 @CucumberContextConfiguration
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 public class CucumberIntegrationTest {

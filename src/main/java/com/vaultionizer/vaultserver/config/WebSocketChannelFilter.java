@@ -8,8 +8,7 @@ import org.springframework.messaging.simp.stomp.StompHeaderAccessor;
 import org.springframework.messaging.support.ChannelInterceptor;
 import org.springframework.messaging.support.MessageHeaderAccessor;
 
-import static com.vaultionizer.vaultserver.helpers.Config.WEBSOCKET_DOWNLOAD;
-import static com.vaultionizer.vaultserver.helpers.Config.WEBSOCKET_UPLOAD;
+import static com.vaultionizer.vaultserver.helpers.Config.*;
 
 public class WebSocketChannelFilter implements ChannelInterceptor {
     private final SessionService sessionService;
@@ -21,28 +20,31 @@ public class WebSocketChannelFilter implements ChannelInterceptor {
     @Override
     public Message<?> preSend(Message<?> message, MessageChannel channel) {
         StompHeaderAccessor accessor = MessageHeaderAccessor.getAccessor(message, StompHeaderAccessor.class);
-        if (StompCommand.SUBSCRIBE.equals(accessor.getCommand())){
+        if (StompCommand.SUBSCRIBE.equals(accessor.getCommand())) {
             // TODO: check whether user has rights to subscribe
             String dest = accessor.getDestination();
             if (dest == null) return null;
-            if (!dest.startsWith(WEBSOCKET_DOWNLOAD)){
-                return null; // TODO: send error
+            if (!dest.startsWith(WEBSOCKET_DOWNLOAD) && !dest.startsWith(WEBSOCKET_ERROR)) {
+                return null;
             }
-            String websocketToken = dest.substring(WEBSOCKET_DOWNLOAD.length());
+
+            String[] token = dest.split("/");
+            if (token.length == 0) return null;
+
+            String websocketToken = token[token.length - 1];
             String sessionKey = accessor.getFirstNativeHeader("sessionKey");
             String userID = accessor.getFirstNativeHeader("userID");
-            if (userID == null || sessionKey == null || websocketToken.length() == 0 || userID.length() == 0) return null;
+            if (userID == null || sessionKey == null || websocketToken.length() == 0 || userID.length() == 0)
+                return null;
             if (!sessionService.checkValidWebsocketToken(Long.parseLong(userID), websocketToken, sessionKey)) {
                 return null;
             }
             // subscription is valid
-        }
-
-        else if (StompCommand.SEND.equals(accessor.getCommand())){
+        } else if (StompCommand.SEND.equals(accessor.getCommand())) {
             // check whether to upload endpoint (only one that is legitimate)
             String dest = accessor.getDestination();
             if (dest == null) return null;
-            if (!dest.startsWith(WEBSOCKET_UPLOAD)){
+            if (!dest.startsWith(WEBSOCKET_UPLOAD)) {
                 return null; // TODO: send error
             }
         }

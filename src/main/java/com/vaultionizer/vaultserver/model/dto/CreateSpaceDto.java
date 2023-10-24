@@ -3,13 +3,21 @@ package com.vaultionizer.vaultserver.model.dto;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 public class CreateSpaceDto {
-    private GenericAuthDto auth;
     private boolean isPrivate;
+    private boolean usersWriteAccess;
+    private boolean usersAuthAccess;
     private String authKey;
     private String referenceFile;
 
-    public GenericAuthDto getAuth() {
-        return auth;
+    public CreateSpaceDto() {
+    }
+
+    public boolean getUsersWriteAccess() {
+        return usersWriteAccess;
+    }
+
+    public boolean getUsersAuthAccess() {
+        return usersAuthAccess;
     }
 
     @JsonProperty("isPrivate")
@@ -25,8 +33,7 @@ public class CreateSpaceDto {
         return referenceFile;
     }
 
-    public CreateSpaceDto(GenericAuthDto auth, boolean isPrivate, String authKey, String referenceFile) {
-        this.auth = auth;
+    public CreateSpaceDto(boolean isPrivate, String authKey, String referenceFile) {
         this.isPrivate = isPrivate;
         this.authKey = authKey;
         this.referenceFile = referenceFile;

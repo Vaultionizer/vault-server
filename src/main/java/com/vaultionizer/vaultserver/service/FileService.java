@@ -25,11 +25,11 @@ public class FileService {
         this.readMap = new HashMap<>();
     }
 
-    public long countFilesInSpace(Long spaceID){
+    public long countFilesInSpace(Long spaceID) {
         return fileRepository.countFilesInSpace(spaceID);
     }
 
-    public void deleteAllFilesInSpace(Long spaceID){
+    public void deleteAllFilesInSpace(Long spaceID) {
         var ids = fileRepository.getAllFiles(spaceID);
         fileRepository.deleteFiles(spaceID);
         synchronized (readMap) {
@@ -39,7 +39,7 @@ public class FileService {
 
     }
 
-    public boolean setUploadFile(Long spaceID, Long saveIndex){
+    public boolean setUploadFile(Long spaceID, Long saveIndex) {
         FileModel model = findFile(spaceID, saveIndex);
         if (model != null) return false;
 
@@ -48,10 +48,10 @@ public class FileService {
         return true;
     }
 
-    public FileStatus setDownloadFile(Long spaceID, Long saveIndex){
+    public FileStatus setDownloadFile(Long spaceID, Long saveIndex) {
         FileModel model = findFile(spaceID, saveIndex);
         if (model == null) return null;
-        switch (model.getStatus()){
+        switch (model.getStatus()) {
             case ACCESSIBLE:
                 model.setStatus(FileStatus.READ_FROM);
                 fileRepository.save(model);
@@ -66,13 +66,12 @@ public class FileService {
         }
     }
 
-    public boolean writeToFile(String content, Long spaceID, Long saveIndex){
+    public boolean writeToFile(String content, Long spaceID, Long saveIndex) {
         FileModel model = findFile(spaceID, saveIndex);
         if (model == null || model.getStatus() != FileStatus.UPLOADING) return false;
-        File f = new File(getFilePath(spaceID, saveIndex));
-        if (!f.exists()){
+        var f = new File(getFilePath(spaceID, saveIndex));
+        if (!f.exists()) {
             try {
-                System.out.println(f.getParentFile().toString());
                 f.getParentFile().mkdirs();
                 f.createNewFile();
             } catch (IOException e) {
@@ -80,7 +79,7 @@ public class FileService {
                 return false;
             }
         }
-        try (PrintWriter writer = new PrintWriter(new FileWriter(f, false))){
+        try (var writer = new PrintWriter(new FileWriter(f, false))) {
             writer.print(content);
             writer.flush();
         } catch (IOException e) {
@@ -92,54 +91,81 @@ public class FileService {
         return true;
     }
 
-    public String makeDownload(Long spaceID, Long saveIndex){
-        FileModel fileModel = findFile(spaceID, saveIndex);
+    public boolean tryUpdating(String content, Long spaceID, Long saveIndex) {
+        if (!setUpdating(spaceID, saveIndex)) return false;
+        var file = new File(getFilePath(spaceID, saveIndex));
+        if (!file.exists()) return false;
+
+        try (var writer = new PrintWriter(new FileWriter(file, false))) {
+            writer.print(content);
+            writer.flush();
+        } catch (IOException e) {
+            e.printStackTrace();
+            setDoneUpdating(spaceID, saveIndex);
+            return false;
+        }
+        setDoneUpdating(spaceID, saveIndex);
+        return true;
+    }
+
+    public String makeDownload(Long spaceID, Long saveIndex) {
+        var fileModel = findFile(spaceID, saveIndex);
         if (fileModel == null) return null;
         if (readMap.get(fileModel.getFileID()) == 0
                 || readMap.get(fileModel.getFileID()) == null
                 || fileModel.getStatus() != FileStatus.READ_FROM) return null;
         String content = readFromFile(spaceID, saveIndex);
-        if (readMap.get(fileModel.getFileID()) == 1){
+        if (readMap.get(fileModel.getFileID()) == 1) {
             readMap.remove(fileModel.getFileID());
             fileModel.setStatus(FileStatus.ACCESSIBLE);
-        }
-        else{
+        } else {
             Integer amount = readMap.get(fileModel.getFileID());
-            if (amount <= 0 || amount == null) return null;
+            if (amount <= 0) return null;
             amount--;
             readMap.put(fileModel.getFileID(), amount);
         }
         return content;
     }
 
-    public String readFromFile(Long spaceID, Long saveIndex){
-        File f = new File(getFilePath(spaceID, saveIndex));
+    public String readFromFile(Long spaceID, Long saveIndex) {
+        var f = new File(getFilePath(spaceID, saveIndex));
         if (!f.exists()) return null;
 
-        StringBuilder builder = new StringBuilder();
-        try{
+        try {
             return Files.readString(f.toPath().toAbsolutePath());
         } catch (IOException e) {
             return null;
         }
     }
 
-    private String getFilePath(Long spaceID, Long saveIndex){
-        return Config.SPACE_PATH +spaceID+"/"+saveIndex+".bin";
+    private String getFilePath(Long spaceID, Long saveIndex) {
+        return Config.SPACE_PATH + spaceID + "/" + saveIndex + ".bin";
     }
 
-    private String getFilePath(Long spaceID){
-        return Config.SPACE_PATH +spaceID;
+    private String getFilePath(Long spaceID) {
+        return Config.SPACE_PATH + spaceID;
     }
 
-    private synchronized FileModel findFile(Long spaceID, Long saveIndex){
+    private synchronized FileModel findFile(Long spaceID, Long saveIndex) {
         return fileRepository.findFile(spaceID, saveIndex);
     }
 
-    public boolean deleteFile(Long spaceID, Long saveIndex){
+    private synchronized boolean setUpdating(Long spaceID, Long saveIndex) {
+        FileModel file = fileRepository.findFile(spaceID, saveIndex);
+        if (file.getStatus() == FileStatus.UPLOADING || file.getStatus() == FileStatus.MODIFYING) return false;
+        file.setStatus(FileStatus.MODIFYING);
+        fileRepository.save(file);
+        return true;
+    }
+
+    private synchronized void setDoneUpdating(Long spaceID, Long saveIndex) {
+        fileRepository.updateFileStatus(spaceID, saveIndex, FileStatus.ACCESSIBLE);
+    }
+
+    public boolean deleteFile(Long spaceID, Long saveIndex) {
         FileModel file = fileRepository.findFile(spaceID, saveIndex);
         if (file == null) return true;
-        switch (file.getStatus()){
+        switch (file.getStatus()) {
             case ACCESSIBLE:
             case READ_FROM:
                 fileRepository.delete(file);
@@ -149,24 +175,29 @@ public class FileService {
         }
     }
 
-    private void deleteDirectory(Long spaceID){
-        File file = new File(getFilePath(spaceID));
-        if (file.isDirectory()){
+    private void deleteDirectory(Long spaceID) {
+        var file = new File(getFilePath(spaceID));
+        if (file.isDirectory()) {
             file.delete();
         }
     }
 
-    private boolean removeFileFromDisk(Long spaceID, Long saveIndex){
-        File file = new File(getFilePath(spaceID, saveIndex));
+    private boolean removeFileFromDisk(Long spaceID, Long saveIndex) {
+        var file = new File(getFilePath(spaceID, saveIndex));
         if (file.exists()) return file.delete();
         return true;
     }
 
 
     // for testing
-    public void setModified(Long spaceID, Long saveIndex){
-        FileModel fileModel = findFile(spaceID, saveIndex);
+    public void setModified(Long spaceID, Long saveIndex) {
+        var fileModel = findFile(spaceID, saveIndex);
         fileModel.setStatus(FileStatus.MODIFYING);
         fileRepository.save(fileModel);
+    }
+
+    public boolean fileExists(Long spaceID, Long saveIndex) {
+        var file = new File(getFilePath(spaceID, saveIndex));
+        return file.exists() && findFile(spaceID, saveIndex) != null;
     }
 }

@@ -70,7 +70,7 @@ public class SessionModel {
         return webSocketToken;
     }
 
-    public void update(){
+    public void update() {
         this.lastQuery = Instant.now();
     }
 

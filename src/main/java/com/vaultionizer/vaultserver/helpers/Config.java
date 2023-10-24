@@ -23,15 +23,18 @@ public class Config {
     public static final String WEBSOCKET_PREFIX = "/api/ws";
     public static final String WEBSOCKET_RES = "/api/wsres";
     public static final String WEBSOCKET_DOWNLOAD = WEBSOCKET_RES + "/download/";
+    public static final String WEBSOCKET_ERROR = WEBSOCKET_RES + "/error/";
     public static final String WEBSOCKET_UPLOAD = WEBSOCKET_PREFIX + "/upload";
 
     // is adjusted in the tests (thus not final)
     public static String SPACE_PATH = "/home/vaultionizer/spaces/";
 
 
-
     public static final int SESSION_JOB_DELAY = 3600 * 1000;
     public static final int PENDING_UPLOAD_JOB_DELAY = 86400 * 1000;
 
     public static final String RANDOM_ALGO = "SHA1PRNG";
+
+    private Config() {
+    }
 }

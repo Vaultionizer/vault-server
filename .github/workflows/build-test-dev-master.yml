@@ -21,5 +21,13 @@ jobs:
           key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
           restore-keys: | 
             ${{ runner.os }}-maven-
-      - name: Run docker
-        run: docker-compose build
+      - name: Set up JDK 15
+        uses: actions/setup-java@v2
+        with:
+          java-version: '15'
+          distribution: 'adopt'
+      - name: Test code
+        run: |
+          cd scripts
+          ls
+          bash test.sh

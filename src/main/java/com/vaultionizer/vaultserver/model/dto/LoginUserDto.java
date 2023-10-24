@@ -4,6 +4,9 @@ public class LoginUserDto {
     private String username;
     private String key;
 
+    public LoginUserDto() {
+    }
+
     public LoginUserDto(String username, String key) {
         this.username = username;
         this.key = key;

@@ -1,4 +1,5 @@
 Feature: The user can be deleted
+
   Scenario: The user was deleted successfully
     Given the user created an account with name "ruffy"
     When the user requests to delete the user

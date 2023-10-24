@@ -1,5 +1,6 @@
 package com.vaultionizer.vaultserver.resource;
 
+import com.vaultionizer.vaultserver.helpers.FileStatus;
 import com.vaultionizer.vaultserver.model.db.FileModel;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
@@ -24,4 +25,10 @@ public interface FileRepository extends JpaRepository<FileModel, Long> {
 
     @Query("SELECT it FROM FileModel it WHERE it.spaceID = ?1")
     Set<Long> getAllFiles(Long spaceID);
+
+
+    @Transactional
+    @Modifying
+    @Query("UPDATE FileModel SET status = ?3 WHERE spaceID = ?1 AND saveIndex = ?2")
+    void updateFileStatus(Long spaceID, Long saveIndex, FileStatus status);
 }
